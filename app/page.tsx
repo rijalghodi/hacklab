@@ -1,103 +1,199 @@
-import Image from "next/image";
+import { BookOpen, Code, Cpu, Eye, Github, Monitor, Play, Settings } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <>
+      {/* Header Section */}
+      <header className="w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            {/* Logo */}
+            <div className="flex items-center space-x-2">
+              <span className="font-mono text-xl font-bold text-foreground">HackLab</span>
+            </div>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            {/* Navigation */}
+            <nav className="flex items-center space-x-4">
+              <Button variant="outline" asChild>
+                <a href="/lab">Enter Lab</a>
+              </Button>
+              <Button variant="outline" size="icon" asChild>
+                <a href="https://github.com/your-username/hack-lab">
+                  <Github className="h-5 w-5" />
+                </a>
+              </Button>
+            </nav>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+      </header>
+
+      {/* Hero Section */}
+      <section className="px-4 py-20">
+        <div className="container mx-auto max-w-6xl">
+          <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
+            {/* Hero Content */}
+            <div className="space-y-8">
+              <div className="space-y-4">
+                <h1 className="text-5xl leading-snug font-bold tracking-normal text-foreground">
+                  Build Computers from <span className="text-primary">Scratch</span>
+                </h1>
+                <p className="text-xl leading-relaxed text-muted-foreground">
+                  HackLab is an interactive computer simulation inspired by <em>Nand to Tetris</em>. Learn how computers
+                  work by building them from the ground up, starting with simple NAND gates all the way to a complete
+                  machine capable of running high-level programs.
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-4 sm:flex-row">
+                <Button size="lg" asChild>
+                  <a href="/lab">Start Building</a>
+                </Button>
+                <Button variant="outline" size="lg" asChild>
+                  <a href="#features">Learn More</a>
+                </Button>
+              </div>
+            </div>
+
+            {/* Hero Image */}
+            <div className="relative">
+              <div className="flex aspect-square items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 p-8">
+                <div className="space-y-4 text-center">
+                  <div className="mx-auto flex h-32 w-32 items-center justify-center rounded-full bg-primary/10">
+                    <Cpu className="h-16 w-16 text-primary" />
+                  </div>
+                  <h3 className="text-2xl font-semibold text-foreground">Interactive Lab</h3>
+                  <p className="text-muted-foreground">Explore, build, and simulate</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      {/* Video Section */}
+      <section id="video" className="px-4 py-20">
+        <div className="container mx-auto max-w-6xl">
+          <div className="overflow-hidden rounded-2xl border bg-card shadow-sm">
+            <div className="flex aspect-video items-center justify-center bg-muted/50">
+              <div className="space-y-4 p-8 text-center">
+                <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
+                  <Play className="h-10 w-10 text-primary" />
+                </div>
+                <h3 className="text-2xl font-semibold text-foreground">See HackLab in Action</h3>
+                <p className="mx-auto max-w-md text-muted-foreground">
+                  Watch how students learn computer architecture through interactive simulation and hands-on building.
+                </p>
+                <Button size="lg" className="mt-4">
+                  Watch Demo Video
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      {/* Features Section */}
+      <section id="features" className="bg-muted/30 px-4 py-20">
+        <div className="container mx-auto max-w-6xl">
+          <div className="mb-16 space-y-4 text-center">
+            <h2 className="text-4xl font-bold text-foreground">Why HackLab?</h2>
+            <p className="mx-auto max-w-3xl text-xl text-muted-foreground">
+              Experience computer architecture like never before through hands-on exploration and interactive
+              visualization.
+            </p>
+          </div>
+
+          <div className="mb-16 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {/* Feature 1 */}
+            <div className="rounded-lg border bg-card p-6 shadow-sm transition-shadow hover:shadow-md">
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+                <Cpu className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="mb-2 text-xl font-semibold">Hierarchical Visualization</h3>
+              <p className="text-muted-foreground">
+                Explore the complete structure from NAND gates, flip-flops, registers, ALU, CPU, RAM, up to the complete
+                Hack computer.
+              </p>
+            </div>
+
+            {/* Feature 2 */}
+            <div className="rounded-lg border bg-card p-6 shadow-sm transition-shadow hover:shadow-md">
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+                <Eye className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="mb-2 text-xl font-semibold">Exploration Mode</h3>
+              <p className="text-muted-foreground">
+                Click on any block to reveal its implementation, either in HDL (Hardware Description Language) or basic
+                logic composition.
+              </p>
+            </div>
+
+            {/* Feature 3 */}
+            <div className="rounded-lg border bg-card p-6 shadow-sm transition-shadow hover:shadow-md">
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+                <Settings className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="mb-2 text-xl font-semibold">Interactive Simulation</h3>
+              <p className="text-muted-foreground">
+                Design or replicate components, run them, and verify against specifications in real-time.
+              </p>
+            </div>
+
+            {/* Feature 4 */}
+            <div className="rounded-lg border bg-card p-6 shadow-sm transition-shadow hover:shadow-md">
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+                <Code className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="mb-2 text-xl font-semibold">Hack Language Support</h3>
+              <p className="text-muted-foreground">
+                Load and execute programs written in Hack assembly, and run higher-level Jack code on your simulated
+                computer.
+              </p>
+            </div>
+
+            {/* Feature 5 */}
+            <div className="rounded-lg border bg-card p-6 shadow-sm transition-shadow hover:shadow-md">
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+                <BookOpen className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="mb-2 text-xl font-semibold">Educational Focus</h3>
+              <p className="text-muted-foreground">
+                Bridges theoretical computer science with hands-on practice, showing the full path from bit to operating
+                system.
+              </p>
+            </div>
+
+            {/* Feature 6 */}
+            <div className="rounded-lg border bg-card p-6 shadow-sm transition-shadow hover:shadow-md">
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+                <Monitor className="h-6 w-6 text-primary" />
+              </div>
+              <h3 className="mb-2 text-xl font-semibold">Visual Learning</h3>
+              <p className="text-muted-foreground">
+                Make learning computer architecture tangible through direct exploration, experimentation, and
+                visualization.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="px-4 py-20">
+        <div className="container mx-auto max-w-4xl text-center">
+          <div className="space-y-8">
+            <h2 className="text-4xl font-bold text-foreground">Ready to Build Your First Computer?</h2>
+            <p className="text-xl text-muted-foreground">
+              Join thousands of students learning computer architecture through interactive simulation.
+            </p>
+            <div className="flex flex-col justify-center gap-4 sm:flex-row">
+              <Button size="lg" asChild>
+                <a href="/lab">Start Building Now</a>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </>
   );
 }

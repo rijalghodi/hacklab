@@ -1,3 +1,8 @@
+---
+description: Project Rule
+alwaysApply: false
+---
+
 ## About Project (HackLab)
 
 HackLab is a web-based computer simulation inspired by the book _Nand to Tetris_. It serves as an interactive laboratory for learning how computers are built, starting from simple NAND gates all the way to a full machine capable of running high-level programs.
@@ -17,3 +22,10 @@ HackLab is a web-based computer simulation inspired by the book _Nand to Tetris_
 - React Flow: diagram flow package
 - Lucide: icon library
 - Tailwind CSS
+
+## Coding Style
+
+- Use kebab-case style in naming file. Example: fancy-button.tsx, use-disclosure.ts
+- Always re-export the component as a named export from an `index.ts` file in the same folder.
+- Always use tailwind css if it is possible. And always use shadCN color defined in /app/global.css such as text-foreground, bg-muted, etc.
+-
