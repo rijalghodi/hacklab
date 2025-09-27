@@ -16,7 +16,7 @@ export function FlowSidebar({}: Props) {
       <SidebarHeader></SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Inputs & Outputs</SidebarGroupLabel>
+          <SidebarGroupLabel>Inputs & Output</SidebarGroupLabel>
           <SidebarGroupContent>Hello World</SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup>
