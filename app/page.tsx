@@ -80,7 +80,7 @@ export default function Home() {
                 <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
                   <Play className="h-10 w-10 text-primary" />
                 </div>
-                <h3 className="text-2xl font-semibold text-foreground">See HackLab in Action</h3>
+                <h3 className="text-2xl font-bold text-foreground">See HackLab in Action</h3>
                 <p className="mx-auto max-w-md text-muted-foreground">
                   Watch how students learn computer architecture through interactive simulation and hands-on building.
                 </p>

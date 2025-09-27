@@ -18,19 +18,21 @@ import {
 } from "@xyflow/react";
 import React, { useCallback, useState } from "react";
 
-import "@xyflow/react/dist/base.css";
+import { Chip } from "@/lib/types/flow";
 
 import { ChipNode } from "./chip-node";
+import { ConnectionLine } from "./connection-line";
 import { WireEdge } from "./wire-edge";
 
 const nodeTypes = { chip: ChipNode };
 const edgeTypes = { wire: WireEdge };
 
-const initialNodes: Node[] = [
+const initialNodes: Node<Chip>[] = [
   {
     id: "0",
     position: { x: 0, y: 100 },
     data: {
+      id: "0",
       name: "ABC",
       ports: [
         { id: "in", name: "in", type: "input" },
@@ -130,11 +132,11 @@ export function Circuit() {
           type: "wire",
           interactionWidth: 10,
         }}
-        snapGrid={[10, 10]}
-        className="bg-background"
+        snapGrid={[5, 5]}
         snapToGrid={true}
+        connectionLineComponent={ConnectionLine}
       >
-        <Background gap={10} color="var(--muted-foreground)" />
+        {/* <Background gap={5} /> */}
         <MiniMap />
         <Controls />
         {/* <Panel position="top-left">

@@ -34,7 +34,8 @@ export function WireEdge({
       interactionWidth={interactionWidth}
       label={label}
       labelStyle={labelStyle}
-      style={{ strokeWidth: 2 }}
+      style={{ strokeWidth: 2, color: "red" }}
+      color="red"
       // {...props}
     />
   );

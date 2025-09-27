@@ -7,25 +7,32 @@ import {
   SidebarGroupLabel,
   SidebarGroupContent,
 } from "../ui/sidebar";
+import { CircuitModule } from "@/lib/types/flow";
 
-type Props = {};
+type Props = {
+  savedChips?: CircuitModule[];
+};
 
-export function FlowSidebar({}: Props) {
+export function FlowSidebar({ savedChips }: Props) {
   return (
-    <Sidebar className="w-96">
+    <Sidebar className="w-[300px]">
       <SidebarHeader></SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Inputs & Output</SidebarGroupLabel>
-          <SidebarGroupContent>Hello World</SidebarGroupContent>
+          <SidebarGroupLabel>Inputs & Outputs</SidebarGroupLabel>
+          <SidebarGroupContent></SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup>
           <SidebarGroupLabel>Built-in Chips</SidebarGroupLabel>
-          <SidebarGroupContent>Hello World</SidebarGroupContent>
+          <SidebarGroupContent></SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup>
           <SidebarGroupLabel>Saved Chips</SidebarGroupLabel>
-          <SidebarGroupContent>Hello World</SidebarGroupContent>
+          <SidebarGroupContent>
+            {savedChips?.map((chip) => (
+              <div key={chip.name}>{chip.name}</div>
+            ))}
+          </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
     </Sidebar>

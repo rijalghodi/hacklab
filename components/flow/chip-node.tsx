@@ -1,25 +1,20 @@
-import { Handle, type NodeProps, Position } from "@xyflow/react";
+import { Handle, type NodeProps, Position, type Node } from "@xyflow/react";
 import React, { useCallback, useMemo } from "react";
 
 import { cn } from "@/lib/utils";
+import { Chip } from "@/lib/types/flow";
+import tinyColor from "color";
 
-const PORT_HEIGHT = 4;
-const PORT_WIDTH = 6;
+const PORT_HEIGHT = 8;
+const PORT_WIDTH = 8;
 const PORT_SPACING = 10;
 const MIN_CHIP_HEIGHT = 40;
 
-export function ChipNode(props: NodeProps) {
+export function ChipNode(props: NodeProps<Node<Chip>>) {
   const { data, selected } = props;
 
   // Type assertion for data
-  const chipData = data as {
-    name: string;
-    ports: Array<{
-      id: string;
-      name: string;
-      type: "input" | "output";
-    }>;
-  };
+  const chipData = data;
 
   const inputPorts = chipData.ports.filter((port) => port.type === "input");
   const outputPorts = chipData.ports.filter((port) => port.type === "output");
@@ -57,14 +52,16 @@ export function ChipNode(props: NodeProps) {
 
   return (
     <div
-      className={cn(
-        "relative rounded-md bg-card p-2 shadow-sm transition-shadow hover:shadow-md border-2 border-ring box-border",
-        selected && "border-muted-foreground",
-      )}
-      style={{ height: chipHeight, maxHeight: chipHeight }}
+      className={cn("relative rounded-md p-2 border-2 font-mono", selected && "outline-ring/20 outline-3")}
+      style={{
+        height: chipHeight,
+        maxHeight: chipHeight,
+        backgroundColor: chipData.color || "var(--color-card)",
+        // borderColor: chipData.color ? tinyColor(chipData.color).darken(0.1).toHexString() : "var(--color-border)",
+      }}
     >
       <div className="text-sm font-semibold text-foreground w-full h-full text-center flex items-center justify-center">
-        {chipData.name}
+        {chipData.name} {chipData.color}
       </div>
       {/* Input ports */}
       {inputPorts.map((port, index) => (
@@ -73,7 +70,7 @@ export function ChipNode(props: NodeProps) {
           id={port.id}
           type="target"
           position={Position.Left}
-          className="!bg-ring !hover:bg-primary"
+          className="hover:bg-red-500"
           style={{
             top: "50%",
             left: 0,
@@ -93,17 +90,19 @@ export function ChipNode(props: NodeProps) {
           id={port.id}
           type="source"
           position={Position.Right}
-          className="!bg-ring !hover:bg-primary"
-          style={{
-            top: "50%",
-            right: 0,
-            transform: `translateX(100%) translateY(calc(-50% + ${portOffset(index, outputPorts.length)}px))`,
-            height: PORT_HEIGHT,
-            width: PORT_WIDTH,
-            borderRadius: 2,
-            border: "none",
-          }}
-        />
+          // className="!bg-ring !hover:bg-primary"
+          // style={{
+          //   top: "50%",
+          //   right: 0,
+          //   transform: `translateX(100%) translateY(calc(-50% + ${portOffset(index, outputPorts.length)}px))`,
+          //   height: PORT_HEIGHT,
+          //   width: PORT_WIDTH,
+          //   borderRadius: 2,
+          //   border: "none",
+          // }}
+        >
+          {port.name}
+        </Handle>
       ))}
     </div>
   );
