@@ -1,5 +1,5 @@
+import { ConnectionLineComponentProps, getSmoothStepPath, useConnection } from "@xyflow/react";
 import React from "react";
-import { ConnectionLineComponentProps, getSmoothStepPath, Position, useConnection } from "@xyflow/react";
 
 export function ConnectionLine({ fromX, fromY, toX, toY, fromPosition, toPosition }: ConnectionLineComponentProps) {
   const { fromHandle } = useConnection();

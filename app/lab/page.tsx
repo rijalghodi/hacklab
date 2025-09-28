@@ -3,7 +3,7 @@ import React from "react";
 
 import { Circuit } from "@/components/flow/circuit";
 import { FlowSidebar } from "@/components/flow/flow-sidebar";
-import { Sidebar, SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
 export default function LabPage() {
   return (

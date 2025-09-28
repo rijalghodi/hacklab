@@ -26,6 +26,7 @@
   --xy-background-pattern-cross-color-default: #e2e2e2;
   background-color: var(--xy-background-color, var(--xy-background-color-default));
   --xy-node-color-default: inherit;
+  --xy-node-border-color-default: #1a192b;
   --xy-node-border-default: 1px solid #1a192b;
   --xy-node-background-color-default: #fff;
   --xy-node-group-background-color-default: rgba(240, 240, 240, 0.25);
@@ -52,7 +53,7 @@
   --xy-resize-background-color-default: #3367d9;
 }
 .react-flow.dark {
-  --xy-edge-stroke-default: #3e3e3e;
+  --xy-edge-stroke-default: var(--color-neutral-400);
   --xy-edge-stroke-width-default: 1;
   --xy-edge-stroke-selected-default: #727272;
 
@@ -61,7 +62,7 @@
 
   --xy-attribution-background-color-default: rgba(150, 150, 150, 0.25);
 
-  --xy-minimap-background-color-default: #141414;
+  --xy-minimap-background-color-default: var(--color-neutral-700);
   --xy-minimap-mask-background-color-default: rgba(60, 60, 60, 0.6);
   --xy-minimap-mask-stroke-color-default: transparent;
   --xy-minimap-mask-stroke-width-default: 1;
@@ -69,19 +70,21 @@
   --xy-minimap-node-stroke-color-default: transparent;
   --xy-minimap-node-stroke-width-default: 2;
 
-  --xy-background-color-default: #141414;
-  --xy-background-pattern-dots-color-default: #777;
-  --xy-background-pattern-lines-color-default: #777;
-  --xy-background-pattern-cross-color-default: #777;
-  --xy-node-color-default: #f8f8f8;
-  --xy-node-border-default: 1px solid #3c3c3c;
-  --xy-node-background-color-default: #1e1e1e;
+  --xy-background-color-default: var(--color-neutral-800);
+  --xy-background-pattern-dots-color-default: var(--color-neutral-600);
+  --xy-background-pattern-lines-color-default: var(--color-neutral-600);
+  --xy-background-pattern-cross-color-default: var(--color-neutral-600);
+  --xy-node-color-default: var(--foreground);
+  --xy-node-border-color-default: var(--color-yellow-900);
+  --xy-node-border-default: 1px solid var(--xy-node-border-color-default);
+  --xy-node-background-color-default: var(--color-yellow-800);
   --xy-node-group-background-color-default: rgba(240, 240, 240, 0.25);
   --xy-node-boxshadow-hover-default: 0 1px 4px 1px rgba(255, 255, 255, 0.08);
   --xy-node-boxshadow-selected-default: 0 0 0 0.5px #999;
 
-  --xy-handle-background-color-default: #bebebe;
-  --xy-handle-border-color-default: #1e1e1e;
+  --xy-handle-background-color-default: var(--color-neutral-500);
+  --xy-handle-border-color-default: var(--color-neutral-500);
+  --xy-handle-background-color-selected-default: var(--color-neutral-300);
 
   --xy-selection-background-color-default: rgba(200, 200, 220, 0.08);
   --xy-selection-border-default: 1px dotted rgba(200, 200, 220, 0.8);

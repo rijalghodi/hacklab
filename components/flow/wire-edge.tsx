@@ -13,7 +13,7 @@ export function WireEdge({
   interactionWidth,
   label,
   labelStyle,
-  ...props
+  selected,
 }: EdgeProps) {
   const [edgePath] = getSmoothStepPath({
     sourceX,
@@ -34,9 +34,10 @@ export function WireEdge({
       interactionWidth={interactionWidth}
       label={label}
       labelStyle={labelStyle}
-      style={{ strokeWidth: 2, color: "red" }}
-      color="red"
-      // {...props}
+      style={{
+        strokeWidth: 2,
+        stroke: selected ? "var(--color-neutral-200)" : "var(--color-yellow-900)",
+      }}
     />
   );
 }
