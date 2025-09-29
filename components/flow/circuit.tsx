@@ -12,76 +12,32 @@ import {
   MiniMap,
   type Node,
   NodeChange,
-  type OnConnectEnd,
   Panel,
   ReactFlow,
   useReactFlow,
 } from "@xyflow/react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import React, { useCallback, useState } from "react";
+import React, { useCallback } from "react";
 
-import { builtInChips } from "@/lib/constants/chips";
+import { builtInChips, builtInPorts } from "@/lib/constants/chips";
 import { Chip, Wire } from "@/lib/types/flow";
 
 import { ChipNode } from "./chip-node";
 import { ConnectionLine } from "./connection-line";
-import { useCircuit, useDnd } from "./flow-store";
+import { useDnd, useFlowStore } from "./flow-store";
+import { PortNode } from "./port-node";
 import { WireEdge } from "./wire-edge";
 import { Button } from "../ui/button";
 import { useSidebar } from "../ui/sidebar";
 
-const nodeTypes = { chip: ChipNode };
+const nodeTypes = { chip: ChipNode, port: PortNode };
 const edgeTypes = { wire: WireEdge };
 
 export function Circuit() {
-  const { chips: nodes, wires: edges, setChips: setNodes, setWires: setEdges } = useCircuit();
+  const { nodes, edges, setNodes, setEdges } = useFlowStore();
 
   const { screenToFlowPosition } = useReactFlow();
-  const { type } = useDnd();
-
-  const handleConnectEnd: OnConnectEnd = useCallback(
-    (event, connectionState) => {
-      if (connectionState.isValid) return;
-
-      const sourceNodeId = connectionState.fromNode?.id ?? "0";
-
-      const id = crypto.randomUUID();
-      const { clientX, clientY } = "changedTouches" in event ? event.changedTouches[0] : event;
-
-      const newNode: Node<Chip> = {
-        id,
-        data: {
-          id,
-          name: `Node ${id.slice(0, 3)}`,
-          ports: [
-            { id: "in", name: "in", type: "input" },
-            { id: "out", name: "out", type: "output" },
-            { id: "clk", name: "clk", type: "input" },
-          ],
-        },
-        // project the screen coordinates to pane coordinates
-        position: screenToFlowPosition({
-          x: clientX,
-          y: clientY,
-        }),
-        // set the origin of the new node so it is centered
-        origin: [0.0, 0.5],
-        type: "chip",
-      };
-
-      setNodes((nodes) => [...nodes, newNode]);
-      setEdges([
-        ...edges,
-        {
-          source: sourceNodeId,
-          target: id,
-          id: `${sourceNodeId}--${id}`,
-          type: "wire",
-        },
-      ]);
-    },
-    [screenToFlowPosition],
-  );
+  const { droppedName } = useDnd();
 
   const onNodesChange = useCallback(
     (changes: NodeChange<Node<Chip>>[]) =>
@@ -108,7 +64,7 @@ export function Circuit() {
     (event: React.DragEvent<HTMLDivElement>) => {
       event.preventDefault();
 
-      if (!type) {
+      if (!droppedName) {
         return;
       }
 
@@ -119,22 +75,24 @@ export function Circuit() {
 
       const id = crypto.randomUUID();
 
-      const chip = builtInChips.find((chip) => chip.name === type);
+      const port = builtInPorts.find((port) => port.name === droppedName);
 
-      if (!chip) {
+      const chip = builtInChips.find((chip) => chip.name === droppedName);
+
+      if (!chip && !port) {
         return;
       }
 
       const newNode: Node<Chip> = {
         id,
-        type: "chip",
+        type: chip ? "chip" : "port",
         position,
-        data: { id, ...chip },
+        data: { id, name: droppedName, ...chip, ...port },
       };
 
       setNodes((nds) => nds.concat(newNode));
     },
-    [screenToFlowPosition, type],
+    [screenToFlowPosition, droppedName],
   );
 
   return (
@@ -145,7 +103,7 @@ export function Circuit() {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
-        onConnectEnd={handleConnectEnd}
+        // onConnectEnd={handleConnectEnd}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         fitView

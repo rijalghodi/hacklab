@@ -1,5 +1,11 @@
 import { Edge, Node } from "@xyflow/react";
 
+export enum PortName {
+  IN = "IN",
+  OUT = "OUT",
+  CLK = "CLK",
+}
+
 type Position = {
   x: number;
   y: number;
@@ -7,9 +13,13 @@ type Position = {
 
 export type Port = {
   id: string;
-  name: string; // e.g. "a", "b", "out"
+  name: PortName; // e.g. "a", "b", "out"
+  color?: string;
   label?: string;
-  type: "input" | "output" | "clock";
+};
+
+export type StatefulPort = Port & {
+  value?: boolean;
 };
 
 export type Chip = {
@@ -17,7 +27,11 @@ export type Chip = {
   name: string; // e.g. "AND", "OR", "FULL_ADDER"
   color?: string;
   position?: Position;
-  ports: Port[]; // pin definitions
+  ports?: Port[]; // pin definitions
+};
+
+export type StatefulChip = Omit<Chip, "ports"> & {
+  ports?: StatefulPort[];
 };
 
 export type Wire = {
@@ -26,21 +40,31 @@ export type Wire = {
   targetId: string; // Chip.id or Port.id with prefix "port."
   sourcePortId?: string; // Port.id of source
   targetPortId?: string; // Port.id of target
+  color?: string;
+};
+
+export type StatefulWire = Wire & {
+  value?: boolean;
 };
 
 export type CircuitPort = {
   id: string;
-  type: "input" | "output" | "clock";
-  name: string;
+  name: PortName; // "IN", "OUT", "CLK"
+  label?: string;
+};
+
+export type StatefulCircuitPort = CircuitPort & {
+  value?: boolean;
 };
 
 export type CircuitModule = {
   name: string; // e.g. "ALU"
+  label?: string; // e.g. "ALU 1"
   description?: string;
   color?: string;
-  chips: Chip[]; // minus input and output nodes
-  wires: Wire[];
-  ports: CircuitPort[];
+  chips?: Chip[]; // minus input and output nodes
+  wires?: Wire[];
+  ports?: CircuitPort[];
   version?: string;
   createdAt?: string;
   createdBy?: string;

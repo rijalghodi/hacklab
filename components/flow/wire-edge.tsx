@@ -1,5 +1,8 @@
-import { BaseEdge, type EdgeProps, getSmoothStepPath } from "@xyflow/react";
+import { BaseEdge, Edge, type EdgeProps, getSmoothStepPath, useReactFlow } from "@xyflow/react";
 import React from "react";
+
+import { StatefulWire } from "@/lib/types/flow";
+import { getActiveColor, getBorderColor } from "@/lib/utils";
 
 export function WireEdge({
   sourceX,
@@ -14,7 +17,8 @@ export function WireEdge({
   label,
   labelStyle,
   selected,
-}: EdgeProps) {
+  data,
+}: EdgeProps<Edge<StatefulWire>>) {
   const [edgePath] = getSmoothStepPath({
     sourceX,
     sourceY,
@@ -26,6 +30,9 @@ export function WireEdge({
     offset: 10,
   });
 
+  const edgeON = data?.value;
+  const { updateEdgeData } = useReactFlow();
+
   return (
     <BaseEdge
       path={edgePath}
@@ -35,8 +42,8 @@ export function WireEdge({
       label={label}
       labelStyle={labelStyle}
       style={{
-        strokeWidth: 2,
-        stroke: selected ? "var(--color-neutral-200)" : "var(--color-yellow-900)",
+        strokeWidth: selected ? 3 : 2,
+        stroke: edgeON ? getActiveColor(data?.color) : getBorderColor(data?.color),
       }}
     />
   );

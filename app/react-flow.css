@@ -53,9 +53,9 @@
   --xy-resize-background-color-default: #3367d9;
 }
 .react-flow.dark {
-  --xy-edge-stroke-default: var(--color-neutral-400);
+  --xy-edge-stroke-default: var(--color-yellow-800);
   --xy-edge-stroke-width-default: 1;
-  --xy-edge-stroke-selected-default: #727272;
+  --xy-edge-stroke-selected-default: var(--color-yellow-500);
 
   --xy-connectionline-stroke-default: var(--color-neutral-400);
   --xy-connectionline-stroke-width-default: 1;
@@ -78,6 +78,7 @@
   --xy-node-border-color-default: var(--color-yellow-900);
   --xy-node-border-default: 1px solid var(--xy-node-border-color-default);
   --xy-node-background-color-default: var(--color-yellow-800);
+  --xy-node-background-color-active-default: var(--color-yellow-600);
   --xy-node-group-background-color-default: rgba(240, 240, 240, 0.25);
   --xy-node-boxshadow-hover-default: 0 1px 4px 1px rgba(255, 255, 255, 0.08);
   --xy-node-boxshadow-selected-default: 0 0 0 0.5px #999;

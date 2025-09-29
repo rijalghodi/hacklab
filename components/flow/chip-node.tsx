@@ -1,15 +1,14 @@
 import { Handle, type Node, type NodeProps, Position } from "@xyflow/react";
-import color from "color";
 import React, { useCallback, useMemo } from "react";
 
 import { builtInChips } from "@/lib/constants/chips";
-import { Chip } from "@/lib/types/flow";
-import { cn } from "@/lib/utils";
+import { Chip, PortName } from "@/lib/types/flow";
+import { cn, getBgBorderStyle } from "@/lib/utils";
 
 import { useSavedChips } from "./flow-store";
 
-const PORT_HEIGHT = 8;
-const PORT_WIDTH = 6;
+const PORT_HEIGHT = 7;
+const PORT_WIDTH = 7;
 const PORT_SPACING = 12;
 const MIN_CHIP_HEIGHT = 24;
 const MIN_CHIP_WIDTH = 50;
@@ -25,9 +24,9 @@ export function ChipNode(props: NodeProps<Node<Chip>>) {
   // const color = foo;
   const currentChip = allChips.find((chip) => chip.name === chipData.name);
 
-  const inputPorts = chipData.ports.filter((port) => port.type === "input");
-  const outputPorts = chipData.ports.filter((port) => port.type === "output");
-  const maxPorts = Math.max(inputPorts.length, outputPorts.length);
+  const inputPorts = chipData.ports?.filter((port) => port.name === PortName.IN);
+  const outputPorts = chipData.ports?.filter((port) => port.name === PortName.OUT);
+  const maxPorts = Math.max(inputPorts?.length || 0, outputPorts?.length || 0);
 
   const chipHeight = useMemo(() => {
     return Math.max(MIN_CHIP_HEIGHT, (maxPorts + 0.5) * PORT_SPACING);
@@ -51,11 +50,7 @@ export function ChipNode(props: NodeProps<Node<Chip>>) {
         height: chipHeight,
         maxHeight: chipHeight,
         minWidth: MIN_CHIP_WIDTH,
-        backgroundColor: currentChip?.color || "var(--xy-node-background-color-default)",
-        borderWidth: 1,
-        borderColor: currentChip?.color
-          ? color(currentChip.color).darken(0.2).toString()
-          : "var(--xy-node-border-color-default)",
+        ...getBgBorderStyle(currentChip?.color),
       }}
     >
       <div className="text-xs font-semibold text-foreground w-full h-full text-center flex items-center justify-center">
@@ -63,7 +58,7 @@ export function ChipNode(props: NodeProps<Node<Chip>>) {
       </div>
 
       {/* Input ports */}
-      {inputPorts.map((port, index) => (
+      {inputPorts?.map((port, index) => (
         <Handle
           key={port.id}
           id={port.id}
@@ -72,18 +67,17 @@ export function ChipNode(props: NodeProps<Node<Chip>>) {
           style={{
             top: "50%",
             left: 0,
-            transform: `translateX(-100%) translateY(calc(-50% + ${portOffset(index, inputPorts.length)}px))`,
+            transform: `translateX(-50%) translateY(calc(-50% + ${portOffset(index, inputPorts?.length || 0)}px))`,
             height: PORT_HEIGHT,
             width: PORT_WIDTH,
-            borderTopLeftRadius: 100,
-            borderBottomLeftRadius: 100,
+            borderRadius: 100,
             border: "none",
           }}
         />
       ))}
 
       {/* Output ports */}
-      {outputPorts.map((port, index) => (
+      {outputPorts?.map((port, index) => (
         <Handle
           key={port.id}
           id={port.id}
@@ -92,11 +86,10 @@ export function ChipNode(props: NodeProps<Node<Chip>>) {
           style={{
             top: "50%",
             right: 0,
-            transform: `translateX(100%) translateY(calc(-50% + ${portOffset(index, outputPorts.length)}px))`,
+            transform: `translateX(50%) translateY(calc(-50% + ${portOffset(index, outputPorts?.length || 0)}px))`,
             height: PORT_HEIGHT,
             width: PORT_WIDTH,
-            borderTopRightRadius: 100,
-            borderBottomRightRadius: 100,
+            borderRadius: 100,
             border: "none",
           }}
         />

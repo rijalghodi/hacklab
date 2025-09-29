@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
-import colorFn from "color";
 
-import { builtInChips } from "@/lib/constants/chips";
+import { builtInChips, builtInPorts } from "@/lib/constants/chips";
 import { CircuitModule } from "@/lib/types/flow";
+import { getBgBorderStyle } from "@/lib/utils";
 
 import { useDnd, useSavedChips } from "./flow-store";
 import {
@@ -17,7 +17,7 @@ import {
 } from "../ui/sidebar";
 
 export function FlowSidebar() {
-  const { setType } = useDnd();
+  const { setDroppedName: setType } = useDnd();
   const { savedChips } = useSavedChips();
 
   const onDragStart = (event: React.DragEvent<HTMLDivElement>, nodeType: string) => {
@@ -30,6 +30,18 @@ export function FlowSidebar() {
     <Sidebar className="dark react-flow" onClick={() => setType("Helloooooo")}>
       <SidebarHeader></SidebarHeader>
       <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupLabel className="font-mono">Inputs & Outputs</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <div className="flex flex-wrap gap-2">
+              {builtInPorts.map((port) => (
+                <div key={port.name} onDragStart={(e) => onDragStart(e, port.name)} draggable>
+                  <ChipOptionComponent color={port.color} name={port.name} />
+                </div>
+              ))}
+            </div>
+          </SidebarGroupContent>
+        </SidebarGroup>
         <SidebarGroup>
           <SidebarGroupLabel className="font-mono">Built-in Chips</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -58,11 +70,9 @@ export function FlowSidebar() {
 function ChipOptionComponent({ color, name }: { color?: string; name: string }) {
   return (
     <div
-      className="rounded-sm p-2 font-mono box-border w-20 h-12 flex items-center justify-center text-sm font-semibold cursor-grab"
+      className="rounded-xs p-2 font-mono box-border w-16 h-8 flex items-center justify-center text-sm font-semibold cursor-grab"
       style={{
-        backgroundColor: color ?? "var(--xy-node-background-color-default)",
-        borderWidth: 1,
-        borderColor: color ? colorFn(color).darken(0.2).toString() : "var(--xy-node-border-color-default)",
+        ...getBgBorderStyle(color),
       }}
     >
       {name}
