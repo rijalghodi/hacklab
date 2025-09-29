@@ -1,9 +1,8 @@
 import { Edge, Node } from "@xyflow/react";
 
-export enum PortName {
+export enum PortType {
   IN = "IN",
   OUT = "OUT",
-  CLK = "CLK",
 }
 
 type Position = {
@@ -13,7 +12,8 @@ type Position = {
 
 export type Port = {
   id: string;
-  name: PortName; // e.g. "a", "b", "out"
+  name: string; // e.g. "a", "b", "out"
+  type: PortType;
   color?: string;
   label?: string;
 };
@@ -49,7 +49,8 @@ export type StatefulWire = Wire & {
 
 export type CircuitPort = {
   id: string;
-  name: PortName; // "IN", "OUT", "CLK"
+  type: PortType;
+  name: string; // "IN", "OUT", "CLK"
   label?: string;
 };
 
@@ -68,6 +69,12 @@ export type CircuitModule = {
   version?: string;
   createdAt?: string;
   createdBy?: string;
+};
+
+export type StatefulCircuitModule = Omit<CircuitModule, "chips" | "wires" | "ports"> & {
+  chips?: StatefulChip[];
+  wires?: StatefulWire[];
+  ports?: StatefulCircuitPort[];
 };
 
 export type Circuit = {

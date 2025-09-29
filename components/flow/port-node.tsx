@@ -2,8 +2,16 @@ import { Edge, Handle, type Node, type NodeProps, Position, useReactFlow } from 
 import React from "react";
 
 import { builtInChips, builtInPorts } from "@/lib/constants/chips";
-import { PortName, StatefulPort, StatefulChip, StatefulWire, StatefulCircuitPort } from "@/lib/types/flow";
+import {
+  PortType,
+  StatefulChip,
+  StatefulCircuitModule,
+  StatefulCircuitPort,
+  StatefulPort,
+  StatefulWire,
+} from "@/lib/types/flow";
 import { cn, getActiveColor, getBgColor, getBorderColor } from "@/lib/utils";
+
 import { useSavedChips } from "./flow-store";
 
 const PORT_HEIGHT = 7;
@@ -12,7 +20,10 @@ const PORT_WIDTH = 7;
 export function PortNode(props: NodeProps<Node<StatefulPort>>) {
   const { id, data, selected } = props;
   const { savedChips } = useSavedChips();
-  const { updateNodeData, getEdges, getNodes } = useReactFlow<Node<StatefulChip | StatefulPort>, Edge<StatefulWire>>();
+  const { updateNodeData, getEdges, getNodes, getNode, getEdge } = useReactFlow<
+    Node<StatefulChip | StatefulPort>,
+    Edge<StatefulWire>
+  >();
 
   const portName = data.name;
   const portState = data.value;
@@ -21,21 +32,21 @@ export function PortNode(props: NodeProps<Node<StatefulPort>>) {
   // handle click on port
   const handleClick = (e: React.MouseEvent<SVGCircleElement>) => {
     e.stopPropagation();
-    updateNodeData(id, { value: !portState });
+    propagatePortValues(data.id, !portState);
+  };
 
-    const edges = getEdges();
-    const nodes = getNodes();
+  const propagatePortValues = (portId: string, portValue: boolean) => {
+    // update port value
+    updateNodeData(portId, { value: portValue });
 
-    // Calculete the node states
-
-    const currentEdges = edges.filter((edge) => edge.source === id);
+    const currentEdges = getEdges().filter((e) => e.source === portId);
 
     if (currentEdges.length === 0) {
       return;
     }
 
     for (const edge of currentEdges) {
-      const currentNode = nodes.find((node) => node.id === edge?.target);
+      const currentNode = getNode(edge?.target);
 
       if (!currentNode || currentNode.type === "port") {
         continue;
@@ -51,86 +62,119 @@ export function PortNode(props: NodeProps<Node<StatefulPort>>) {
       // update input port
       const selectedPort = ports.find((port) => port.id === edge?.targetHandle);
       if (selectedPort) {
-        updateNodeData(selectedPort.id, { value: !selectedPort.value });
+        updateNodeData(selectedPort.id, { value: portValue });
       }
 
+      const inputPortValues = ports.map((port) => ({ id: port.id, value: port.value as boolean }));
+
       // update output port
+      const outputChipValues = computeOutputChip(data.id, inputPortValues);
 
-      const outputChip = computeOutputChip(data);
-
-      const outputPorts = outputChip.ports?.filter((port) => port.name === PortName.OUT);
-      if (outputPorts) {
-        for (const outputPort of outputPorts) {
+      if (outputChipValues) {
+        for (const outputPort of outputChipValues) {
           updateNodeData(outputPort.id, { value: outputPort.value });
+          propagatePortValues(outputPort.id, outputPort.value);
         }
       }
     }
-
-    // console.log("PORT", id, portState);
   };
 
-  const computeOutputChip = (chip: StatefulChip): StatefulChip => {
-    const inputPorts = chip.ports?.filter((port) => port.name === PortName.IN);
-    const outputPorts = chip.ports?.filter((port) => port.name === PortName.OUT);
+  type IdValue = { id: string; value: boolean };
+
+  const computeOutputChip = (chipId: string, inputValues: IdValue[]): IdValue[] | null => {
+    const currentChip = getNode(chipId) as Node<StatefulChip>;
+
+    if (!currentChip || currentChip.type !== "chip") {
+      return null;
+    }
+
+    const inputPorts = currentChip.data.ports?.filter((port) => port.type === PortType.IN);
+    const outputPorts = currentChip.data.ports?.filter((port) => port.type === PortType.OUT);
+
     if (!outputPorts || outputPorts.length === 0 || !inputPorts || inputPorts.length === 0) {
-      return chip;
+      return null;
     }
 
     const allChips = [...builtInChips, ...savedChips];
-    const chipDefinition = allChips.find((chip) => chip.name === chip.name);
+    const statefulChip = allChips.find((c) => c.name === currentChip.data.name) as StatefulCircuitModule;
 
-    if (!chipDefinition) {
-      return chip;
+    if (!statefulChip) {
+      return null;
     }
 
-    // internal ports
-    const internalPorts = chipDefinition.ports as StatefulCircuitPort[];
-    const internalInputPorts = internalPorts.filter((port) => port.name === PortName.IN);
-    if (!internalInputPorts || internalInputPorts.length === 0) {
-      return chip;
+    if (!statefulChip.ports) {
+      return null;
     }
 
-    // Copy input ports to internal input ports
-    for (let i = 0; i < internalInputPorts.length; i++) {
-      const inputPort = inputPorts[i];
-      if (inputPort) {
-        internalInputPorts[i].value = inputPort?.value;
+    // copy input ports
+    // for (let i = 0; i < statefulChip.ports.length; i++) {
+    //   statefulChip.ports[i].value = inputValues[i].value;
+    // }
+
+    for (const internalPort of statefulChip.ports) {
+      if (internalPort.type === PortType.OUT) continue;
+
+      const inputPortValue = inputValues.find((port) => port.id === internalPort.id);
+      if (inputPortValue) {
+        internalPort.value = inputPortValue.value;
       }
     }
 
-    // Internal chips
-    const internalChips = chipDefinition.chips;
-
-    if (!internalChips || internalChips.length === 0) {
-      return chip;
+    // internal ports
+    const internalPorts = statefulChip.ports;
+    if (!internalPorts) {
+      return null;
     }
 
+    const internalInputPorts = internalPorts.filter((port) => port.type === PortType.IN);
+    if (!internalInputPorts || internalInputPorts.length === 0) {
+      return null;
+    }
+
+    for (const internalInputPort of internalInputPorts) {
+      // const inputPortValue = inputPortValues.find((port) => port.id === internalInputPort.id);
+      // if (inputPortValue) {
+      // }
+    }
+
+    // Copy input ports to internal input ports
+    // for (let i = 0; i < internalInputPorts.length; i++) {
+    //   const inputPort = inputPorts[i];
+    //   if (inputPort) {
+    //     internalInputPorts[i].value = inputPort.value;
+    //   }
+    // }
+
+    // Internal chips
+    // const internalChips = statefulChip.chips;
+
+    // if (!internalChips || internalChips.length === 0) {
+    //   return null;
+    // }
+
     // Do nested recursive actions
-    for (const internalChip of internalChips) {
+    for (const internalChip of statefulChip.chips) {
       if (internalChip.name == "NAND") {
-        let outputValue = false;
-        for (const inputPort of internalInputPorts) {
-          outputValue = outputValue && inputPort.value;
+        let outputValue: boolean | undefined;
+        for (const inputPortValue of inputPortValues) {
+          outputValue = outputValue && inputPortValue.value;
         }
-        internalInputPorts[0].value = !outputValue;
       } else {
-        computeOutputChip(internalChip);
+        computeOutputChip(internalChip.id, inputPortValues);
       }
     }
 
     // copy internal output ports to chip output ports
-    for (let i = 0; i < outputPorts.length; i++) {
-      outputPorts[i].value = internalInputPorts[i].value;
-    }
+    // for (let i = 0; i < outputPorts.length; i++) {
+    //   outputPorts[i].value = outputValue as boolean;
+    // }
 
-    chip.ports = outputPorts.concat(inputPorts);
-
-    return chip;
+    return null;
   };
 
   return (
     <div className={cn("relative font-mono rounded-sm", selected && "outline-ring outline-1")}>
-      {portName === PortName.IN && (
+      {portName === PortType.IN && (
         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="24" viewBox="0 0 28 24">
           <circle
             cx="12"
@@ -146,7 +190,7 @@ export function PortNode(props: NodeProps<Node<StatefulPort>>) {
         </svg>
       )}
 
-      {portName === PortName.OUT && (
+      {portName === PortType.OUT && (
         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="24" viewBox="0 0 28 24">
           <circle
             cx="16"
@@ -167,7 +211,7 @@ export function PortNode(props: NodeProps<Node<StatefulPort>>) {
       )}
 
       {/* Input ports */}
-      {portName === PortName.IN && (
+      {portName === PortType.IN && (
         <Handle
           id={data.id}
           type="source"
@@ -182,7 +226,7 @@ export function PortNode(props: NodeProps<Node<StatefulPort>>) {
       )}
 
       {/* Output ports */}
-      {portName === PortName.OUT && (
+      {portName === PortType.OUT && (
         <Handle
           id={data.id}
           type="target"

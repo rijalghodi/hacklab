@@ -2,7 +2,7 @@ import { Handle, type Node, type NodeProps, Position } from "@xyflow/react";
 import React, { useCallback, useMemo } from "react";
 
 import { builtInChips } from "@/lib/constants/chips";
-import { Chip, PortName } from "@/lib/types/flow";
+import { Chip, PortType } from "@/lib/types/flow";
 import { cn, getBgBorderStyle } from "@/lib/utils";
 
 import { useSavedChips } from "./flow-store";
@@ -24,8 +24,8 @@ export function ChipNode(props: NodeProps<Node<Chip>>) {
   // const color = foo;
   const currentChip = allChips.find((chip) => chip.name === chipData.name);
 
-  const inputPorts = chipData.ports?.filter((port) => port.name === PortName.IN);
-  const outputPorts = chipData.ports?.filter((port) => port.name === PortName.OUT);
+  const inputPorts = chipData.ports?.filter((port) => port.type === PortType.IN);
+  const outputPorts = chipData.ports?.filter((port) => port.type === PortType.OUT);
   const maxPorts = Math.max(inputPorts?.length || 0, outputPorts?.length || 0);
 
   const chipHeight = useMemo(() => {

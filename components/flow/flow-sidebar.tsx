@@ -17,17 +17,17 @@ import {
 } from "../ui/sidebar";
 
 export function FlowSidebar() {
-  const { setDroppedName: setType } = useDnd();
+  const { setDroppedName } = useDnd();
   const { savedChips } = useSavedChips();
 
   const onDragStart = (event: React.DragEvent<HTMLDivElement>, nodeType: string) => {
     console.log("onDragStart", nodeType);
-    setType(nodeType);
+    setDroppedName(nodeType);
     event.dataTransfer.effectAllowed = "move";
   };
 
   return (
-    <Sidebar className="dark react-flow" onClick={() => setType("Helloooooo")}>
+    <Sidebar className="dark react-flow">
       <SidebarHeader></SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
@@ -35,7 +35,7 @@ export function FlowSidebar() {
           <SidebarGroupContent>
             <div className="flex flex-wrap gap-2">
               {builtInPorts.map((port) => (
-                <div key={port.name} onDragStart={(e) => onDragStart(e, port.name)} draggable>
+                <div key={port.name} onDragStart={(e) => onDragStart(e, port.type)} draggable>
                   <ChipOptionComponent color={port.color} name={port.name} />
                 </div>
               ))}

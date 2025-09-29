@@ -1,8 +1,8 @@
-import { CircuitModule, Port, PortName } from "../types/flow";
+import { CircuitModule, Port, PortType } from "../types/flow";
 
 export const builtInPorts: Port[] = [
-  { id: "in", name: PortName.IN },
-  { id: "out", name: PortName.OUT },
+  { id: "in", type: PortType.IN, name: "in" },
+  { id: "out", type: PortType.OUT, name: "out" },
 ];
 
 export const builtInChips: CircuitModule[] = [
@@ -10,9 +10,9 @@ export const builtInChips: CircuitModule[] = [
     name: "NAND",
     color: "#854d0e",
     ports: [
-      { id: "a", name: PortName.IN },
-      { id: "b", name: PortName.IN },
-      { id: "out", name: PortName.OUT },
+      { id: "a", type: PortType.IN, name: "a" },
+      { id: "b", type: PortType.IN, name: "b" },
+      { id: "out", type: PortType.OUT, name: "out" },
     ],
     version: "1.0",
     createdAt: "2025-09-16T00:00:00Z",
@@ -53,8 +53,8 @@ export const builtInChips: CircuitModule[] = [
       },
     ],
     ports: [
-      { id: "in", name: PortName.IN },
-      { id: "out", name: PortName.OUT },
+      { id: "in", type: PortType.IN, name: "in" },
+      { id: "out", type: PortType.OUT, name: "out" },
     ],
     version: "1.0",
     createdAt: "2025-09-16T00:00:00Z",
