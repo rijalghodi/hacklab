@@ -19,18 +19,18 @@ import {
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import React, { useCallback } from "react";
 
-import { builtInChips, builtInPorts } from "@/lib/constants/chips";
-import { Chip, Wire } from "@/lib/types/flow";
+import { NodeType, StatefulChip, StatefulPort, StatefulWire } from "@/lib/types/flow";
 
 import { ChipNode } from "./chip-node";
 import { ConnectionLine } from "./connection-line";
-import { useDnd, useFlowStore } from "./flow-store";
-import { PortNode } from "./port-node";
+import { useChips, useDnd, useFlowStore } from "./flow-store";
+import { InNode } from "./in-node";
+import { OutNode } from "./out-node";
 import { WireEdge } from "./wire-edge";
 import { Button } from "../ui/button";
 import { useSidebar } from "../ui/sidebar";
 
-const nodeTypes = { chip: ChipNode, port: PortNode };
+const nodeTypes = { [NodeType.CHIP]: ChipNode, [NodeType.IN]: InNode, [NodeType.OUT]: OutNode };
 const edgeTypes = { wire: WireEdge };
 
 export function Circuit() {
@@ -38,22 +38,39 @@ export function Circuit() {
 
   const { screenToFlowPosition } = useReactFlow();
   const { droppedName } = useDnd();
+  const getChip = useChips((state) => state.getChip);
 
   const onNodesChange = useCallback(
-    (changes: NodeChange<Node<Chip>>[]) =>
-      setNodes((nodesSnapshot: Node<Chip>[]) => applyNodeChanges<Node<Chip>>(changes, nodesSnapshot)),
+    (changes: NodeChange<Node<StatefulChip>>[]) =>
+      setNodes((nodesSnapshot: Node<StatefulChip>[]) => applyNodeChanges<Node<StatefulChip>>(changes, nodesSnapshot)),
     [],
   );
   const onEdgesChange = useCallback(
-    (changes: EdgeChange<Edge<Wire>>[]) =>
-      setEdges((edgesSnapshot: Edge<Wire>[]) => applyEdgeChanges(changes, edgesSnapshot)),
+    (changes: EdgeChange<Edge<StatefulWire>>[]) =>
+      setEdges((edgesSnapshot: Edge<StatefulWire>[]) => applyEdgeChanges(changes, edgesSnapshot)),
     [],
   );
 
-  const onConnect = useCallback(
-    (params: Connection) => setEdges((edgesSnapshot: Edge<Wire>[]) => addEdge(params, edgesSnapshot)),
-    [],
-  );
+  const onConnect = useCallback((params: Connection) => {
+    console.log(params);
+    const id = crypto.randomUUID();
+    setEdges((edgesSnapshot: Edge<StatefulWire>[]) =>
+      addEdge(
+        {
+          ...params,
+          id,
+          data: {
+            id,
+            targetId: params.target,
+            targetPortId: params.targetHandle,
+            sourceId: params.source,
+            sourcePortId: params.sourceHandle,
+          },
+        },
+        edgesSnapshot,
+      ),
+    );
+  }, []);
 
   const onDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -75,19 +92,24 @@ export function Circuit() {
 
       const id = crypto.randomUUID();
 
-      const port = builtInPorts.find((port) => port.name === droppedName);
+      const CHIP_DEFINITION = getChip(droppedName);
 
-      const chip = builtInChips.find((chip) => chip.name === droppedName);
-
-      if (!chip && !port) {
+      if (!CHIP_DEFINITION) {
         return;
       }
 
-      const newNode: Node<Chip> = {
+      const newNode: Node<StatefulChip> = {
         id,
-        type: chip ? "chip" : "port",
+        type: CHIP_DEFINITION.type,
         position,
-        data: { id, name: droppedName, ...chip, ...port },
+        data: {
+          id,
+          type: CHIP_DEFINITION.type,
+          name: CHIP_DEFINITION.name,
+          ports: CHIP_DEFINITION.nodes
+            ?.filter((node) => node.type === NodeType.IN || node.type === NodeType.OUT)
+            .map((node) => ({ id: node.id, type: node.type, name: node.name })) as StatefulPort[],
+        },
       };
 
       setNodes((nds) => nds.concat(newNode));

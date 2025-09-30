@@ -55,7 +55,7 @@
 .react-flow.dark {
   --xy-edge-stroke-default: var(--color-yellow-800);
   --xy-edge-stroke-width-default: 1;
-  --xy-edge-stroke-selected-default: var(--color-yellow-500);
+  --xy-edge-stroke-selected-default: var(--color-yellow-700);
 
   --xy-connectionline-stroke-default: var(--color-neutral-400);
   --xy-connectionline-stroke-width-default: 1;

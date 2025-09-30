@@ -24,5 +24,5 @@ export function getBgBorderStyle(color?: string, borderWidth?: number) {
 }
 
 export function getActiveColor(color?: string) {
-  return color ? colorFn(color).lighten(0.1).toString() : "var(--xy-node-background-color-active-default)";
+  return color ? colorFn(color).lighten(0.8).toString() : "var(--xy-node-background-color-active-default)";
 }

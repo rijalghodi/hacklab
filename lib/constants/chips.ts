@@ -1,18 +1,28 @@
-import { CircuitModule, Port, PortType } from "../types/flow";
+"use client";
 
-export const builtInPorts: Port[] = [
-  { id: "in", type: PortType.IN, name: "in" },
-  { id: "out", type: PortType.OUT, name: "out" },
-];
+import { CircuitModule, NodeType } from "../types/flow";
 
 export const builtInChips: CircuitModule[] = [
   {
-    name: "NAND",
+    name: NodeType.IN,
+    type: NodeType.IN,
     color: "#854d0e",
-    ports: [
-      { id: "a", type: PortType.IN, name: "a" },
-      { id: "b", type: PortType.IN, name: "b" },
-      { id: "out", type: PortType.OUT, name: "out" },
+    nodes: [{ type: NodeType.OUT, name: NodeType.OUT, id: "out" }],
+  },
+  {
+    name: NodeType.OUT,
+    type: NodeType.OUT,
+    color: "#854d0e",
+    nodes: [{ type: NodeType.IN, name: NodeType.IN, id: "in" }],
+  },
+  {
+    name: "NAND",
+    type: NodeType.CHIP,
+    color: "#854d0e",
+    nodes: [
+      { type: NodeType.IN, name: "a", id: "a" },
+      { type: NodeType.IN, name: "b", id: "b" },
+      { type: NodeType.OUT, name: "out", id: "out" },
     ],
     version: "1.0",
     createdAt: "2025-09-16T00:00:00Z",
@@ -20,44 +30,48 @@ export const builtInChips: CircuitModule[] = [
   },
   {
     name: "NOT",
+    type: NodeType.CHIP,
     color: "#831843",
-    chips: [
+    nodes: [
       {
-        id: "nand1",
         name: "NAND",
-        // ports: [
-        //   { id: "a", name: PortName.IN, label: "a" },
-        //   { id: "b", name: PortName.IN, label: "b" },
-        //   { id: "out", name: PortName.OUT, label: "out" },
-        // ],
+        id: "nand",
+        type: NodeType.CHIP,
       },
+      { type: NodeType.IN, name: "in", id: "in" },
+      { type: NodeType.OUT, name: "out", id: "out" },
     ],
-    wires: [
+    edges: [
       {
-        id: "w1",
-        sourceId: "port.in",
-        targetId: "nand1",
+        id: "in.nand.a",
+        sourceId: "in",
+        targetId: "nand",
         targetPortId: "a",
       },
       {
-        id: "w2",
-        sourceId: "port.in",
-        targetId: "nand1",
+        id: "in.nand.b",
+        sourceId: "in",
+        targetId: "nand",
         targetPortId: "b",
       },
       {
-        id: "w3",
-        sourceId: "nand1",
-        targetId: "port.out",
+        id: "nand.out",
+        sourceId: "nand",
+        targetId: "out",
         sourcePortId: "out",
       },
     ],
-    ports: [
-      { id: "in", type: PortType.IN, name: "in" },
-      { id: "out", type: PortType.OUT, name: "out" },
-    ],
+    // ports: [
+    //   { type: PortType.IN, name: "in" },
+    //   { type: PortType.OUT, name: "out" },
+    // ],
     version: "1.0",
     createdAt: "2025-09-16T00:00:00Z",
     createdBy: "system",
   },
 ];
+
+// export const getChipDefintion = (name: string) => {
+//   const savedChips = useSavedChips((state) => state.savedChips);
+//   return [...builtInChips, ...savedChips].find((chip) => chip.name === name);
+// };

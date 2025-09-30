@@ -2,11 +2,11 @@
 
 import React from "react";
 
-import { builtInChips, builtInPorts } from "@/lib/constants/chips";
+import { builtInChips } from "@/lib/constants/chips";
 import { CircuitModule } from "@/lib/types/flow";
 import { getBgBorderStyle } from "@/lib/utils";
 
-import { useDnd, useSavedChips } from "./flow-store";
+import { useChips,useDnd } from "./flow-store";
 import {
   Sidebar,
   SidebarContent,
@@ -18,11 +18,11 @@ import {
 
 export function FlowSidebar() {
   const { setDroppedName } = useDnd();
-  const { savedChips } = useSavedChips();
+  const { savedChips } = useChips();
 
-  const onDragStart = (event: React.DragEvent<HTMLDivElement>, nodeType: string) => {
-    console.log("onDragStart", nodeType);
-    setDroppedName(nodeType);
+  const onDragStart = (event: React.DragEvent<HTMLDivElement>, nodeName: string) => {
+    console.log("onDragStart", nodeName);
+    setDroppedName(nodeName);
     event.dataTransfer.effectAllowed = "move";
   };
 
@@ -30,18 +30,18 @@ export function FlowSidebar() {
     <Sidebar className="dark react-flow">
       <SidebarHeader></SidebarHeader>
       <SidebarContent>
-        <SidebarGroup>
+        {/* <SidebarGroup>
           <SidebarGroupLabel className="font-mono">Inputs & Outputs</SidebarGroupLabel>
           <SidebarGroupContent>
             <div className="flex flex-wrap gap-2">
-              {builtInPorts.map((port) => (
+              {builtInChips.map((port) => (
                 <div key={port.name} onDragStart={(e) => onDragStart(e, port.type)} draggable>
                   <ChipOptionComponent color={port.color} name={port.name} />
                 </div>
               ))}
             </div>
           </SidebarGroupContent>
-        </SidebarGroup>
+        </SidebarGroup> */}
         <SidebarGroup>
           <SidebarGroupLabel className="font-mono">Built-in Chips</SidebarGroupLabel>
           <SidebarGroupContent>

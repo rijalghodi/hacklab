@@ -4,8 +4,9 @@ import { Edge, Node } from "@xyflow/react";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+import { builtInChips } from "@/lib/constants/chips";
 import { LOCAL_STORAGE_FLOW, LOCAL_STORAGE_SAVED_CHIPS } from "@/lib/constants/names";
-import { Chip, CircuitModule, Wire } from "@/lib/types/flow";
+import { CircuitModule, StatefulChip,StatefulWire } from "@/lib/types/flow";
 
 interface DndStore {
   droppedName: string;
@@ -18,16 +19,25 @@ export const useDnd = create<DndStore>((set) => ({
 }));
 
 // chips store
-interface SavedChipsStore {
+interface ChipsStore {
   savedChips: CircuitModule[];
   setSavedChips: (chips: CircuitModule[]) => void;
+  // allChips: CircuitModule[];
+  getChip: (name: string) => CircuitModule | undefined;
 }
 
-export const useSavedChips = create<SavedChipsStore>()(
+export const useChips = create<ChipsStore>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       savedChips: [],
       setSavedChips: (chips: CircuitModule[]) => set({ savedChips: chips }),
+      // get allChips() {
+      //   return [...get().savedChips, ...builtInChips];
+      // },
+      getChip: (name: string) =>
+        get()
+          .savedChips.concat(builtInChips)
+          .find((chip) => chip.name === name),
     }),
     {
       name: LOCAL_STORAGE_SAVED_CHIPS,
@@ -38,10 +48,10 @@ export const useSavedChips = create<SavedChipsStore>()(
 
 // flow store
 interface FlowStore {
-  nodes: Node<Chip>[];
-  edges: Edge<Wire>[];
-  setNodes: (nodes: Node<Chip>[] | ((prev: Node<Chip>[]) => Node<Chip>[])) => void;
-  setEdges: (edges: Edge<Wire>[] | ((prev: Edge<Wire>[]) => Edge<Wire>[])) => void;
+  nodes: Node<StatefulChip>[];
+  edges: Edge<StatefulWire>[];
+  setNodes: (nodes: Node<StatefulChip>[] | ((prev: Node<StatefulChip>[]) => Node<StatefulChip>[])) => void;
+  setEdges: (edges: Edge<StatefulWire>[] | ((prev: Edge<StatefulWire>[]) => Edge<StatefulWire>[])) => void;
 }
 
 export const useFlowStore = create<FlowStore>()(
@@ -49,15 +59,19 @@ export const useFlowStore = create<FlowStore>()(
     (set) => ({
       nodes: [],
       edges: [],
-      setNodes: (updater: Node<Chip>[] | ((prev: Node<Chip>[]) => Node<Chip>[])) =>
+      setNodes: (updater: Node<StatefulChip>[] | ((prev: Node<StatefulChip>[]) => Node<StatefulChip>[])) =>
         set((state) => ({
           nodes:
-            typeof updater === "function" ? (updater as (prev: Node<Chip>[]) => Node<Chip>[])(state.nodes) : updater,
+            typeof updater === "function"
+              ? (updater as (prev: Node<StatefulChip>[]) => Node<StatefulChip>[])(state.nodes)
+              : updater,
         })),
-      setEdges: (updater: Edge<Wire>[] | ((prev: Edge<Wire>[]) => Edge<Wire>[])) =>
+      setEdges: (updater: Edge<StatefulWire>[] | ((prev: Edge<StatefulWire>[]) => Edge<StatefulWire>[])) =>
         set((state) => ({
           edges:
-            typeof updater === "function" ? (updater as (prev: Edge<Wire>[]) => Edge<Wire>[])(state.edges) : updater,
+            typeof updater === "function"
+              ? (updater as (prev: Edge<StatefulWire>[]) => Edge<StatefulWire>[])(state.edges)
+              : updater,
         })),
     }),
     {

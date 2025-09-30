@@ -1,45 +1,65 @@
-import { Edge, Node } from "@xyflow/react";
+import { Edge as XYFlowEdge, Node as XYFlowNode } from "@xyflow/react";
 
-export enum PortType {
+export enum NodeType {
   IN = "IN",
   OUT = "OUT",
+  CHIP = "CHIP",
 }
+
+export type PortType = NodeType.IN | NodeType.OUT;
+export type ChipType = NodeType;
 
 type Position = {
   x: number;
   y: number;
 };
 
-export type Port = {
-  id: string;
+// Port
+
+export type BasePort = {
   name: string; // e.g. "a", "b", "out"
   type: PortType;
   color?: string;
   label?: string;
 };
 
+export type Port = BasePort & {
+  id: string;
+};
+
 export type StatefulPort = Port & {
   value?: boolean;
 };
 
-export type Chip = {
-  id: string;
+// Chip
+
+export type BaseChip = {
   name: string; // e.g. "AND", "OR", "FULL_ADDER"
   color?: string;
   position?: Position;
-  ports?: Port[]; // pin definitions
+  type: ChipType;
+  ports?: Port[];
+};
+
+export type Chip = BaseChip & {
+  id: string;
 };
 
 export type StatefulChip = Omit<Chip, "ports"> & {
   ports?: StatefulPort[];
 };
 
+// Node
+// export type BaseNode = BaseChip;
+// export type Node = Chip;
+// export type StatefulNode = StatefulPort | StatefulChip;
+
 export type Wire = {
   id: string;
   sourceId: string; // Chip.id or Port.id with prefix "port."
   targetId: string; // Chip.id or Port.id with prefix "port."
-  sourcePortId?: string; // Port.id of source
-  targetPortId?: string; // Port.id of target
+  sourcePortId?: string | null; // Port.id of source
+  targetPortId?: string | null; // Port.id of target
   color?: string;
 };
 
@@ -47,40 +67,28 @@ export type StatefulWire = Wire & {
   value?: boolean;
 };
 
-export type CircuitPort = {
-  id: string;
-  type: PortType;
-  name: string; // "IN", "OUT", "CLK"
-  label?: string;
-};
-
-export type StatefulCircuitPort = CircuitPort & {
-  value?: boolean;
-};
-
 export type CircuitModule = {
+  type: NodeType;
   name: string; // e.g. "ALU"
   label?: string; // e.g. "ALU 1"
   description?: string;
   color?: string;
-  chips?: Chip[]; // minus input and output nodes
-  wires?: Wire[];
-  ports?: CircuitPort[];
+  nodes?: Chip[];
+  edges?: Wire[];
   version?: string;
   createdAt?: string;
   createdBy?: string;
 };
 
-export type StatefulCircuitModule = Omit<CircuitModule, "chips" | "wires" | "ports"> & {
-  chips?: StatefulChip[];
-  wires?: StatefulWire[];
-  ports?: StatefulCircuitPort[];
-};
+// export type StatefulCircuitModule = Omit<CircuitModule, "chips" | "wires" | "ports"> & {
+//   nodes?: StatefulChip[];
+//   edges?: StatefulWire[];
+// };
 
 export type Circuit = {
   name: string;
-  chips: Node<Chip>[];
-  wires: Edge<Wire>[];
+  nodes: XYFlowNode<StatefulChip>[];
+  edges: XYFlowEdge<StatefulWire>[];
 };
 
 // export type Circuit = CircuitModule & {
