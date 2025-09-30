@@ -6,6 +6,13 @@ export enum NodeType {
   CHIP = "CHIP",
 }
 
+export enum ChipName {
+  IN = "IN",
+  OUT = "OUT",
+  NAND = "NAND",
+  NOT = "NOT",
+}
+
 export type PortType = NodeType.IN | NodeType.OUT;
 export type ChipType = NodeType;
 
@@ -34,11 +41,11 @@ export type StatefulPort = Port & {
 // Chip
 
 export type BaseChip = {
-  name: string; // e.g. "AND", "OR", "FULL_ADDER"
+  name: string | ChipName; // e.g. "AND", "OR", "FULL_ADDER"
   color?: string;
   position?: Position;
   type: ChipType;
-  ports?: Port[];
+  // ports?: Port[];
 };
 
 export type Chip = BaseChip & {
@@ -48,11 +55,6 @@ export type Chip = BaseChip & {
 export type StatefulChip = Omit<Chip, "ports"> & {
   ports?: StatefulPort[];
 };
-
-// Node
-// export type BaseNode = BaseChip;
-// export type Node = Chip;
-// export type StatefulNode = StatefulPort | StatefulChip;
 
 export type Wire = {
   id: string;

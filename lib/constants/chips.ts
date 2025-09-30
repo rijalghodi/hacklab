@@ -43,22 +43,25 @@ export const builtInChips: CircuitModule[] = [
     ],
     edges: [
       {
-        id: "in.nand.a",
+        id: "in--nand.a",
         sourceId: "in",
+        sourcePortId: "in",
         targetId: "nand",
         targetPortId: "a",
       },
       {
-        id: "in.nand.b",
+        id: "in--nand.b",
         sourceId: "in",
+        sourcePortId: "in",
         targetId: "nand",
         targetPortId: "b",
       },
       {
-        id: "nand.out",
+        id: "nand.out--out",
         sourceId: "nand",
-        targetId: "out",
         sourcePortId: "out",
+        targetId: "out",
+        targetPortId: "out",
       },
     ],
     // ports: [
