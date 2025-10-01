@@ -220,25 +220,31 @@ export function ChipNode(props: NodeProps<Node<StatefulChip>>) {
     [getChip],
   );
 
+  // useEffect(() => {
+  //   // compute output ports
+  //   const outputPortValues = computeOutputChips(data.name, newInputPortValues);
+
+  //   const newPortValues = { ...newInputPortValues, ...outputPortValues };
+
+  //   console.log("NEW PORT VALUES", newPortValues);
+
+  //   // Only update if values have actually changed to avoid infinite loop
+  //   const portsToUpdate = data.ports?.map((port) => ({ ...port, value: newPortValues?.[port.name] }));
+  //   const hasChanged = data.ports?.some((port, idx) => port.value !== portsToUpdate?.[idx]?.value);
+
+  //   if (hasChanged) {
+  //     updateNodeData(data.id, {
+  //       ports: portsToUpdate,
+  //     });
+  //   }
+  //   // Only rerun when newInputPortValues or data.ports change
+  // }, [JSON.stringify(newInputPortValues), data.ports, data.id, computeOutputChip]);
+
   useEffect(() => {
     // compute output ports
     const outputPortValues = computeOutputChips(data.name, newInputPortValues);
-
-    const newPortValues = { ...newInputPortValues, ...outputPortValues };
-
-    console.log("NEW PORT VALUES", newPortValues);
-
-    // Only update if values have actually changed to avoid infinite loop
-    const portsToUpdate = data.ports?.map((port) => ({ ...port, value: newPortValues?.[port.name] }));
-    const hasChanged = data.ports?.some((port, idx) => port.value !== portsToUpdate?.[idx]?.value);
-
-    if (hasChanged) {
-      updateNodeData(data.id, {
-        ports: portsToUpdate,
-      });
-    }
-    // Only rerun when newInputPortValues or data.ports change
-  }, [JSON.stringify(newInputPortValues), data.ports, data.id, computeOutputChip]);
+    console.log("OUTPUT PORT VALUES", outputPortValues);
+  }, [data.name, newInputPortValues, computeOutputChips]);
 
   const chipHeight = useMemo(() => {
     return Math.max(MIN_CHIP_HEIGHT, (maxPorts + 0.5) * PORT_SPACING);

@@ -8,12 +8,18 @@ export const builtInChips: CircuitModule[] = [
     name: NodeType.IN,
     color: "#854d0e",
     nodes: [{ type: NodeType.OUT, name: NodeType.OUT, id: "out" }],
+    version: "1.0",
+    createdAt: "2025-09-16T00:00:00Z",
+    createdBy: "system",
   },
   {
     type: NodeType.OUT,
     name: NodeType.OUT,
     color: "#854d0e",
     nodes: [{ type: NodeType.IN, name: NodeType.IN, id: "in" }],
+    version: "1.0",
+    createdAt: "2025-09-16T00:00:00Z",
+    createdBy: "system",
   },
   {
     type: NodeType.CHIP,

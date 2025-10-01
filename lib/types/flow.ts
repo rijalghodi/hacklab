@@ -82,15 +82,111 @@ export type CircuitModule = {
   createdBy?: string;
 };
 
-// export type StatefulCircuitModule = Omit<CircuitModule, "chips" | "wires" | "ports"> & {
-//   nodes?: StatefulChip[];
-//   edges?: StatefulWire[];
-// };
-
 export type Circuit = {
   name: string;
   nodes: XYFlowNode<StatefulChip>[];
   edges: XYFlowEdge<StatefulWire>[];
+};
+
+// ==== Circuit Tree ====
+
+export type CircuitTreeNode = {
+  id?: string;
+  name: string;
+  type: NodeType;
+  inputs?: CircuitTree;
+};
+export type CircuitTree = Record<string, CircuitTreeNode[]>;
+
+// version?: string;
+// createdAt?: string;
+// createdBy?: string;
+
+// export type CircuitTreeOut = {
+//   value?: boolean;
+//   name: string;
+//   id: string;
+//   sources: Record<string, CircuitSource[]>;
+// };
+
+// export type CircuitTree = {
+//   version?: string;
+//   createdAt?: string;
+//   createdBy?: string;
+//   // outputs: CircuitTreeOut[];
+//   sources: Record<string, CircuitSource[]>;
+// };
+
+// === Example ===
+
+export const exampleCircuitTree0: CircuitTree = {
+  out: [
+    {
+      name: "out",
+      id: "out",
+      type: NodeType.OUT,
+      // outputPortId: "out",
+      inputs: {
+        a: [
+          {
+            id: "not",
+            type: NodeType.CHIP,
+            name: "NOT",
+            // outputPortId: "out",
+            inputs: {
+              in: [
+                {
+                  id: "in",
+                  name: "in",
+                  // outputPortId: "a",
+                  type: NodeType.IN,
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
+};
+
+export const exampleCircuitTree: CircuitTree = {
+  out: [
+    {
+      name: "out",
+      // id: "out",
+      type: NodeType.OUT,
+      // outputPortId: "out",
+      inputs: {
+        a: [
+          {
+            // id: "nand",
+            type: NodeType.CHIP,
+            name: "NAND",
+            // outputPortId: "out",
+            inputs: {
+              a: [
+                {
+                  id: "in",
+                  name: "in",
+                  // outputPortId: "a",
+                  type: NodeType.IN,
+                },
+              ],
+              b: [
+                {
+                  // id: "in",
+                  name: "in",
+                  // outputPortId: "b",
+                  type: NodeType.IN,
+                },
+              ],
+            },
+          },
+        ],
+      },
+    },
+  ],
 };
 
 // export type Circuit = CircuitModule & {
