@@ -204,11 +204,19 @@ export function InNode(props: NodeProps<Node<StatefulChip>>) {
           className="cursor-pointer"
           onClick={handleClick}
         />
-        <line x1="22" y1="12" x2="28" y2="12" stroke={getBorderColor(COLOR)} strokeWidth="2" />
+        <line
+          x1="22"
+          y1="12"
+          x2="28"
+          y2="12"
+          stroke={VALUE ? getActiveColor(COLOR) : getBorderColor(COLOR)}
+          strokeWidth="2"
+        />
       </svg>
 
       {/* Input ports */}
       <Handle
+        data-active={VALUE}
         id={data.ports?.[0]?.id}
         type="source"
         position={Position.Right}

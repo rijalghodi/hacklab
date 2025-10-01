@@ -1,34 +1,50 @@
 "use client";
 
-import { CircuitModule, NodeType } from "../types/flow";
+import { ChipName, CircuitModule, NAND_OUT_NAME, NodeType } from "../types/flow";
 
 export const builtInChips: CircuitModule[] = [
   {
     type: NodeType.IN,
-    name: NodeType.IN,
+    name: ChipName.IN,
     color: "#854d0e",
-    nodes: [{ type: NodeType.OUT, name: NodeType.OUT, id: "out" }],
+    nodes: [{ type: NodeType.OUT, name: ChipName.OUT, id: "out" }],
     version: "1.0",
     createdAt: "2025-09-16T00:00:00Z",
     createdBy: "system",
   },
   {
     type: NodeType.OUT,
-    name: NodeType.OUT,
+    name: ChipName.OUT,
     color: "#854d0e",
-    nodes: [{ type: NodeType.IN, name: NodeType.IN, id: "in" }],
+    nodes: [{ type: NodeType.IN, name: ChipName.IN, id: "in" }],
     version: "1.0",
     createdAt: "2025-09-16T00:00:00Z",
     createdBy: "system",
   },
   {
     type: NodeType.CHIP,
-    name: "NAND",
+    name: ChipName.NAND,
     color: "#854d0e",
     nodes: [
       { type: NodeType.IN, name: "a", id: "a" },
       { type: NodeType.IN, name: "b", id: "b" },
-      { type: NodeType.OUT, name: "out", id: "out" },
+      { type: NodeType.OUT, name: NAND_OUT_NAME, id: "out" },
+    ],
+    edges: [
+      {
+        id: "a--out",
+        sourceId: "a",
+        sourcePortId: "a",
+        targetId: "out",
+        targetPortId: "out",
+      },
+      {
+        id: "b--out",
+        sourceId: "b",
+        sourcePortId: "b",
+        targetId: "out",
+        targetPortId: "out",
+      },
     ],
     version: "1.0",
     createdAt: "2025-09-16T00:00:00Z",

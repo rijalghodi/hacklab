@@ -85,7 +85,8 @@
 
   --xy-handle-background-color-default: var(--color-neutral-500);
   --xy-handle-border-color-default: var(--color-neutral-500);
-  --xy-handle-background-color-selected-default: var(--color-neutral-300);
+  --xy-handle-background-color-selected-default: var(--color-neutral-200);
+  --xy-handle-background-color-active-default: var(--color-neutral-400);
 
   --xy-selection-background-color-default: rgba(200, 200, 220, 0.08);
   --xy-selection-border-default: 1px dotted rgba(200, 200, 220, 0.8);

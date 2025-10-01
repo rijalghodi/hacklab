@@ -17,8 +17,8 @@ export function OutNode(props: NodeProps<Node<StatefulChip>>) {
   const COLOR = data.color || CHIP_DEFINITION?.color;
 
   const edges = useEdges();
-  const edge = edges.find((edge) => edge.target === data.id);
-  const VALUE = edge?.data?.value;
+  const edge = edges.filter((edge) => edge.target === data.id);
+  const VALUE = edge.some((edge) => edge.data?.value);
 
   return (
     <div className={cn("relative font-mono rounded-sm", selected && "outline-ring outline-1")}>
@@ -36,6 +36,7 @@ export function OutNode(props: NodeProps<Node<StatefulChip>>) {
 
       {/* Input ports */}
       <Handle
+        data-active={VALUE}
         id={data.ports?.[0]?.id}
         type="target"
         position={Position.Left}
@@ -44,6 +45,7 @@ export function OutNode(props: NodeProps<Node<StatefulChip>>) {
           width: PORT_WIDTH,
           borderRadius: 100,
           border: "none",
+          // backgroundColor: VALUE ? "orange" : undefined,
         }}
       />
     </div>
