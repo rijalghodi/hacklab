@@ -1,3 +1,4 @@
+import { customAlphabet } from "nanoid";
 import { type ClassValue, clsx } from "clsx";
 import colorFn from "color";
 import { twMerge } from "tailwind-merge";
@@ -5,6 +6,12 @@ import { twMerge } from "tailwind-merge";
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+
+export const generateId = (() => {
+  const alphabet = "abcdefghijklmnopqrstuvwxyz0123456789";
+  const nanoid = customAlphabet(alphabet, 8);
+  return () => nanoid();
+})();
 
 export function getBgColor(color?: string) {
   return color || "var(--xy-node-background-color-default)";

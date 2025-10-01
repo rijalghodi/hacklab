@@ -33,7 +33,7 @@ export function WireEdge({
   sourceHandleId,
   data,
 }: EdgeProps<Edge<StatefulWire>>) {
-  console.log("--------------WIRE EDGE--------------");
+  // console.log("--------------WIRE EDGE--------------");
 
   const [edgePath] = getSmoothStepPath({
     sourceX,
@@ -53,7 +53,7 @@ export function WireEdge({
   // const node = getNode(source);
 
   const VALUE = node?.data.ports?.find((port) => port.id === sourceHandleId)?.value;
-  console.log("VALUE", VALUE);
+  // console.log("VALUE", VALUE);
 
   useEffect(() => {
     if (!data?.id) {

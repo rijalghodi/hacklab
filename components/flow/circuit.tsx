@@ -20,15 +20,11 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import React, { useCallback } from "react";
 
 import { NodeType, StatefulChip, StatefulPort, StatefulWire } from "@/lib/types/flow";
+import { generateId } from "@/lib/utils";
 
-import { ChipNode } from "./chip-node";
-import { ConnectionLine } from "./connection-line";
+import { ChipNode, ConnectionLine, InNode, OutNode, WireEdge } from ".";
 import { useChips, useDnd, useFlowStore } from "./flow-store";
-import { InNode } from "./in-node";
-import { OutNode } from "./out-node";
-import { WireEdge } from "./wire-edge";
-import { Button } from "../ui/button";
-import { useSidebar } from "../ui/sidebar";
+import { Button, useSidebar } from "../ui";
 
 const nodeTypes = { [NodeType.CHIP]: ChipNode, [NodeType.IN]: InNode, [NodeType.OUT]: OutNode };
 const edgeTypes = { wire: WireEdge };
@@ -53,7 +49,7 @@ export function Circuit() {
 
   const onConnect = useCallback((params: Connection) => {
     console.log(params);
-    const id = crypto.randomUUID();
+    const id = generateId();
     setEdges((edgesSnapshot: Edge<StatefulWire>[]) =>
       addEdge(
         {
@@ -90,7 +86,7 @@ export function Circuit() {
         y: event.clientY,
       });
 
-      const id = crypto.randomUUID();
+      const id = generateId();
 
       const CHIP_DEFINITION = getChip(droppedName);
 

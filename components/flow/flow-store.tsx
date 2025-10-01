@@ -6,7 +6,7 @@ import { persist } from "zustand/middleware";
 
 import { builtInChips } from "@/lib/constants/chips";
 import { LOCAL_STORAGE_FLOW, LOCAL_STORAGE_SAVED_CHIPS } from "@/lib/constants/names";
-import { CircuitModule, StatefulChip,StatefulWire } from "@/lib/types/flow";
+import { CircuitModule, StatefulChip, StatefulWire } from "@/lib/types/flow";
 
 interface DndStore {
   droppedName: string;
@@ -22,7 +22,7 @@ export const useDnd = create<DndStore>((set) => ({
 interface ChipsStore {
   savedChips: CircuitModule[];
   setSavedChips: (chips: CircuitModule[]) => void;
-  // allChips: CircuitModule[];
+  allChips: () => CircuitModule[];
   getChip: (name: string) => CircuitModule | undefined;
 }
 
@@ -31,9 +31,9 @@ export const useChips = create<ChipsStore>()(
     (set, get) => ({
       savedChips: [],
       setSavedChips: (chips: CircuitModule[]) => set({ savedChips: chips }),
-      // get allChips() {
-      //   return [...get().savedChips, ...builtInChips];
-      // },
+      allChips() {
+        return [...get().savedChips, ...builtInChips];
+      },
       getChip: (name: string) =>
         get()
           .savedChips.concat(builtInChips)

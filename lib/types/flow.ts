@@ -75,7 +75,7 @@ export type CircuitModule = {
   label?: string; // e.g. "ALU 1"
   description?: string;
   color?: string;
-  nodes?: Chip[];
+  nodes: Chip[];
   edges?: Wire[];
   version?: string;
   createdAt?: string;

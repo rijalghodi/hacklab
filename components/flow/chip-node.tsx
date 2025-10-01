@@ -3,7 +3,7 @@
 import { Edge, Handle, type Node, type NodeProps, Position, useEdges, useReactFlow } from "@xyflow/react";
 import React, { useCallback, useEffect, useMemo } from "react";
 
-import { ChipName, NodeType, StatefulChip, StatefulWire } from "@/lib/types/flow";
+import { Chip, ChipName, CircuitModule, NodeType, StatefulChip, StatefulWire } from "@/lib/types/flow";
 import { cn, getBgBorderStyle } from "@/lib/utils";
 
 import { useChips, useFlowStore } from "./flow-store";
@@ -18,6 +18,7 @@ export function ChipNode(props: NodeProps<Node<StatefulChip>>) {
   console.log("--------------CHIP NODE--------------");
   const { data, selected } = props;
   const { getChip } = useChips();
+
   const { updateNodeData } = useReactFlow<Node<StatefulChip>, Edge<StatefulWire>>();
   // const edges = useFlowStore((state) => state.edges);
   const edges = useEdges();
@@ -36,32 +37,158 @@ export function ChipNode(props: NodeProps<Node<StatefulChip>>) {
 
   console.log("SOURCE EDGES", sourceEdges);
 
-  const edgeValues = Object.fromEntries(sourceEdges.map((edge) => [edge.targetHandle, edge.data?.value]));
+  const inputValues = Object.fromEntries(sourceEdges.map((edge) => [edge.targetHandle, edge.data?.value]));
 
-  console.log("EDGE VALUES", edgeValues);
+  console.log("inputValues", inputValues);
 
   const newInputPortValues: Record<string, boolean> = useMemo(() => {
-    return edgeValues;
-  }, [edgeValues]);
+    return inputValues;
+  }, [inputValues]);
 
   console.log("NEW INPUT PORT VALUES", newInputPortValues);
 
+  // ==== Function ====
   const computeOutputChips = useCallback(
-    (chipName: string, inputValues?: Record<string, boolean>): Record<string, boolean> | undefined | null => {
-      // TODO: use computeOutputChip to compute output chips loop
-      return null;
+    (chipName: string, inputValues?: Record<string, boolean>): Record<string, boolean | undefined> | undefined => {
+      const CHIP_DEFINITION = getChip(chipName);
+      if (!CHIP_DEFINITION) {
+        return;
+      }
+
+      const outputPortNames = CHIP_DEFINITION.nodes
+        ?.filter((node) => node.type === NodeType.OUT)
+        .map((node) => node.name);
+      if (!outputPortNames) {
+        return;
+      }
+      const outputPortValues = outputPortNames.map((outputPortName) =>
+        computeOutputChip(chipName, outputPortName, inputValues),
+      );
+      if (!outputPortValues) {
+        return;
+      }
+      return Object.fromEntries(
+        outputPortNames.map((outputPortName, index) => [outputPortName, outputPortValues[index]]),
+      );
     },
     [getChip],
   );
 
+  // ==== Function ====
+  const validateInputValues = useCallback(
+    (CHIP_DEFINITION: CircuitModule, inputValues: Record<string, boolean>): boolean => {
+      const inputPorts = CHIP_DEFINITION.nodes?.filter((node) => node.type === NodeType.IN);
+      if (!inputPorts) {
+        return false;
+      }
+
+      return inputPorts.every((inputPort) => inputValues[inputPort.id] !== undefined);
+    },
+    [],
+  );
+
+  // ==== Function ====
+
+  const computeOutputChipInsideCircuitModule = useCallback(
+    (chipName: string, outputPortName: string, previousChips?: Chip[]): boolean | undefined => {
+      return;
+    },
+    [],
+  );
+
+  const computeOutputCircuitModule = useCallback(
+    (chipName: string, outputPortName: string, inputValues?: Record<string, boolean>): boolean | undefined => {
+      // In advance chip, the chip is become a module
+      console.log("---------------------COMPUTE OUTPUT CIRCUIT MODULE---------------------");
+      console.log("chipName", chipName, "outputPortName", outputPortName, "inputValues", inputValues);
+      const CHIP_DEFINITION = getChip(chipName);
+      console.log("CHIP_DEFINITION", CHIP_DEFINITION);
+
+      if (!CHIP_DEFINITION) {
+        throw new Error("computeOutputCircuitModule: chip definition not found");
+      }
+
+      // ===== Validate input values ====
+      const isValid = validateInputValues(CHIP_DEFINITION, inputValues || {});
+      if (!isValid) {
+        throw new Error("computeOutputCircuitModule: invalid input values");
+      }
+
+      // ==== Compute input values ====
+      const outputNode = CHIP_DEFINITION.nodes.find(
+        (node) => node.type === NodeType.OUT && node.name === outputPortName,
+      );
+
+      if (!outputNode) {
+        throw new Error("computeOutputCircuitModule: output node not found");
+      }
+
+      const lastEdges = CHIP_DEFINITION.edges?.filter((edge) => edge.targetId === outputNode.id);
+      console.log("lastEdges", lastEdges);
+      if (!lastEdges) {
+        throw new Error("computeOutputCircuitModule: last edges not found");
+      }
+
+      const lastNodes = lastEdges.map((edge) => {
+        const foundedNode = CHIP_DEFINITION.nodes?.find((node) => node.id === edge.sourceId);
+        if (!foundedNode) {
+          return;
+        }
+        if (!edge.sourcePortId) {
+          return;
+        }
+
+        // find output port name
+        const outputPort = CHIP_DEFINITION.nodes?.find((node) => node.id === edge.sourcePortId);
+
+        if (!outputPort) {
+          return;
+        }
+
+        const inputPorts = CHIP_DEFINITION.nodes?.filter((node) => node.type === NodeType.IN);
+        if (!inputPorts) {
+          return;
+        }
+
+        return {
+          ...foundedNode,
+          inputPorts,
+          outputPort,
+        };
+      });
+
+      console.log("lastNodes", lastNodes);
+
+      for (const lastNode of lastNodes) {
+        if (!lastNode) {
+          continue;
+        }
+        // TODO: compute input values for lastNode
+
+        // const lastNodeInputPorts = lastNode.inputPorts;
+
+        // const lastNodeInputValues = lastNode.inputPorts.map((inputPort) => {});
+
+        const outputValue = computeOutputChip(lastNode.name, lastNode.outputPort.name, inputValues);
+        console.log("lastNode", lastNode.name + "-" + lastNode.id, "outputValue", outputValue);
+        if (outputValue) {
+          return true; // return true immediately
+        }
+      }
+    },
+    [getChip],
+  );
+
+  // ==== Function ====
   const computeOutputChip = useCallback(
-    (chipName: string, outputPortName: string, inputValues?: Record<string, boolean>): boolean | undefined | null => {
+    (chipName: string, outputPortName: string, inputValues?: Record<string, boolean>): boolean | undefined => {
       console.log("---------------------COMPUTE OUTPUT CHIP---------------------");
       console.log("chipName", chipName, "inputValues", inputValues);
       const CHIP_DEFINITION = getChip(chipName);
+      console.log("CHIP_DEFINITION", CHIP_DEFINITION);
 
       if (!CHIP_DEFINITION) {
-        return null;
+        return;
       }
 
       if (CHIP_DEFINITION.type === NodeType.IN) {
@@ -69,79 +196,33 @@ export function ChipNode(props: NodeProps<Node<StatefulChip>>) {
       }
 
       if (CHIP_DEFINITION.type === NodeType.OUT) {
-        return null;
+        return;
       }
 
-      if (CHIP_DEFINITION.type === NodeType.CHIP) {
-        if (chipName === "FOO") {
-          console.log("------- NAND CHIP ---------");
-          const a = inputValues?.a;
-          const b = inputValues?.b;
-
-          return !(a && b);
-        } else {
-          console.log("------- NOT BASIC CHIP ---------");
-          console.log("CHIP_DEFINITION", CHIP_DEFINITION);
-          if (!CHIP_DEFINITION.nodes) {
-            return null;
-          }
-
-          // ==== Compute input values ====
-          // const inputNodes = CHIP_DEFINITION.nodes.filter((node) => node.type === NodeType.IN);
-
-          const outputNode = CHIP_DEFINITION.nodes.find(
-            (node) => node.type === NodeType.OUT && node.name === outputPortName,
-          );
-
-          if (!outputNode) {
-            return null;
-          }
-
-          const lastEdges = CHIP_DEFINITION.edges?.filter((edge) => edge.targetId === outputNode.id);
-          console.log("lastEdges", lastEdges);
-          if (!lastEdges) {
-            return null;
-          }
-
-          for (const lastEdge of lastEdges) {
-            const lastNode = CHIP_DEFINITION.nodes?.find((node) => node.id === lastEdge.sourceId);
-            const outputPortName = lastEdge.sourcePortId;
-
-            console.log("lastNode", lastNode);
-            if (!lastNode) {
-              continue;
-            }
-
-            if (!outputPortName) {
-              continue;
-            }
-
-            // const lastNodeInput = lastNode.?.find((node) => node.id === beforeEdge.sourcePortId);
-
-            const lastNodeOutput = computeOutputChip(lastNode.name, outputPortName, inputValues);
-            console.log("lastNodeOutput", lastNodeOutput);
-
-            // update
-            if (!lastNodeOutput) {
-              return null;
-            }
-
-            // outputValues = prevNodeOutputs;
-          }
+      if (chipName === ChipName.NAND) {
+        console.log("------- NAND CHIP ---------");
+        const a = inputValues?.a;
+        const b = inputValues?.b;
+        if (a === undefined || b === undefined) {
+          return;
+        }
+        return !(a && b);
+      } else {
+        console.log("------- ADVANCED CHIP ---------");
+        const outputValues = computeOutputCircuitModule(chipName, outputPortName, inputValues);
+        if (!outputValues) {
+          return;
         }
 
-        // return outputNodeOutputs;
+        return outputValues;
       }
     },
-
-    // return null;
-
     [getChip],
   );
 
   useEffect(() => {
     // compute output ports
-    const outputPortValues = computeOutputChip(data.name, newInputPortValues);
+    const outputPortValues = computeOutputChips(data.name, newInputPortValues);
 
     const newPortValues = { ...newInputPortValues, ...outputPortValues };
 
@@ -203,7 +284,7 @@ export function ChipNode(props: NodeProps<Node<StatefulChip>>) {
             width: PORT_WIDTH,
             borderRadius: 100,
             border: "none",
-            // backgroundColor: port.value ? "red" : undefined,
+            backgroundColor: port.value ? "orange" : undefined,
           }}
         />
       ))}
@@ -223,7 +304,7 @@ export function ChipNode(props: NodeProps<Node<StatefulChip>>) {
             width: PORT_WIDTH,
             borderRadius: 100,
             border: "none",
-            // backgroundColor: port.value ? "red" : undefined,
+            backgroundColor: port.value ? "orange" : undefined,
           }}
         />
       ))}
