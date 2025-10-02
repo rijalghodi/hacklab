@@ -174,6 +174,15 @@ export const buildCircuitTree = (chipType: NodeType, chipName: string, definitio
   return buildOutputConnections(chip, definitions);
 };
 
+// ===== build main circuit tree =====
+const buildMainCircuitTree = (chipName: string, definitions: CircuitModule[]): CircuitTree => {
+  const chip = findChipByName(chipName, definitions);
+  if (!chip) {
+    throw new Error(`buildMainCircuitTree: chip ${chipName} not found`);
+  }
+  return buildOutputConnections(chip, definitions);
+};
+
 //  ==== Compute Output Circuit Node ====
 export const computeOutputCircuitNode = (circuitNode: CircuitNode, inputValues: Record<string, boolean>): boolean => {
   if (circuitNode.type === NodeType.IN) {
