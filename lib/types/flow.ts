@@ -93,15 +93,15 @@ export type Circuit = {
 // ==== Circuit Tree ====
 
 export type CircuitSource = {
-  id: string; // port id
+  portName: string; // port id
   nodes: CircuitNode[];
 };
 
 export type CircuitNode = {
-  id?: string;
+  // id?: string;
   name: string;
   type: NodeType;
-  inputs?: CircuitOutputs;
+  sources?: CircuitSource[];
 };
 
 export type CircuitOutputs = Record<string, CircuitNode[]>;
@@ -137,21 +137,26 @@ const nandExample: CircuitOutputs = {
     {
       name: "NAND",
       type: NodeType.CHIP,
-      inputs: {
-        // a here is a nand input port
-        a: [
-          {
-            name: "a", // a heere is input node name
-            type: NodeType.IN,
-          },
-        ],
-        b: [
-          {
-            name: "b", // b here is input node name
-            type: NodeType.IN,
-          },
-        ],
-      },
+      sources: [
+        {
+          portName: "a",
+          nodes: [
+            {
+              name: "a",
+              type: NodeType.IN,
+            },
+          ],
+        },
+        {
+          portName: "b",
+          nodes: [
+            {
+              name: "b",
+              type: NodeType.IN,
+            },
+          ],
+        },
+      ],
     },
   ],
 };
@@ -160,88 +165,29 @@ export const exampleCircuitTree0: CircuitOutputs = {
   out: [
     {
       name: "out",
-      id: "out",
       type: NodeType.OUT,
-      // outputPortId: "out",
-      inputs: {
-        a: [
-          {
-            id: "not",
-            type: NodeType.CHIP,
-            name: "NOT",
-            // outputPortId: "out",
-            inputs: {
-              in: [
+      sources: [
+        {
+          portName: "a",
+          nodes: [
+            {
+              name: "NOT",
+              type: NodeType.CHIP,
+              sources: [
                 {
-                  id: "in",
-                  name: "in",
-                  // outputPortId: "a",
-                  type: NodeType.IN,
+                  portName: "in",
+                  nodes: [
+                    {
+                      name: "in",
+                      type: NodeType.IN,
+                    },
+                  ],
                 },
               ],
             },
-          },
-        ],
-      },
-    },
-  ],
-};
-
-export const exampleCircuitTree: CircuitOutputs = {
-  out: [
-    {
-      name: "out",
-      type: NodeType.OUT,
-      inputs: {
-        a: [
-          {
-            type: NodeType.CHIP,
-            name: "NAND",
-            inputs: {
-              a: [
-                {
-                  name: "a",
-                  type: NodeType.IN,
-                },
-              ],
-              b: [
-                {
-                  name: "b",
-                  type: NodeType.IN,
-                },
-              ],
-            },
-          },
-        ],
-      },
-    },
-  ],
-};
-
-const notExample: CircuitOutputs = {
-  out: [
-    {
-      name: "NAND",
-      type: NodeType.CHIP,
-      inputs: {
-        a: [
-          {
-            id: "123",
-            name: "a",
-            type: NodeType.IN,
-            inputs: {
-              // a is in node name
-              a: [],
-            },
-          },
-        ],
-        b: [
-          {
-            name: "b",
-            type: NodeType.IN,
-          },
-        ],
-      },
+          ],
+        },
+      ],
     },
   ],
 };

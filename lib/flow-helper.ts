@@ -1,4 +1,13 @@
-import { Chip, ChipName, CircuitModule, CircuitNode, CircuitOutputs, NAND_OUT_NAME, NodeType } from "./types/flow";
+import {
+  Chip,
+  ChipName,
+  CircuitModule,
+  CircuitNode,
+  CircuitOutputs,
+  CircuitSource,
+  NAND_OUT_NAME,
+  NodeType,
+} from "./types/flow";
 
 // ===== Helper Functions =====
 
@@ -31,8 +40,9 @@ const createInputNode = (chipName: string): CircuitNode => ({
 /**
  * Creates a simple output tree for input nodes
  */
-const createInputOutputTree = (chipName: string): CircuitOutputs => ({
-  [ChipName.OUT]: [createInputNode(chipName)],
+const inputSource = (chipName: string): CircuitSource => ({
+  portName: chipName,
+  nodes: [createInputNode(chipName)],
 });
 
 /**
@@ -49,7 +59,11 @@ const isNandChip = (chipName: string, chipType: NodeType): boolean =>
 /**
  * Builds input connections for a chip
  */
-const buildInputConnections = (chip: ChipMinimal, definitions: CircuitModule[]): Record<string, CircuitNode[]> => {
+const buildInputConnections = (
+  chip: ChipMinimal,
+  definitions: CircuitModule[],
+  prevChips: ChipMinimal[] | null,
+): CircuitSource[] => {
   console.log("----------------------------------- BUILD INPUT CONNECTIONS -----------------------------------");
   console.log("chipName", chip.name, "chipType", chip.type);
   const circuit = findChipDefinition(chip.name, chip.type, definitions);
@@ -61,15 +75,15 @@ const buildInputConnections = (chip: ChipMinimal, definitions: CircuitModule[]):
     throw new Error("buildInputConnections: input ports not found");
   }
 
-  const circuitNodeInputs: Record<string, CircuitNode[]> = {};
+  const circuitSources: CircuitSource[] = [];
 
   for (const inputPort of inputPorts) {
     console.log("inputPort", inputPort);
     if (inputPort.type === NodeType.IN) {
       console.log("BUILD INPUT CONNECTIONS: INPUT PORT IS AN INPUT PORT");
       // Handle direct input connection
-      const internalTree = buildCircuitOutputs({ name: inputPort.name, type: inputPort.type }, definitions);
-      circuitNodeInputs[inputPort.name] = internalTree[ChipName.OUT];
+      const internalSources = buildCircuitSources({ name: inputPort.name, type: inputPort.type }, definitions);
+      circuitSources.push(...internalSources);
       continue;
     }
 
@@ -84,55 +98,65 @@ const buildInputConnections = (chip: ChipMinimal, definitions: CircuitModule[]):
         throw new Error("buildInputConnections: source node not found");
       }
 
-      const circuitTreeNode = buildCircuitNode(sourceNode, definitions);
+      const circuitTreeNode = buildCircuitNode(sourceNode, definitions, prevChips);
       connectedNodes.push(circuitTreeNode);
     }
 
-    circuitNodeInputs[inputPort.name] = connectedNodes;
+    circuitSources.push({
+      portName: inputPort.name,
+      nodes: connectedNodes,
+    });
   }
 
-  return circuitNodeInputs;
+  return circuitSources;
 };
 
 /**
  * Builds output connections for a chip
  */
-const buildOutputConnections = (chip: CircuitModule, definitions: CircuitModule[]): CircuitOutputs => {
+const buildOutputConnections = (chip: CircuitModule, definitions: CircuitModule[]): CircuitSource[] => {
+  // Exclude IN and OUT nodes
+  if (chip.type === NodeType.IN || chip.type === NodeType.OUT) {
+    return [];
+  }
+  const inputPorts = chip.nodes.filter((node) => node.type === NodeType.IN);
+  const prevChips: ChipMinimal[] | null = inputPorts.map((inputPort) => {
+    // find edge
+    return {
+      name: inputPort.name,
+      type: inputPort.type,
+    };
+  });
+
   const outputPorts = chip.nodes.filter((node) => node.type === NodeType.OUT);
-  const outputs: CircuitOutputs = {};
-
-  // Base case: Input node
-  // if (isBaseCase(chipType)) {
-  //   return createInputOutputTree(chipName);
-  // }
-
-  // Special case: NAND chip
-  // if (isNandChip(chip.name, chip.type)) {
-  //   console.log("BUILD NAND CHIP");
-  //   const circuitNode = buildCircuitNode({ name: chip.name, type: chip.type }, definitions);
-  //   console.log("circuitNode", circuitNode);
-  //   return {
-  //     [NAND_OUT_NAME]: [circuitNode],
-  //   };
-  // }
+  const sources: CircuitSource[] = [];
 
   for (const outputPort of outputPorts) {
     const outputPortName = outputPort.name;
 
     if (isBaseCase(chip.type)) {
-      outputs[outputPortName] = [createInputNode(outputPortName)];
+      sources.push({
+        portName: outputPortName,
+        nodes: [createInputNode(outputPortName)],
+      });
       continue;
     }
 
     if (isNandChip(chip.name, chip.type)) {
       console.log("BUILD NAND CHIP");
-      const circuitNode = buildCircuitNode({ name: chip.name, type: chip.type }, definitions);
+      const circuitNode = buildCircuitNode({ name: chip.name, type: chip.type }, definitions, prevChips);
       console.log("circuitNode", circuitNode);
-      outputs[outputPortName] = [circuitNode];
+      sources.push({
+        portName: outputPortName,
+        nodes: [circuitNode],
+      });
       continue;
     }
 
-    outputs[outputPortName] = [];
+    sources.push({
+      portName: outputPortName,
+      nodes: [],
+    });
     const edgesToOutputPort = chip.edges?.filter((edge) => edge.targetId === outputPort.id) ?? [];
 
     for (const edge of edgesToOutputPort) {
@@ -141,12 +165,15 @@ const buildOutputConnections = (chip: CircuitModule, definitions: CircuitModule[
         continue;
       }
 
-      const circuitTreeNode = buildCircuitNode(sourceNode, definitions);
-      outputs[outputPortName].push(circuitTreeNode);
+      const circuitTreeNode = buildCircuitNode(sourceNode, definitions, prevChips);
+      sources.push({
+        portName: outputPortName,
+        nodes: [circuitTreeNode],
+      });
     }
   }
 
-  return outputs;
+  return sources;
 };
 
 // ===== Main Functions =====
@@ -157,7 +184,11 @@ type ChipMinimal = {
 };
 
 //  ==== Build Circuit Node ====
-const buildCircuitNode = (chip: ChipMinimal, definitions: CircuitModule[], prevChip?: ChipMinimal): CircuitNode => {
+const buildCircuitNode = (
+  chip: ChipMinimal,
+  definitions: CircuitModule[],
+  prevChips: ChipMinimal[] | null,
+): CircuitNode => {
   console.log("----------------------------------- BUILD CIRCUIT NODE -----------------------------------");
   console.log("chipName", chip.name, "chipType", chip.type);
 
@@ -171,46 +202,29 @@ const buildCircuitNode = (chip: ChipMinimal, definitions: CircuitModule[], prevC
   };
 
   // Base case: Input node
-  if (isBaseCase(chip.type) && !prevChip) {
+  if (isBaseCase(chip.type) && !prevChips) {
     return circuitNode;
   }
 
-  // if (isNandChip(chip.name, chip.type)) {
-  //   console.log("BUILD NAND CHIP");
-  //   const circuitNode = buildCircuitNode({ name: chip.name, type: chip.type }, definitions);
-  //   console.log("circuitNode", circuitNode);
-  //   return circuitNode;
-  // }
-
   // Build input connections
-  const inputConnections = buildInputConnections(chip, definitions);
-  circuitNode.inputs = inputConnections;
+  const inputConnections = buildInputConnections(chip, definitions, prevChips);
+  circuitNode.sources = inputConnections;
 
   return circuitNode;
 };
 
-//  ==== Build Circuit Tree ====
-export const buildCircuitOutputs = (chip: ChipMinimal, definitions: CircuitModule[]): CircuitOutputs => {
+//  ==== Build Circuit Sources ====
+export const buildCircuitSources = (chip: ChipMinimal, definitions: CircuitModule[]): CircuitSource[] => {
   console.log("----------------------------------- BUILD CIRCUIT TREE -----------------------------------");
-  console.log("chipName", chip.name, "chipType", chip.type);
-
-  const chipName = chip.name;
-  const chipType = chip.type;
+  const { name: chipName, type: chipType } = chip;
+  console.log("chipName", chipName, "chipType", chipType);
 
   // Base case: Input node
   if (isBaseCase(chipType)) {
-    return createInputOutputTree(chipName);
+    return [inputSource(chipName)];
   }
 
-  // Special case: NAND chip
-  // if (isNandChip(chipName, chipType)) {
-  //   console.log("BUILD NAND CHIP");
-  //   const circuitNode = buildCircuitNode({ name: chipName, type: chipType }, definitions);
-  //   console.log("circuitNode", circuitNode);
-  //   return {
-  //     [NAND_OUT_NAME]: [circuitNode],
-  //   };
-  // }
+  const prevChip: ChipMinimal | null = null;
 
   // General case: Complex chip
   const circuitModule = findChipByName(chipName, definitions);
@@ -222,28 +236,19 @@ export const buildCircuitOutputs = (chip: ChipMinimal, definitions: CircuitModul
   return buildOutputConnections(circuitModule, definitions);
 };
 
-// ===== build main circuit tree =====
-// const buildMainCircuitTree = (chipName: string, definitions: CircuitModule[]): CircuitTree => {
-//   const chip = findChipByName(chipName, definitions);
-//   if (!chip) {
-//     throw new Error(`buildMainCircuitTree: chip ${chipName} not found`);
-//   }
-//   return buildOutputConnections(chip, definitions);
-// };
-
 //  ==== Compute Output Circuit Node ====
-export const computeOutputCircuitNode = (circuitNode: CircuitNode, inputValues: Record<string, boolean>): boolean => {
+export const computeCircuitNode = (circuitNode: CircuitNode, inputValues: Record<string, boolean>): boolean => {
   if (circuitNode.type === NodeType.IN) {
     return inputValues[circuitNode.name];
   }
   if (circuitNode.type === NodeType.CHIP && circuitNode.name === ChipName.NAND) {
-    if (circuitNode.inputs === undefined) {
-      throw new Error("computeOutputCircuitNode: inputs NAND id " + circuitNode.id + " not found");
+    if (circuitNode.sources === undefined) {
+      throw new Error("computeOutputCircuitNode: inputs NAND id " + circuitNode.name + " not found");
     }
 
-    const preValues = computeOutputCircuitTree(circuitNode.inputs, inputValues);
+    const preValues = computeCircuitSources(circuitNode.sources, inputValues);
     if (preValues === undefined) {
-      throw new Error("computeOutputCircuitNode: prev values NAND id " + circuitNode.id + " not found");
+      throw new Error("computeOutputCircuitNode: prev values NAND id " + circuitNode.name + " not found");
     }
     return !(preValues.a && preValues.b);
   }
@@ -251,20 +256,21 @@ export const computeOutputCircuitNode = (circuitNode: CircuitNode, inputValues: 
 };
 
 //  ==== Compute Output Circuit Tree ====
-export const computeOutputCircuitTree = (
-  circuitTree: CircuitOutputs,
+export const computeCircuitSources = (
+  circuitSources: CircuitSource[],
   inputValues: Record<string, boolean>,
 ): Record<string, boolean> => {
   const outputValues: Record<string, boolean> = {};
 
   // Compute output value for each output port
-  for (const outputPortName in circuitTree) {
-    const outputPortNodes = circuitTree[outputPortName];
+  for (const source of circuitSources) {
+    const outputPortNodes = source.nodes;
+    const sourcePortName = source.portName;
 
     // Process each node connected to this output port
     for (const circuitNode of outputPortNodes) {
-      const computedValue = computeOutputCircuitNode(circuitNode, inputValues);
-      outputValues[outputPortName] = computedValue;
+      const computedValue = computeCircuitNode(circuitNode, inputValues);
+      outputValues[sourcePortName] = computedValue;
       if (computedValue === true) {
         break;
       }
@@ -283,9 +289,9 @@ export const computeOutputChip = (
   console.log("----------------------------------- COMPUTE OUTPUT CHIP -----------------------------------");
   console.log("chipName", chipName, "inputValues", inputValues);
   console.log("definitions", definitions);
-  const circuitTree = buildCircuitOutputs({ name: chipName, type: NodeType.CHIP }, definitions);
+  const circuitTree = buildCircuitSources({ name: chipName, type: NodeType.CHIP }, definitions);
   console.log("----------------------------------------------------------------------");
   console.log("circuitTree", circuitTree);
-  return computeOutputCircuitTree(circuitTree, inputValues);
+  return computeCircuitSources(circuitTree, inputValues);
   // return {};
 };
