@@ -1,4 +1,4 @@
-import { ChipName, CircuitModule, CircuitNode, CircuitTree, NAND_OUT_NAME,NodeType } from "./types/flow";
+import { ChipName, CircuitModule, CircuitNode, CircuitOutputs, NAND_OUT_NAME, NodeType } from "./types/flow";
 
 //  ==== Build Circuit Node ====
 const buildCircuitNode = (chipType: NodeType, chipName: string, definitions: CircuitModule[]): CircuitNode => {
@@ -94,7 +94,11 @@ const buildCircuitNode = (chipType: NodeType, chipName: string, definitions: Cir
 };
 
 //  ==== Build Circuit Tree ====
-export const buildCircuitTree = (chipType: NodeType, chipName: string, definitions: CircuitModule[]): CircuitTree => {
+export const buildCircuitTree = (
+  chipType: NodeType,
+  chipName: string,
+  definitions: CircuitModule[],
+): CircuitOutputs => {
   console.log("----------------------------------- BUILD CIRCUIT TREE -----------------------------------");
   console.log("chipName", chipName, "chipType", chipType);
 
@@ -172,7 +176,7 @@ export const computeOutputCircuitNode = (circuitNode: CircuitNode, inputValues: 
 
 //  ==== Compute Output Circuit Tree ====
 export const computeOutputCircuitTree = (
-  circuitTree: CircuitTree,
+  circuitTree: CircuitOutputs,
   inputValues: Record<string, boolean>,
 ): Record<string, boolean> => {
   const outputValues: Record<string, boolean> = {};

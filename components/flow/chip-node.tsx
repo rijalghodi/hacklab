@@ -39,7 +39,12 @@ export function ChipNode(props: NodeProps<Node<StatefulChip>>) {
 
   console.log("SOURCE EDGES", sourceEdges);
 
-  const inputValues = Object.fromEntries(sourceEdges.map((edge) => [edge.targetHandle, edge.data?.value]));
+  const inputValues = Object.fromEntries(
+    sourceEdges.map((edge) => {
+      const portName = CHIP_DEFINITION?.nodes?.find((node) => node.id === edge.targetHandle)?.name;
+      return [portName, edge.data?.value];
+    }),
+  );
 
   console.log("inputValues", inputValues);
 

@@ -92,14 +92,19 @@ export type Circuit = {
 
 // ==== Circuit Tree ====
 
+export type CircuitSource = {
+  id: string; // port id
+  nodes: CircuitNode[];
+};
+
 export type CircuitNode = {
   id?: string;
   name: string;
   type: NodeType;
-  inputs?: CircuitTree;
+  inputs?: CircuitOutputs;
 };
 
-export type CircuitTree = Record<string, CircuitNode[]>;
+export type CircuitOutputs = Record<string, CircuitNode[]>;
 
 // export type InputConnections = Record<string, CircuitNode[]>;
 // export type CircuitTree1 = {
@@ -127,8 +132,31 @@ export type CircuitTree = Record<string, CircuitNode[]>;
 // };
 
 // === Example ===
+const nandExample: CircuitOutputs = {
+  out: [
+    {
+      name: "NAND",
+      type: NodeType.CHIP,
+      inputs: {
+        // a here is a nand input port
+        a: [
+          {
+            name: "a", // a heere is input node name
+            type: NodeType.IN,
+          },
+        ],
+        b: [
+          {
+            name: "b", // b here is input node name
+            type: NodeType.IN,
+          },
+        ],
+      },
+    },
+  ],
+};
 
-export const exampleCircuitTree0: CircuitTree = {
+export const exampleCircuitTree0: CircuitOutputs = {
   out: [
     {
       name: "out",
@@ -159,7 +187,7 @@ export const exampleCircuitTree0: CircuitTree = {
   ],
 };
 
-export const exampleCircuitTree: CircuitTree = {
+export const exampleCircuitTree: CircuitOutputs = {
   out: [
     {
       name: "out",
@@ -190,30 +218,7 @@ export const exampleCircuitTree: CircuitTree = {
   ],
 };
 
-const nandExample: CircuitTree = {
-  out: [
-    {
-      name: "NAND",
-      type: NodeType.CHIP,
-      inputs: {
-        // a here is a nand input port
-        a: [
-          {
-            name: "a", // a heere is input node name
-            type: NodeType.IN,
-          },
-        ],
-        b: [
-          {
-            name: "b", // b here is input node name
-            type: NodeType.IN,
-          },
-        ],
-      },
-    },
-  ],
-};
-const notExample: CircuitTree = {
+const notExample: CircuitOutputs = {
   out: [
     {
       name: "NAND",
