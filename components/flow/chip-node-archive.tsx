@@ -3,7 +3,7 @@
 import { Edge, Handle, type Node, type NodeProps, Position, useEdges, useReactFlow } from "@xyflow/react";
 import React, { useCallback, useEffect, useMemo } from "react";
 
-import { Chip, ChipName, CircuitModule, NodeType, StatefulChip, StatefulWire } from "@/lib/types/flow";
+import { Chip, ChipName, Circuit, NodeType, StatefulChip, StatefulWire } from "@/lib/types/flow";
 import { cn, getBgBorderStyle } from "@/lib/utils";
 
 import { useChips } from "./flow-store";
@@ -75,17 +75,14 @@ export function ChipNode(props: NodeProps<Node<StatefulChip>>) {
   );
 
   // ==== Function ====
-  const validateInputValues = useCallback(
-    (CHIP_DEFINITION: CircuitModule, inputValues: Record<string, boolean>): boolean => {
-      const inputPorts = CHIP_DEFINITION.nodes?.filter((node) => node.type === NodeType.IN);
-      if (!inputPorts) {
-        return false;
-      }
+  const validateInputValues = useCallback((CHIP_DEFINITION: Circuit, inputValues: Record<string, boolean>): boolean => {
+    const inputPorts = CHIP_DEFINITION.nodes?.filter((node) => node.type === NodeType.IN);
+    if (!inputPorts) {
+      return false;
+    }
 
-      return inputPorts.every((inputPort) => inputValues[inputPort.id] !== undefined);
-    },
-    [],
-  );
+    return inputPorts.every((inputPort) => inputValues[inputPort.id] !== undefined);
+  }, []);
 
   // ==== Function ====
 

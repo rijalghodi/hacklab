@@ -3,10 +3,10 @@
 import React from "react";
 
 import { builtInChips } from "@/lib/constants/chips";
-import { CircuitModule } from "@/lib/types/flow";
+import { Circuit } from "@/lib/types/flow";
 import { getBgBorderStyle } from "@/lib/utils";
 
-import { useChips,useDnd } from "./flow-store";
+import { useChips, useDnd } from "./flow-store";
 import {
   Sidebar,
   SidebarContent,
@@ -57,7 +57,7 @@ export function FlowSidebar() {
         <SidebarGroup>
           <SidebarGroupLabel className="font-mono">Saved Chips</SidebarGroupLabel>
           <SidebarGroupContent>
-            {savedChips?.map((chip: CircuitModule) => (
+            {savedChips?.map((chip: Circuit) => (
               <ChipOptionComponent key={chip.name} color={chip.color} name={chip.name} />
             ))}
           </SidebarGroupContent>

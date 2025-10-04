@@ -71,7 +71,7 @@ export type StatefulWire = Wire & {
   value?: boolean;
 };
 
-export type CircuitModule = {
+export type Circuit = {
   type: NodeType;
   name: string; // e.g. "ALU"
   label?: string; // e.g. "ALU 1"
@@ -84,11 +84,11 @@ export type CircuitModule = {
   createdBy?: string;
 };
 
-export type Circuit = {
-  name: string;
-  nodes: XYFlowNode<StatefulChip>[];
-  edges: XYFlowEdge<StatefulWire>[];
-};
+// export type Circuit = {
+//   name: string;
+//   nodes: XYFlowNode<StatefulChip>[];
+//   edges: XYFlowEdge<StatefulWire>[];
+// };
 
 // ==== Circuit Tree ====
 

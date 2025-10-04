@@ -1,8 +1,8 @@
 "use client";
 
-import { ChipName, CircuitModule, NAND_OUT_NAME, NodeType } from "../types/flow";
+import { ChipName, Circuit, NAND_OUT_NAME, NodeType } from "../types/flow";
 
-export const builtInChips: CircuitModule[] = [
+export const builtInChips: Circuit[] = [
   {
     type: NodeType.IN,
     name: ChipName.IN,
