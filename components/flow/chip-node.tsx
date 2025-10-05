@@ -16,28 +16,19 @@ const MIN_CHIP_HEIGHT = 24;
 const MIN_CHIP_WIDTH = 50;
 
 export function ChipNode(props: NodeProps<Node<StatefulChip>>) {
-  console.log("--------------CHIP NODE--------------");
   const { data, selected } = props;
   const { getChip, allChips } = useChips();
   const DEFINITIONS = allChips();
 
   const { updateNodeData } = useReactFlow<Node<StatefulChip>, Edge<StatefulWire>>();
-  // const edges = useFlowStore((state) => state.edges);
   const edges = useEdges();
 
-  console.log("EDGES", edges);
-
   const CHIP_DEFINITION = getChip(data.name);
-  console.log("data.ports", data.ports);
   const inputPorts = data.ports?.filter((port) => port.type === NodeType.IN);
-  console.log("inputPorts", inputPorts);
   const outputPorts = data.ports?.filter((port) => port.type === NodeType.OUT);
-  console.log("outputPorts", outputPorts);
   const maxPorts = Math.max(inputPorts?.length || 0, outputPorts?.length || 0);
 
   const sourceEdges = edges.filter((edge) => edge.target === data.id);
-
-  console.log("SOURCE EDGES", sourceEdges);
 
   const inputValues = Object.fromEntries(
     sourceEdges.map((edge) => {
@@ -46,50 +37,36 @@ export function ChipNode(props: NodeProps<Node<StatefulChip>>) {
     }),
   );
 
-  console.log("inputValues", inputValues);
-
-  // const newInputPortValues: Record<string, boolean> = useMemo(() => {
-  //   return inputValues;
-  // }, [inputValues]);
-
-  // console.log("NEW INPUT PORT VALUES", newInputPortValues);
-
   useEffect(() => {
-    console.log("---------------------COMPUTE OUTPUT CHIP: USE EFFECT---------------------");
-    const outputPortValues = computeOutputChip(data.name, inputValues, DEFINITIONS);
-    console.log("OUTPUT PORT VALUES", outputPortValues);
+    const outputValues = computeOutputChip(data.name, inputValues, DEFINITIONS);
+    const newPortValues = { ...inputValues, ...outputValues };
 
     if (data.ports === undefined) {
       return;
     }
 
-    const newOutputPorts = data.ports?.map((port) => {
-      if (outputPortValues[port.name] === undefined) {
+    const newPorts = data.ports?.map((port) => {
+      if (newPortValues[port.name] === undefined) {
         return port;
       }
       return {
         ...port,
-        value: outputPortValues[port.name],
+        value: outputValues[port.name],
       };
     });
+
     updateNodeData(data.id, {
-      ports: newOutputPorts,
+      ports: newPorts,
     });
   }, [data.name, JSON.stringify(inputValues), computeOutputChip]);
 
   const chipHeight = useMemo(() => {
     return Math.max(MIN_CHIP_HEIGHT, (maxPorts + 0.5) * PORT_SPACING);
-  }, [CHIP_DEFINITION]);
+  }, [maxPorts]);
 
   const portOffset = useCallback((index: number, totalPorts: number) => {
-    const isOdd = totalPorts % 2 === 1;
     const centerIndex = totalPorts / 2 - 0.5;
-
-    if (isOdd) {
-      return (index - centerIndex) * PORT_SPACING;
-    } else {
-      return (index - centerIndex) * PORT_SPACING;
-    }
+    return (index - centerIndex) * PORT_SPACING;
   }, []);
 
   return (
@@ -123,9 +100,7 @@ export function ChipNode(props: NodeProps<Node<StatefulChip>>) {
             borderRadius: 100,
             border: "none",
           }}
-        >
-          {/* {port.value ? "true" : "false"} */}
-        </Handle>
+        />
       ))}
 
       {/* Output ports */}

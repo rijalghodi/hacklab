@@ -34,16 +34,16 @@ export const builtInChips: Circuit[] = [
       {
         id: "nand.a--nand.out",
         sourceId: "nand.a",
-        sourcePortId: "a",
+        sourcePortId: "out",
         targetId: "nand.out",
-        targetPortId: "out",
+        targetPortId: "in",
       },
       {
         id: "nand.b--nand.out",
         sourceId: "nand.b",
-        sourcePortId: "b",
+        sourcePortId: "out",
         targetId: "nand.out",
-        targetPortId: "out",
+        targetPortId: "in",
       },
     ],
     version: "1.0",
@@ -67,14 +67,14 @@ export const builtInChips: Circuit[] = [
       {
         id: "not.in--not.nand.a",
         sourceId: "not.in",
-        sourcePortId: "in",
+        sourcePortId: "out",
         targetId: "not.nand",
         targetPortId: "nand.a",
       },
       {
         id: "not.in--not.nand.b",
         sourceId: "not.in",
-        sourcePortId: "in",
+        sourcePortId: "out",
         targetId: "not.nand",
         targetPortId: "nand.b",
       },
@@ -83,7 +83,7 @@ export const builtInChips: Circuit[] = [
         sourceId: "not.nand",
         sourcePortId: "nand.out",
         targetId: "not.out",
-        targetPortId: "out",
+        targetPortId: "in",
       },
     ],
     version: "1.0",
@@ -144,104 +144,3 @@ export const builtInChips: Circuit[] = [
     createdBy: "system",
   },
 ];
-
-// const NOT_TEST = [
-//   {
-//     type: NodeType.OUT,
-//     name: "out",
-//     id: "out",
-//     prevEdges: [
-//       {
-//         id: "nand.out--out",
-//         sourceId: "nand",
-//         sourcePortId: "out",
-//         targetId: "out",
-//         targetPortId: "out",
-//         prevNode: {
-//           type: NodeType.CHIP,
-//           name: "NAND",
-//           id: "nand",
-//           prevEdges: [
-//             {
-//               id: "in--nand.a",
-//               sourceId: "in",
-//               sourcePortId: "in",
-//               targetId: "nand",
-//               targetPortId: "a",
-//               prevNode: {
-//                 type: NodeType.IN,
-//                 name: "in",
-//                 id: "in",
-//               },
-//             },
-//             {
-//               id: "in--nand.b",
-//               sourceId: "in",
-//               sourcePortId: "in",
-//               targetId: "nand",
-//               targetPortId: "b",
-//               prevNode: {
-//                 type: NodeType.IN,
-//                 name: "in",
-//                 id: "in",
-//               },
-//             },
-//           ],
-//         },
-//       },
-//     ],
-//   },
-// ];
-
-// const AND_TEST = [
-//   {
-//     type: NodeType.OUT,
-//     name: "out",
-//     id: "out",
-//     prevEdges: [
-//       {
-//         id: "nand.out--out",
-//         sourceId: "nand",
-//         sourcePortId: "out",
-//         targetId: "out",
-//         targetPortId: "out",
-//         prevNode: {
-//           type: NodeType.CHIP,
-//           name: "NAND",
-//           id: "nand",
-//           prevEdges: [
-//             {
-//               id: "in--nand.a",
-//               sourceId: "in",
-//               sourcePortId: "in",
-//               targetId: "nand",
-//               targetPortId: "a",
-//               prevNode: {
-//                 type: NodeType.IN,
-//                 name: "in",
-//                 id: "in",
-//               },
-//             },
-//             {
-//               id: "in--nand.b",
-//               sourceId: "in",
-//               sourcePortId: "in",
-//               targetId: "nand",
-//               targetPortId: "b",
-//               prevNode: {
-//                 type: NodeType.IN,
-//                 name: "in",
-//                 id: "in",
-//               },
-//             },
-//           ],
-//         },
-//       },
-//     ],
-//   },
-// ];
-
-// export const getChipDefintion = (name: string) => {
-//   const savedChips = useSavedChips((state) => state.savedChips);
-//   return [...builtInChips, ...savedChips].find((chip) => chip.name === name);
-// };
