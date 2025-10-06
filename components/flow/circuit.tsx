@@ -22,7 +22,7 @@ import React, { useCallback } from "react";
 import { NodeType, StatefulChip, StatefulPort, StatefulWire } from "@/lib/types/flow";
 import { generateId } from "@/lib/utils";
 
-import { ChipNode, ConnectionLine, InNode, OutNode, WireEdge } from ".";
+import { ChipNode, ConnectionLine, InNode, OutNode, SaveChipDialog, WireEdge } from ".";
 import { useChips, useDnd, useFlowStore } from "./flow-store";
 import { Button, useSidebar } from "../ui";
 
@@ -139,7 +139,16 @@ export function Circuit() {
         <Background gap={10} />
         <MiniMap />
         <Controls />
-        <Panel position="top-left">
+        <Panel position="top-right">
+          <h1 className="text-foreground">
+            <SaveChipDialog>
+              <Button variant="outline" size="sm">
+                Save Chip
+              </Button>
+            </SaveChipDialog>
+          </h1>
+        </Panel>
+        <Panel position="top-center">
           <h1 className="text-foreground">My Flow</h1>
         </Panel>
         <Panel position="center-left">

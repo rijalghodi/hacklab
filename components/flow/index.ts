@@ -5,4 +5,5 @@ export * from "./flow-sidebar";
 export * from "./flow-store";
 export * from "./in-node";
 export * from "./out-node";
+export * from "./save-chip-dialog";
 export * from "./wire-edge";
