@@ -10,6 +10,8 @@ export function WireEdge({
   sourceY,
   targetX,
   targetY,
+  sourcePosition,
+  targetPosition,
   markerStart,
   markerEnd,
   interactionWidth,
@@ -36,8 +38,10 @@ export function WireEdge({
   const [path] = getSmoothStepPath({
     sourceX: sourceX,
     sourceY: sourceY,
+    sourcePosition: sourcePosition,
     targetX: targetX,
     targetY: targetY,
+    targetPosition: targetPosition,
   });
 
   return (
