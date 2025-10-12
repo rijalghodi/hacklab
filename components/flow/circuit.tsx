@@ -61,6 +61,7 @@ export function Circuit() {
             targetPortId: params.targetHandle ?? undefined,
             sourceId: params.source,
             sourcePortId: params.sourceHandle ?? undefined,
+            // positionHandlers: [],
           },
         },
         edgesSnapshot,

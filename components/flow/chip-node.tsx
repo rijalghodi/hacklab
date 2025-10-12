@@ -14,32 +14,33 @@ const PORT_WIDTH = 7;
 const PORT_SPACING = 12;
 const MIN_CHIP_HEIGHT = 24;
 const MIN_CHIP_WIDTH = 50;
+const PORT_OFFSET_MULTIPLIER = 0.5; // Used in chipHeight calculation
+const CENTER_INDEX_OFFSET = 0.5; // Used in portOffset calculation
 
 export function ChipNode(props: NodeProps<Node<CircuitChip>>) {
   const { data, selected } = props;
   const { getChip } = useChips();
 
-  const edges = useEdges<Edge<Wire>>();
-
   const { updateNodeData } = useReactFlow<Node<CircuitChip>, Edge<Wire>>();
 
-  // Group edges by targetPortId, then choose one per the rules:
-  // - If multiple edges for a port, pick the one with value true, otherwise the last.
-  const portEdgeMap = useMemo(() => {
+  const edges = useEdges<Edge<Wire>>();
+
+  const sourceEdges = useMemo(() => {
+    // Group edges by targetPortId, then choose one per the rules:
+    // - If multiple edges for a port, pick the one with value true, otherwise the last.
     const incomingEdges = edges.filter((edge) => edge.target === data.id);
-    const map: Record<string, Wire | undefined> = {};
+    const portEdgeMap: Record<string, Wire | undefined> = {};
+
     for (const edge of incomingEdges) {
       const portId = edge.targetHandle as string;
       if (!portId) continue;
-      const prev = map[portId] as Wire;
+      const prev = portEdgeMap[portId] as Wire;
       if (!prev || !prev.value) {
-        map[portId] = edge.data;
+        portEdgeMap[portId] = edge.data;
       }
     }
-    return map;
+    return Object.values(portEdgeMap);
   }, [edges, data.id]);
-
-  const sourceEdges = useMemo(() => Object.values(portEdgeMap), [portEdgeMap]);
 
   const CHIP_DEFINITION = getChip(data.name);
 
@@ -50,11 +51,8 @@ export function ChipNode(props: NodeProps<Node<CircuitChip>>) {
   }, [CHIP_DEFINITION]);
 
   const inputPorts = useMemo(() => data?.ports?.filter((port) => port.type === PortType.IN) || [], [data?.ports]);
+
   const outputPorts = useMemo(() => data?.ports?.filter((port) => port.type === PortType.OUT) || [], [data?.ports]);
-  const maxPorts = useMemo(
-    () => Math.max(inputPorts.length, outputPorts.length),
-    [inputPorts.length, outputPorts.length],
-  );
 
   // Handle edge value changes and update input ports
   useEffect(() => {
@@ -100,49 +98,14 @@ export function ChipNode(props: NodeProps<Node<CircuitChip>>) {
   }, [circuitInstance, JSON.stringify(sourceEdges)]);
 
   const chipHeight = useMemo(() => {
-    return Math.max(MIN_CHIP_HEIGHT, (maxPorts + 0.5) * PORT_SPACING);
-  }, [maxPorts]);
+    const maxPorts = Math.max(inputPorts.length, outputPorts.length);
+    return Math.max(MIN_CHIP_HEIGHT, (maxPorts + PORT_OFFSET_MULTIPLIER) * PORT_SPACING);
+  }, [inputPorts.length, outputPorts.length]);
 
   const portOffset = useCallback((index: number, totalPorts: number) => {
-    const centerIndex = totalPorts / 2 - 0.5;
+    const centerIndex = totalPorts / 2 - CENTER_INDEX_OFFSET;
     return (index - centerIndex) * PORT_SPACING;
   }, []);
-
-  // Memoize handle styles to prevent unnecessary re-renders
-  const inputHandleStyles = useMemo(
-    () =>
-      inputPorts.map((port, index) => ({
-        key: port.id,
-        style: {
-          top: "50%",
-          left: 0,
-          transform: `translateX(-100%) translateY(calc(-50% + ${portOffset(index, inputPorts.length)}px))`,
-          height: PORT_HEIGHT,
-          width: PORT_WIDTH,
-          borderRadius: 100,
-          border: "none",
-          cursor: "default",
-        },
-      })),
-    [inputPorts, portOffset],
-  );
-
-  const outputHandleStyles = useMemo(
-    () =>
-      outputPorts.map((port, index) => ({
-        key: port.id,
-        style: {
-          top: "50%",
-          right: 0,
-          transform: `translateX(100%) translateY(calc(-50% + ${portOffset(index, outputPorts.length)}px))`,
-          height: PORT_HEIGHT,
-          width: PORT_WIDTH,
-          borderRadius: 100,
-          border: "none",
-        },
-      })),
-    [outputPorts, portOffset],
-  );
 
   return (
     <div
@@ -159,26 +122,44 @@ export function ChipNode(props: NodeProps<Node<CircuitChip>>) {
       </div>
 
       {/* Input ports */}
-      {inputHandleStyles.map((handle, index) => (
+      {inputPorts.map((port, index) => (
         <Handle
-          data-active={inputPorts[index]?.value}
-          key={handle.key}
-          id={handle.key}
+          data-active={port.value}
+          key={port.id}
+          id={port.id}
           type="target"
           position={Position.Left}
-          style={handle.style}
+          style={{
+            top: "50%",
+            left: 0,
+            transform: `translateX(-100%) translateY(calc(-50% + ${portOffset(index, inputPorts.length)}px))`,
+            height: PORT_HEIGHT,
+            width: PORT_WIDTH,
+            borderRadius: 100,
+            border: "none",
+            cursor: "default",
+          }}
         />
       ))}
 
       {/* Output ports */}
-      {outputHandleStyles.map((handle, index) => (
+      {outputPorts.map((port, index) => (
         <Handle
-          data-active={outputPorts[index]?.value}
-          key={handle.key}
-          id={handle.key}
+          data-active={port.value}
+          key={port.id}
+          id={port.id}
           type="source"
           position={Position.Right}
-          style={handle.style}
+          style={{
+            top: "50%",
+            right: 0,
+            transform: `translateX(100%) translateY(calc(-50% + ${portOffset(index, outputPorts.length)}px))`,
+            height: PORT_HEIGHT,
+            width: PORT_WIDTH,
+            borderRadius: 100,
+            border: "none",
+            cursor: "default",
+          }}
         />
       ))}
     </div>

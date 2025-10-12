@@ -17,3 +17,13 @@ HackLab is a web-based computer simulation inspired by the book _Nand to Tetris_
 - React Flow: diagram flow package
 - Lucide: icon library
 - Tailwind CSS
+
+## Todo:
+
+- [] wire color setting
+- [] wire step adjust
+- [] Save chip
+  - [] Port name confirmation
+- [] Use saved chips
+- [] Edit saved chip
+- [] Delete saved chip

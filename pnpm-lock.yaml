@@ -38,6 +38,12 @@ importers:
       color:
         specifier: ^5.0.2
         version: 5.0.2
+      d3-drag:
+        specifier: ^3.0.0
+        version: 3.0.0
+      d3-selection:
+        specifier: ^3.0.0
+        version: 3.0.0
       lucide-react:
         specifier: ^0.544.0
         version: 0.544.0(react@19.1.0)
