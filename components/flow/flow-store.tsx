@@ -6,7 +6,7 @@ import { persist } from "zustand/middleware";
 
 import { builtInChips } from "@/lib/constants/chips";
 import { LOCAL_STORAGE_FLOW, LOCAL_STORAGE_SAVED_CHIPS } from "@/lib/constants/names";
-import { Circuit, StatefulChip, StatefulWire } from "@/lib/types/flow";
+import { CircuitChip, Wire } from "@/lib/types/chips";
 
 interface DndStore {
   droppedName: string;
@@ -20,17 +20,17 @@ export const useDnd = create<DndStore>((set) => ({
 
 // chips store
 interface ChipsStore {
-  savedChips: Circuit[];
-  setSavedChips: (chips: Circuit[]) => void;
-  allChips: () => Circuit[];
-  getChip: (name: string) => Circuit | undefined;
+  savedChips: CircuitChip[];
+  setSavedChips: (chips: CircuitChip[]) => void;
+  allChips: () => CircuitChip[];
+  getChip: (name: string) => CircuitChip | undefined;
 }
 
 export const useChips = create<ChipsStore>()(
   persist(
     (set, get) => ({
       savedChips: [],
-      setSavedChips: (chips: Circuit[]) => set({ savedChips: chips }),
+      setSavedChips: (chips: CircuitChip[]) => set({ savedChips: chips }),
       allChips() {
         return [...get().savedChips, ...builtInChips];
       },
@@ -48,10 +48,10 @@ export const useChips = create<ChipsStore>()(
 
 // flow store
 interface FlowStore {
-  nodes: Node<StatefulChip>[];
-  edges: Edge<StatefulWire>[];
-  setNodes: (nodes: Node<StatefulChip>[] | ((prev: Node<StatefulChip>[]) => Node<StatefulChip>[])) => void;
-  setEdges: (edges: Edge<StatefulWire>[] | ((prev: Edge<StatefulWire>[]) => Edge<StatefulWire>[])) => void;
+  nodes: Node<CircuitChip>[];
+  edges: Edge<Wire>[];
+  setNodes: (nodes: Node<CircuitChip>[] | ((prev: Node<CircuitChip>[]) => Node<CircuitChip>[])) => void;
+  setEdges: (edges: Edge<Wire>[] | ((prev: Edge<Wire>[]) => Edge<Wire>[])) => void;
 }
 
 export const useFlowStore = create<FlowStore>()(
@@ -59,19 +59,17 @@ export const useFlowStore = create<FlowStore>()(
     (set) => ({
       nodes: [],
       edges: [],
-      setNodes: (updater: Node<StatefulChip>[] | ((prev: Node<StatefulChip>[]) => Node<StatefulChip>[])) =>
+      setNodes: (updater: Node<CircuitChip>[] | ((prev: Node<CircuitChip>[]) => Node<CircuitChip>[])) =>
         set((state) => ({
           nodes:
             typeof updater === "function"
-              ? (updater as (prev: Node<StatefulChip>[]) => Node<StatefulChip>[])(state.nodes)
+              ? (updater as (prev: Node<CircuitChip>[]) => Node<CircuitChip>[])(state.nodes)
               : updater,
         })),
-      setEdges: (updater: Edge<StatefulWire>[] | ((prev: Edge<StatefulWire>[]) => Edge<StatefulWire>[])) =>
+      setEdges: (updater: Edge<Wire>[] | ((prev: Edge<Wire>[]) => Edge<Wire>[])) =>
         set((state) => ({
           edges:
-            typeof updater === "function"
-              ? (updater as (prev: Edge<StatefulWire>[]) => Edge<StatefulWire>[])(state.edges)
-              : updater,
+            typeof updater === "function" ? (updater as (prev: Edge<Wire>[]) => Edge<Wire>[])(state.edges) : updater,
         })),
     }),
     {

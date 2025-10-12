@@ -19,14 +19,14 @@ import {
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import React, { useCallback } from "react";
 
-import { NodeType, StatefulChip, StatefulPort, StatefulWire } from "@/lib/types/flow";
+import { CircuitChip, type Wire } from "@/lib/types/chips";
 import { generateId } from "@/lib/utils";
 
 import { ChipNode, ConnectionLine, InNode, OutNode, SaveChipDialog, WireEdge } from ".";
 import { useChips, useDnd, useFlowStore } from "./flow-store";
 import { Button, useSidebar } from "../ui";
 
-const nodeTypes = { [NodeType.CHIP]: ChipNode, [NodeType.IN]: InNode, [NodeType.OUT]: OutNode };
+const nodeTypes = { chip: ChipNode, in: InNode, out: OutNode };
 const edgeTypes = { wire: WireEdge };
 
 export function Circuit() {
@@ -37,20 +37,20 @@ export function Circuit() {
   const getChip = useChips((state) => state.getChip);
 
   const onNodesChange = useCallback(
-    (changes: NodeChange<Node<StatefulChip>>[]) =>
-      setNodes((nodesSnapshot: Node<StatefulChip>[]) => applyNodeChanges<Node<StatefulChip>>(changes, nodesSnapshot)),
+    (changes: NodeChange<Node<CircuitChip>>[]) =>
+      setNodes((nodesSnapshot: Node<CircuitChip>[]) => applyNodeChanges<Node<CircuitChip>>(changes, nodesSnapshot)),
     [],
   );
   const onEdgesChange = useCallback(
-    (changes: EdgeChange<Edge<StatefulWire>>[]) =>
-      setEdges((edgesSnapshot: Edge<StatefulWire>[]) => applyEdgeChanges(changes, edgesSnapshot)),
+    (changes: EdgeChange<Edge<Wire>>[]) =>
+      setEdges((edgesSnapshot: Edge<Wire>[]) => applyEdgeChanges(changes, edgesSnapshot)),
     [],
   );
 
   const onConnect = useCallback((params: Connection) => {
     console.log(params);
     const id = generateId();
-    setEdges((edgesSnapshot: Edge<StatefulWire>[]) =>
+    setEdges((edgesSnapshot: Edge<Wire>[]) =>
       addEdge(
         {
           ...params,
@@ -58,9 +58,9 @@ export function Circuit() {
           data: {
             id,
             targetId: params.target,
-            targetPortId: params.targetHandle,
+            targetPortId: params.targetHandle ?? undefined,
             sourceId: params.source,
-            sourcePortId: params.sourceHandle,
+            sourcePortId: params.sourceHandle ?? undefined,
           },
         },
         edgesSnapshot,
@@ -94,17 +94,19 @@ export function Circuit() {
         return;
       }
 
-      const newNode: Node<StatefulChip> = {
+      const type = CHIP_DEFINITION.name === "IN" ? "in" : CHIP_DEFINITION.name === "OUT" ? "out" : "chip";
+
+      const newNode: Node<CircuitChip> = {
         id,
-        type: CHIP_DEFINITION.type,
         position,
+        type,
         data: {
           id,
-          type: CHIP_DEFINITION.type,
           name: CHIP_DEFINITION.name,
-          ports: CHIP_DEFINITION.nodes
-            ?.filter((node) => node.type === NodeType.IN || node.type === NodeType.OUT)
-            .map((node) => ({ id: node.id, type: node.type, name: node.name })) as StatefulPort[],
+          chips: CHIP_DEFINITION.chips || [],
+          wires: CHIP_DEFINITION.wires || [],
+          ports: CHIP_DEFINITION.ports || [],
+          definitions: CHIP_DEFINITION.definitions || [],
         },
       };
 

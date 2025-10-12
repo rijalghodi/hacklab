@@ -36,6 +36,11 @@ export function buildCircuit(def: CircuitChip): {
   inputs: Record<string, BehaviorSubject<boolean>>;
   outputs: Record<string, BehaviorSubject<boolean>>;
 } {
+  if (def.name === "NAND") {
+    const nand = baseLibrary["NAND"]();
+    return nand;
+  }
+
   const inputs: Record<string, BehaviorSubject<boolean>> = {};
   const outputs: Record<string, BehaviorSubject<boolean>> = {};
 

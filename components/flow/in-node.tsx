@@ -1,7 +1,7 @@
-import { Edge, Handle, type Node, type NodeProps, Position, useReactFlow } from "@xyflow/react";
+import { type Edge, Handle, type Node, type NodeProps, Position, useReactFlow } from "@xyflow/react";
 import React from "react";
 
-import { NodeType, StatefulChip, StatefulWire } from "@/lib/types/flow";
+import { CircuitChip, type Wire } from "@/lib/types/chips";
 import { cn, getActiveColor, getBgColor, getBorderColor } from "@/lib/utils";
 
 import { useChips } from "./flow-store";
@@ -9,15 +9,15 @@ import { useChips } from "./flow-store";
 const PORT_HEIGHT = 7;
 const PORT_WIDTH = 7;
 
-export function InNode(props: NodeProps<Node<StatefulChip>>) {
+export function InNode(props: NodeProps<Node<CircuitChip>>) {
   const { data, selected } = props;
   const getChip = useChips((state) => state.getChip);
 
-  const CHIP_DEFINITION = getChip(NodeType.IN);
+  const CHIP_DEFINITION = getChip("IN");
   const COLOR = data.color || CHIP_DEFINITION?.color;
   const VALUE = data?.ports?.[0]?.value;
 
-  const { updateNodeData } = useReactFlow<Node<StatefulChip>, Edge<StatefulWire>>();
+  const { updateNodeData } = useReactFlow<Node<CircuitChip>, Edge<Wire>>();
 
   // handle click on port
   const handleClick = (e: React.MouseEvent<SVGCircleElement>) => {

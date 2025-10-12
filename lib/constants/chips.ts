@@ -1,146 +1,271 @@
-"use client";
+import type { CircuitChip } from "../types/chips";
+import { PortType } from "../types/chips";
 
-import { ChipName, Circuit, NAND_OUT_NAME, NodeType } from "../types/flow";
+// Input node
+export const inChip: CircuitChip = {
+  id: "in",
+  name: "IN",
+  color: "#854d0e",
+  chips: [],
+  ports: [{ id: "in.port-out", name: "out", type: PortType.OUT }],
+  wires: [],
+  definitions: [],
+};
 
-export const builtInChips: Circuit[] = [
-  {
-    type: NodeType.IN,
-    name: ChipName.IN,
-    color: "#854d0e",
-    nodes: [{ type: NodeType.OUT, name: ChipName.OUT, id: "out" }],
-    version: "1.0",
-    createdAt: "2025-09-16T00:00:00Z",
-    createdBy: "system",
-  },
-  {
-    type: NodeType.OUT,
-    name: ChipName.OUT,
-    color: "#854d0e",
-    nodes: [{ type: NodeType.IN, name: ChipName.IN, id: "in" }],
-    version: "1.0",
-    createdAt: "2025-09-16T00:00:00Z",
-    createdBy: "system",
-  },
-  {
-    type: NodeType.CHIP,
-    name: ChipName.NAND,
-    color: "#854d0e",
-    nodes: [
-      { type: NodeType.IN, name: "a", id: "nand.a" },
-      { type: NodeType.IN, name: "b", id: "nand.b" },
-      { type: NodeType.OUT, name: NAND_OUT_NAME, id: "nand.out" },
-    ],
-    edges: [
-      {
-        id: "nand.a--nand.out",
-        sourceId: "nand.a",
-        sourcePortId: "out",
-        targetId: "nand.out",
-        targetPortId: "in",
-      },
-      {
-        id: "nand.b--nand.out",
-        sourceId: "nand.b",
-        sourcePortId: "out",
-        targetId: "nand.out",
-        targetPortId: "in",
-      },
-    ],
-    version: "1.0",
-    createdAt: "2025-09-16T00:00:00Z",
-    createdBy: "system",
-  },
-  {
-    type: NodeType.CHIP,
-    name: "NOT",
-    color: "#831843",
-    nodes: [
-      {
-        type: NodeType.CHIP,
-        name: "NAND",
-        id: "not.nand",
-      },
-      { type: NodeType.IN, name: "in", id: "not.in" },
-      { type: NodeType.OUT, name: "out", id: "not.out" },
-    ],
-    edges: [
-      {
-        id: "not.in--not.nand.a",
-        sourceId: "not.in",
-        sourcePortId: "out",
-        targetId: "not.nand",
-        targetPortId: "nand.a",
-      },
-      {
-        id: "not.in--not.nand.b",
-        sourceId: "not.in",
-        sourcePortId: "out",
-        targetId: "not.nand",
-        targetPortId: "nand.b",
-      },
-      {
-        id: "not.nand.out--not.out",
-        sourceId: "not.nand",
-        sourcePortId: "nand.out",
-        targetId: "not.out",
-        targetPortId: "in",
-      },
-    ],
-    version: "1.0",
-    createdAt: "2025-09-16T00:00:00Z",
-    createdBy: "system",
-  },
-  {
-    type: NodeType.CHIP,
-    name: "AND",
-    color: "#831843",
-    nodes: [
-      {
-        type: NodeType.CHIP,
-        name: "NAND",
-        id: "and.nand",
-      },
-      {
-        type: NodeType.CHIP,
-        name: "NOT",
-        id: "and.not",
-      },
-      { type: NodeType.IN, name: "a", id: "and.a" },
-      { type: NodeType.IN, name: "b", id: "and.b" },
-      { type: NodeType.OUT, name: "out", id: "and.out" },
-    ],
-    edges: [
-      {
-        id: "and.a--and.nand.a",
-        sourceId: "and.a",
-        sourcePortId: "in",
-        targetId: "and.nand",
-        targetPortId: "nand.a",
-      },
-      {
-        id: "and.b--and.nand.b",
-        sourceId: "and.b",
-        sourcePortId: "in",
-        targetId: "and.nand",
-        targetPortId: "nand.b",
-      },
-      {
-        id: "and.nand.out--and.not.in",
-        sourceId: "and.nand",
-        sourcePortId: "nand.out",
-        targetId: "and.not",
-        targetPortId: "not.in",
-      },
-      {
-        id: "and.not.out--and.out",
-        sourceId: "and.not",
-        sourcePortId: "not.out",
-        targetId: "and.out",
-        targetPortId: "out",
-      },
-    ],
-    version: "1.0",
-    createdAt: "2025-09-16T00:00:00Z",
-    createdBy: "system",
-  },
-];
+// Output node
+export const outChip: CircuitChip = {
+  id: "out",
+  name: "OUT",
+  color: "#854d0e",
+  chips: [],
+  ports: [{ id: "out.port-in", name: "in", type: PortType.IN }],
+  wires: [],
+  definitions: [],
+};
+
+// NAND
+export const nandChip: CircuitChip = {
+  id: "nand",
+  name: "NAND",
+  chips: [],
+  ports: [
+    { id: "nand.port-a", name: "a", type: PortType.IN },
+    { id: "nand.port-b", name: "b", type: PortType.IN },
+    { id: "nand.port-out", name: "out", type: PortType.OUT },
+  ],
+  wires: [],
+  definitions: [],
+};
+
+// NOT
+
+export const notChip: CircuitChip = {
+  id: "not",
+  name: "NOT",
+  chips: [
+    {
+      name: "NAND",
+      id: "not.chip-nand",
+    },
+  ],
+  ports: [
+    { id: "not.port-in", name: "in", type: PortType.IN },
+    { id: "not.port-out", name: "out", type: PortType.OUT },
+  ],
+  wires: [
+    {
+      id: "not.wire-1",
+      sourceId: "not.port-in",
+      targetId: "not.chip-nand",
+      targetPortId: "nand.port-a",
+    },
+    {
+      id: "not.wire-2",
+      sourceId: "not.port-in",
+      targetId: "not.chip-nand",
+      targetPortId: "nand.port-b",
+    },
+    {
+      id: "not.wire-3",
+      sourceId: "not.chip-nand",
+      sourcePortId: "nand.port-out",
+      targetId: "not.port-out",
+    },
+  ],
+  definitions: [nandChip],
+};
+
+// AND
+export const andChip: CircuitChip = {
+  id: "and",
+  name: "AND",
+  chips: [
+    {
+      name: "NAND",
+      id: "and.chip-nand",
+    },
+    {
+      name: "NOT",
+      id: "and.chip-not",
+    },
+  ],
+  ports: [
+    { id: "and.port-a", name: "a", type: PortType.IN },
+    { id: "and.port-b", name: "b", type: PortType.IN },
+    { id: "and.port-out", name: "out", type: PortType.OUT },
+  ],
+  wires: [
+    {
+      id: "and.wire-1",
+      sourceId: "and.port-a",
+      targetId: "and.chip-nand",
+      targetPortId: "nand.port-a",
+    },
+    {
+      id: "and.wire-2",
+      sourceId: "and.port-b",
+      targetId: "and.chip-nand",
+      targetPortId: "nand.port-b",
+    },
+    {
+      id: "and.wire-3",
+      sourceId: "and.chip-nand",
+      sourcePortId: "nand.port-out",
+      targetId: "and.chip-not",
+      targetPortId: "not.port-in",
+    },
+    {
+      id: "and.wire-4",
+      sourceId: "and.chip-not",
+      sourcePortId: "not.port-out",
+      targetId: "and.port-out",
+    },
+  ],
+  definitions: [nandChip, notChip],
+};
+
+// OR
+export const orChip: CircuitChip = {
+  id: "or",
+  name: "OR",
+  chips: [
+    {
+      name: "NOT",
+      id: "or.chip-not-a",
+    },
+    {
+      name: "NOT",
+      id: "or.chip-not-b",
+    },
+    {
+      name: "NAND",
+      id: "or.chip-nand",
+    },
+  ],
+  ports: [
+    { id: "or.port-a", name: "a", type: PortType.IN },
+    { id: "or.port-b", name: "b", type: PortType.IN },
+    { id: "or.port-out", name: "out", type: PortType.OUT },
+  ],
+  wires: [
+    {
+      id: "or.wire-1",
+      sourceId: "or.port-a",
+      targetId: "or.chip-not-a",
+      targetPortId: "not.port-in",
+    },
+    {
+      id: "or.wire-2",
+      sourceId: "or.port-b",
+      targetId: "or.chip-not-b",
+      targetPortId: "not.port-in",
+    },
+    {
+      id: "or.wire-3",
+      sourceId: "or.chip-not-a",
+      sourcePortId: "not.port-out",
+      targetId: "or.chip-nand",
+      targetPortId: "nand.port-a",
+    },
+    {
+      id: "or.wire-4",
+      sourceId: "or.chip-not-b",
+      sourcePortId: "not.port-out",
+      targetId: "or.chip-nand",
+      targetPortId: "nand.port-b",
+    },
+    {
+      id: "or.wire-5",
+      sourceId: "or.chip-nand",
+      sourcePortId: "nand.port-out",
+      targetId: "or.port-out",
+    },
+  ],
+  definitions: [nandChip, notChip],
+};
+
+// MUX
+export const muxChip: CircuitChip = {
+  id: "mux",
+  name: "MUX",
+  chips: [
+    {
+      name: "NOT",
+      id: "mux.chip-not-sel",
+    },
+    {
+      name: "AND",
+      id: "mux.chip-and-not-sel-a",
+    },
+    {
+      name: "AND",
+      id: "mux.chip-and-sel-b",
+    },
+    {
+      name: "OR",
+      id: "mux.chip-or",
+    },
+  ],
+  ports: [
+    { id: "mux.port-a", name: "a", type: PortType.IN },
+    { id: "mux.port-b", name: "b", type: PortType.IN },
+    { id: "mux.port-sel", name: "sel", type: PortType.IN },
+    { id: "mux.port-out", name: "out", type: PortType.OUT },
+  ],
+  wires: [
+    {
+      id: "mux.wire-1",
+      sourceId: "mux.port-sel",
+      targetId: "mux.chip-not-sel",
+      targetPortId: "not.port-in",
+    },
+    {
+      id: "mux.wire-2",
+      sourceId: "mux.chip-not-sel",
+      sourcePortId: "not.port-out",
+      targetId: "mux.chip-and-not-sel-a",
+      targetPortId: "and.port-a",
+    },
+    {
+      id: "mux.wire-3",
+      sourceId: "mux.port-a",
+      targetId: "mux.chip-and-not-sel-a",
+      targetPortId: "and.port-b",
+    },
+    {
+      id: "mux.wire-4",
+      sourceId: "mux.port-sel",
+      targetId: "mux.chip-and-sel-b",
+      targetPortId: "and.port-a",
+    },
+    {
+      id: "mux.wire-5",
+      sourceId: "mux.port-b",
+      targetId: "mux.chip-and-sel-b",
+      targetPortId: "and.port-b",
+    },
+    {
+      id: "mux.wire-6",
+      sourceId: "mux.chip-and-not-sel-a",
+      sourcePortId: "and.port-out",
+      targetId: "mux.chip-or",
+      targetPortId: "or.port-a",
+    },
+    {
+      id: "mux.wire-7",
+      sourceId: "mux.chip-and-sel-b",
+      sourcePortId: "and.port-out",
+      targetId: "mux.chip-or",
+      targetPortId: "or.port-b",
+    },
+    {
+      id: "mux.wire-8",
+      sourceId: "mux.chip-or",
+      sourcePortId: "or.port-out",
+      targetId: "mux.port-out",
+    },
+  ],
+  definitions: [nandChip, notChip, andChip, orChip],
+};
+
+export const builtInChips: CircuitChip[] = [inChip, outChip, nandChip, notChip, andChip, orChip, muxChip];

@@ -5,7 +5,8 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
-import { Circuit, NodeType } from "@/lib/types/flow";
+import { CircuitChip } from "@/lib/types/chips";
+import { generateId } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -49,34 +50,31 @@ export function SaveChipDialog({ children }: SaveChipDialogProps) {
   });
 
   const onSubmit = (data: FormData) => {
-    // Convert current flow nodes and edges to a Circuit
-    const circuitNodes = nodes.map((node) => ({
+    // Convert current flow nodes and edges to a CircuitChip
+    const circuitChips = nodes.map((node) => ({
       id: node.id,
-      type: node.data.type,
       name: node.data.name,
-      color: node.data.color,
-      position: node.position,
     }));
 
-    const circuitEdges = edges.map((edge) => ({
+    const circuitWires = edges.map((edge) => ({
       id: edge.id,
       sourceId: edge.data?.sourceId || "",
       targetId: edge.data?.targetId || "",
       sourcePortId: edge.data?.sourcePortId,
       targetPortId: edge.data?.targetPortId,
-      color: edge.data?.color,
     }));
 
-    const newCircuit: Circuit = {
-      type: NodeType.CHIP,
+    // Extract ports from nodes
+    const circuitPorts = nodes.flatMap((node) => node.data.ports || []);
+
+    const newCircuit: CircuitChip = {
+      id: generateId(),
       name: data.name,
       color: data.color,
-      description: data.description,
-      nodes: circuitNodes,
-      edges: circuitEdges,
-      version: "1.0",
-      createdAt: new Date().toISOString(),
-      createdBy: "user",
+      chips: circuitChips,
+      wires: circuitWires,
+      ports: circuitPorts,
+      definitions: [],
     };
 
     // Add to saved chips

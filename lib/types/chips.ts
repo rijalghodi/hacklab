@@ -1,31 +1,37 @@
-type PortType = "IN" | "OUT";
+export enum PortType {
+  IN = "IN",
+  OUT = "OUT",
+}
 
-export interface Port {
+export type Port = {
   id: string;
   name: string;
   type: PortType;
   value?: boolean;
-}
+};
 
-export interface Chip {
+export type Chip = {
   id: string;
   name: string;
   value?: boolean;
-}
+};
 
-export interface Wire {
+export type Wire = {
   id: string;
   sourceId: string;
   targetId: string;
   sourcePortId?: string;
   targetPortId?: string;
   value?: boolean;
-}
+  color?: string;
+};
 
-export interface CircuitChip {
+export type CircuitChip = {
+  id: string;
   name: string;
+  color?: string;
   chips: Chip[];
   wires: Wire[];
   ports: Port[];
   definitions: CircuitChip[];
-}
+};

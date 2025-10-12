@@ -1,7 +1,7 @@
-import { Handle, type Node, type NodeProps, Position, useEdges } from "@xyflow/react";
+import { type Edge, Handle, type Node, type NodeProps, Position, useEdges } from "@xyflow/react";
 import React from "react";
 
-import { NodeType, StatefulChip } from "@/lib/types/flow";
+import { CircuitChip, type Wire } from "@/lib/types/chips";
 import { cn, getActiveColor, getBgColor, getBorderColor } from "@/lib/utils";
 
 import { useChips } from "./flow-store";
@@ -9,14 +9,14 @@ import { useChips } from "./flow-store";
 const PORT_HEIGHT = 7;
 const PORT_WIDTH = 7;
 
-export function OutNode(props: NodeProps<Node<StatefulChip>>) {
+export function OutNode(props: NodeProps<Node<CircuitChip>>) {
   const { data, selected } = props;
   const getChip = useChips((state) => state.getChip);
 
-  const CHIP_DEFINITION = getChip(NodeType.OUT);
+  const CHIP_DEFINITION = getChip("OUT");
   const COLOR = data.color || CHIP_DEFINITION?.color;
 
-  const edges = useEdges();
+  const edges = useEdges<Edge<Wire>>();
   const edge = edges.filter((edge) => edge.target === data.id);
   const VALUE = edge.some((edge) => edge.data?.value);
 

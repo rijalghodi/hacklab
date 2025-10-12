@@ -10,8 +10,7 @@ import {
 } from "@xyflow/react";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 
-import { StatefulWire } from "@/lib/types/flow";
-import { StatefulChip } from "@/lib/types/flow";
+import { CircuitChip, type Wire } from "@/lib/types/chips";
 import { getActiveColor, getBorderColor } from "@/lib/utils";
 
 // Custom step line component for interactive wire drawing
@@ -31,14 +30,15 @@ export function WireEdge({
   source,
   sourceHandleId,
   data,
-}: EdgeProps<Edge<StatefulWire>>) {
+}: EdgeProps<Edge<Wire>>) {
   const [isDrawing, setIsDrawing] = useState(false);
   const [stopPoints, setStopPoints] = useState<{ x: number; y: number }[]>([]);
   const [currentMousePos, setCurrentMousePos] = useState<{ x: number; y: number } | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
 
-  const { updateEdgeData } = useReactFlow<Node<StatefulChip>, Edge<StatefulWire>>();
-  const nodes = useNodes<Node<StatefulChip>>();
+  const { updateEdgeData } = useReactFlow<Node<CircuitChip>, Edge<Wire>>();
+  const nodes = useNodes<Node<CircuitChip>>();
+
   const { zoom } = useViewport();
 
   const node = nodes.find((node) => node.id === source);
