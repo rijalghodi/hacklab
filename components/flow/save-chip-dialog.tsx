@@ -1,11 +1,11 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import React from "react";
+import React, { useCallback, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
-import { CircuitChip } from "@/lib/types/chips";
+import { CircuitChip, Port, PortType } from "@/lib/types/chips";
 import { generateId } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
@@ -20,12 +20,13 @@ import {
 } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 import { useChips, useFlowStore } from "./flow-store";
 
 const formSchema = z.object({
   name: z.string().min(1, "Chip name is required").max(50, "Chip name must be less than 50 characters"),
-  color: z.string().min(1, "Color is required"),
+  color: z.string().regex(/^#[0-9A-F]{6}$/i, "Invalid hex color format"),
   description: z.string().optional(),
 });
 
@@ -34,6 +35,8 @@ type FormData = z.infer<typeof formSchema>;
 interface SaveChipDialogProps {
   children: React.ReactNode;
 }
+
+const DEFAULT_COLOR = "#854d0e";
 
 export function SaveChipDialog({ children }: SaveChipDialogProps) {
   const [open, setOpen] = React.useState(false);
@@ -44,17 +47,27 @@ export function SaveChipDialog({ children }: SaveChipDialogProps) {
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      color: "#854d0e",
+      color: DEFAULT_COLOR,
       description: "",
     },
   });
 
-  const onSubmit = (data: FormData) => {
-    // Convert current flow nodes and edges to a CircuitChip
-    const circuitChips = nodes.map((node) => ({
-      id: node.id,
-      name: node.data.name,
-    }));
+  // Memoize circuit data extraction to avoid recalculation on every render
+  const circuitData = useMemo(() => {
+    const circuitChips = nodes
+      .filter((node) => node.type === "chip")
+      .map((node) => ({
+        id: node.id,
+        name: node.data.name,
+      }));
+
+    const circuitPorts: Port[] = nodes
+      .filter((node) => node.type === "in" || node.type === "out")
+      .map((node) => ({
+        id: node.data.id,
+        name: node.data.name,
+        type: node.type === "in" ? PortType.IN : PortType.OUT,
+      }));
 
     const circuitWires = edges.map((edge) => ({
       id: edge.id,
@@ -64,27 +77,31 @@ export function SaveChipDialog({ children }: SaveChipDialogProps) {
       targetPortId: edge.data?.targetPortId,
     }));
 
-    // Extract ports from nodes
-    const circuitPorts = nodes.flatMap((node) => node.data.ports || []);
+    return { circuitChips, circuitPorts, circuitWires };
+  }, [nodes, edges]);
 
-    const newCircuit: CircuitChip = {
-      id: generateId(),
-      name: data.name,
-      color: data.color,
-      chips: circuitChips,
-      wires: circuitWires,
-      ports: circuitPorts,
-      definitions: [],
-    };
-
-    // Add to saved chips
-    const updatedChips = [...savedChips, newCircuit];
-    setSavedChips(updatedChips);
-
-    // Reset form and close dialog
-    form.reset();
+  const handleClose = useCallback(() => {
     setOpen(false);
-  };
+    form.reset();
+  }, [form]);
+
+  const onSubmit = useCallback(
+    (data: FormData) => {
+      const newCircuit: CircuitChip = {
+        id: generateId(),
+        name: data.name,
+        color: data.color,
+        chips: circuitData.circuitChips,
+        wires: circuitData.circuitWires,
+        ports: circuitData.circuitPorts,
+        definitions: [],
+      };
+
+      setSavedChips([...savedChips, newCircuit]);
+      handleClose();
+    },
+    [circuitData, savedChips, setSavedChips, handleClose],
+  );
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -118,7 +135,7 @@ export function SaveChipDialog({ children }: SaveChipDialogProps) {
                   <FormControl>
                     <div className="flex items-center gap-2">
                       <Input type="color" className="h-10 w-20 p-1" {...field} />
-                      <Input placeholder="#854d0e" {...field} />
+                      <Input placeholder={DEFAULT_COLOR} {...field} />
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -132,18 +149,14 @@ export function SaveChipDialog({ children }: SaveChipDialogProps) {
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <textarea
-                      className="flex min-h-[80px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                      placeholder="Enter chip description (optional)"
-                      {...field}
-                    />
+                    <Textarea placeholder="Enter chip description (optional)" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <DialogFooter>
-              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+              <Button type="button" variant="outline" onClick={handleClose}>
                 Cancel
               </Button>
               <Button type="submit">Save Chip</Button>

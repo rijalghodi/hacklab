@@ -30,18 +30,6 @@ export function FlowSidebar() {
     <Sidebar className="dark react-flow">
       <SidebarHeader></SidebarHeader>
       <SidebarContent>
-        {/* <SidebarGroup>
-          <SidebarGroupLabel className="font-mono">Inputs & Outputs</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <div className="flex flex-wrap gap-2">
-              {builtInChips.map((port) => (
-                <div key={port.name} onDragStart={(e) => onDragStart(e, port.type)} draggable>
-                  <ChipOptionComponent color={port.color} name={port.name} />
-                </div>
-              ))}
-            </div>
-          </SidebarGroupContent>
-        </SidebarGroup> */}
         <SidebarGroup>
           <SidebarGroupLabel className="font-mono">Built-in Chips</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -57,9 +45,13 @@ export function FlowSidebar() {
         <SidebarGroup>
           <SidebarGroupLabel className="font-mono">Saved Chips</SidebarGroupLabel>
           <SidebarGroupContent>
-            {savedChips?.map((chip: CircuitChip) => (
-              <ChipOptionComponent key={chip.name} color={chip.color} name={chip.name} />
-            ))}
+            <div className="flex flex-wrap gap-2">
+              {savedChips?.map((chip: CircuitChip) => (
+                <div key={chip.name} onDragStart={(e) => onDragStart(e, chip.name)} draggable>
+                  <ChipOptionComponent color={chip.color} name={chip.name} />
+                </div>
+              ))}
+            </div>
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
