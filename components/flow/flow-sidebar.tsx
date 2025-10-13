@@ -4,7 +4,7 @@ import React from "react";
 
 import { builtInChips } from "@/lib/constants/chips";
 import { CircuitChip } from "@/lib/types/chips";
-import { getBgBorderStyle } from "@/lib/utils";
+import { getBgBorderTextColor } from "@/lib/utils";
 
 import { useChips, useDnd } from "./flow-store";
 import {
@@ -62,9 +62,9 @@ export function FlowSidebar() {
 function ChipOptionComponent({ color, name }: { color?: string; name: string }) {
   return (
     <div
-      className="rounded-xs p-2 font-mono box-border w-16 h-8 flex items-center justify-center text-sm font-semibold cursor-grab"
+      className="p-2 font-mono box-border w-16 h-8 flex items-center justify-center text-sm font-semibold cursor-grab rounded-sm"
       style={{
-        ...getBgBorderStyle(color),
+        ...getBgBorderTextColor(color),
       }}
     >
       {name}

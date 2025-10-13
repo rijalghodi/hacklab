@@ -18,18 +18,23 @@ export function getBgColor(color?: string) {
 }
 
 export function getBorderColor(color?: string) {
-  return color ? colorFn(color).darken(0.2).toString() : "var(--xy-node-border-color-default)";
+  return color ? colorFn(color).darken(0.5).toString() : "var(--xy-node-border-color-default)";
 }
 
-export function getBgBorderStyle(color?: string, borderWidth?: number) {
+export function getBgBorderTextColor(color?: string, borderWidth?: number) {
   return {
     backgroundColor: getBgColor(color),
     borderColor: getBorderColor(color),
     borderWidth: borderWidth || 1,
     borderStyle: "solid",
+    color: getTextColor(color),
   };
 }
 
 export function getActiveColor(color?: string) {
   return color ? colorFn(color).lighten(0.8).toString() : "var(--xy-node-background-color-active-default)";
+}
+
+export function getTextColor(color?: string) {
+  return color ? (colorFn(color).isDark() ? "white" : "black") : "var(--xy-node-text-color-default)";
 }

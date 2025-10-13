@@ -1,13 +1,11 @@
-import { type Edge, Handle, type Node, type NodeProps, Position, useEdges } from "@xyflow/react";
+import { type Edge, type Node, type NodeProps, Position, useEdges } from "@xyflow/react";
 import React from "react";
 
 import { CircuitChip, type Wire } from "@/lib/types/chips";
-import { cn, getActiveColor, getBgColor, getBorderColor } from "@/lib/utils";
+import { cn, getActiveColor, getBgColor } from "@/lib/utils";
 
 import { useChips } from "./flow-store";
-
-const PORT_HEIGHT = 7;
-const PORT_WIDTH = 7;
+import { PortHandle } from "./port-handle";
 
 export function OutNode(props: NodeProps<Node<CircuitChip>>) {
   const { data, selected } = props;
@@ -21,31 +19,31 @@ export function OutNode(props: NodeProps<Node<CircuitChip>>) {
   const VALUE = edge.some((edge) => edge.data?.value);
 
   return (
-    <div className={cn("relative font-mono rounded-sm", selected && "outline-ring outline-1")}>
-      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="24" viewBox="0 0 28 24">
-        <circle
-          cx="16"
-          cy="12"
-          r="10"
-          fill={VALUE ? getActiveColor(COLOR) : getBgColor(COLOR)}
-          stroke={getBorderColor(COLOR)}
-          strokeWidth="1"
+    <div className={cn("relative font-mono rounded-xs", selected && "bg-ring/20 ring-ring/20 ring-3")}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="20" viewBox="0 0 32 20">
+        <line
+          x1="0"
+          y1="10"
+          x2="4"
+          y2="10"
+          stroke={VALUE ? getActiveColor(COLOR) : getBgColor(COLOR)}
+          strokeWidth="2"
         />
-        <line x1="0" y1="12" x2="6" y2="12" stroke={getBorderColor(COLOR)} strokeWidth="2" />
+        <circle cx="14" cy="10" r="10" fill={VALUE ? getActiveColor(COLOR) : getBgColor(COLOR)} strokeWidth="1" />
+        <rect x="27" y="0" width="5" height="20" strokeWidth="1" className="fill-ring/50 hover:fill-ring" />
       </svg>
 
-      {/* Input ports */}
-      <Handle
-        data-active={VALUE}
-        id={data.ports?.[0]?.id}
+      {/* Input port */}
+      <PortHandle
+        id={data.ports?.[0]?.id || ""}
+        name={data.name}
+        active={VALUE}
         type="target"
         position={Position.Left}
         style={{
-          height: PORT_HEIGHT,
-          width: PORT_WIDTH,
-          borderRadius: 100,
-          border: "none",
-          // backgroundColor: VALUE ? "orange" : undefined,
+          left: 0,
+          top: "50%",
+          transform: "translateX(-100%) translateY(-50%)",
         }}
       />
     </div>

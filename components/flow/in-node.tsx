@@ -1,13 +1,11 @@
-import { type Edge, Handle, type Node, type NodeProps, Position, useReactFlow } from "@xyflow/react";
+import { type Edge, type Node, type NodeProps, Position, useReactFlow } from "@xyflow/react";
 import React from "react";
 
 import { CircuitChip, type Wire } from "@/lib/types/chips";
-import { cn, getActiveColor, getBgColor, getBorderColor } from "@/lib/utils";
+import { cn, getActiveColor, getBgColor } from "@/lib/utils";
 
 import { useChips } from "./flow-store";
-
-const PORT_HEIGHT = 7;
-const PORT_WIDTH = 7;
+import { PortHandle } from "./port-handle";
 
 export function InNode(props: NodeProps<Node<CircuitChip>>) {
   const { data, selected } = props;
@@ -22,8 +20,6 @@ export function InNode(props: NodeProps<Node<CircuitChip>>) {
   // handle click on port
   const handleClick = (e: React.MouseEvent<SVGCircleElement>) => {
     e.stopPropagation();
-    console.log("--------------IN NODE--------------");
-    console.log("VALUE", VALUE);
 
     if (!data.ports || data.ports.length === 0) {
       return;
@@ -35,39 +31,39 @@ export function InNode(props: NodeProps<Node<CircuitChip>>) {
   };
 
   return (
-    <div className={cn("relative font-mono rounded-sm", selected && "outline-ring outline-1")}>
-      <svg xmlns="http://www.w3.org/2000/svg" width="28" height="24" viewBox="0 0 28 24">
+    <div className={cn("relative font-mono rounded-xs", selected && "bg-ring/20 ring-ring/20 ring-3")}>
+      <svg xmlns="http://www.w3.org/2000/svg" width="32" height="20" viewBox="0 0 32 20">
+        <rect x="0" y="0" width="5" height="20" strokeWidth="1" className="fill-ring/50 hover:fill-ring" />
         <circle
-          cx="12"
-          cy="12"
+          cx="18"
+          cy="10"
           r="10"
           fill={VALUE ? getActiveColor(COLOR) : getBgColor(COLOR)}
-          stroke={getBorderColor(COLOR)}
           strokeWidth="1"
           className="cursor-pointer"
           onClick={handleClick}
         />
         <line
-          x1="22"
-          y1="12"
-          x2="28"
-          y2="12"
-          stroke={VALUE ? getActiveColor(COLOR) : getBorderColor(COLOR)}
+          x1="28"
+          y1="10"
+          x2="32"
+          y2="10"
+          stroke={VALUE ? getActiveColor(COLOR) : getBgColor(COLOR)}
           strokeWidth="2"
         />
       </svg>
 
-      {/* Input ports */}
-      <Handle
-        data-active={VALUE}
-        id={data.ports?.[0]?.id}
+      {/* Output port */}
+      <PortHandle
+        id={data.ports?.[0]?.id || ""}
+        name={data.name}
+        active={VALUE}
         type="source"
         position={Position.Right}
         style={{
-          height: PORT_HEIGHT,
-          width: PORT_WIDTH,
-          borderRadius: 100,
-          border: "none",
+          right: 0,
+          top: "50%",
+          transform: "translateX(100%) translateY(-50%)",
         }}
       />
     </div>

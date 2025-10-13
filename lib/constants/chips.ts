@@ -268,4 +268,4 @@ export const muxChip: CircuitChip = {
   definitions: [nandChip, notChip, andChip, orChip],
 };
 
-export const builtInChips: CircuitChip[] = [inChip, outChip, nandChip, notChip, andChip, orChip, muxChip];
+export const builtInChips: CircuitChip[] = [inChip, outChip, nandChip];

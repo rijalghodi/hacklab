@@ -1,16 +1,15 @@
 "use client";
 
-import { Edge, Handle, type Node, type NodeProps, Position, useEdges, useReactFlow } from "@xyflow/react";
+import { Edge, type Node, type NodeProps, Position, useEdges, useReactFlow } from "@xyflow/react";
 import React, { useCallback, useEffect, useMemo } from "react";
 
 import { buildCircuit } from "@/lib/circuitBuilder";
 import { CircuitChip, PortType, Wire } from "@/lib/types/chips";
-import { cn, getBgBorderStyle } from "@/lib/utils";
+import { cn, getBgBorderTextColor } from "@/lib/utils";
 
 import { useChips } from "./flow-store";
+import { PortHandle } from "./port-handle";
 
-const PORT_HEIGHT = 7;
-const PORT_WIDTH = 7;
 const PORT_SPACING = 12;
 const MIN_CHIP_HEIGHT = 24;
 const MIN_CHIP_WIDTH = 50;
@@ -109,56 +108,48 @@ export function ChipNode(props: NodeProps<Node<CircuitChip>>) {
 
   return (
     <div
-      className={cn("relative rounded-xs p-2 font-mono box-border", selected && "outline-ring outline-1")}
+      className={cn("relative rounded-xs p-2 font-mono box-border", selected && "ring-ring/20 ring-4")}
       style={{
         height: chipHeight,
         maxHeight: chipHeight,
         minWidth: MIN_CHIP_WIDTH,
-        ...getBgBorderStyle(CHIP_DEFINITION?.color),
+        ...getBgBorderTextColor(CHIP_DEFINITION?.color),
       }}
     >
-      <div className="text-xs font-semibold text-foreground w-full h-full text-center flex items-center justify-center">
+      <div className="text-xs font-semibold w-full h-full text-center flex items-center justify-center">
         {data.name}
       </div>
 
       {/* Input ports */}
       {inputPorts.map((port, index) => (
-        <Handle
-          data-active={port.value}
+        <PortHandle
           key={port.id}
           id={port.id}
+          name={port.name}
+          active={port.value}
           type="target"
           position={Position.Left}
           style={{
             top: "50%",
             left: 0,
             transform: `translateX(-100%) translateY(calc(-50% + ${portOffset(index, inputPorts.length)}px))`,
-            height: PORT_HEIGHT,
-            width: PORT_WIDTH,
-            borderRadius: 100,
-            border: "none",
-            cursor: "default",
           }}
         />
       ))}
 
       {/* Output ports */}
       {outputPorts.map((port, index) => (
-        <Handle
-          data-active={port.value}
+        <PortHandle
           key={port.id}
           id={port.id}
+          name={port.name}
+          active={port.value}
           type="source"
           position={Position.Right}
           style={{
             top: "50%",
             right: 0,
             transform: `translateX(100%) translateY(calc(-50% + ${portOffset(index, outputPorts.length)}px))`,
-            height: PORT_HEIGHT,
-            width: PORT_WIDTH,
-            borderRadius: 100,
-            border: "none",
-            cursor: "default",
           }}
         />
       ))}

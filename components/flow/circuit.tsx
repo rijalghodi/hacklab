@@ -9,7 +9,6 @@ import {
   Controls,
   type Edge,
   EdgeChange,
-  MiniMap,
   type Node,
   NodeChange,
   Panel,
@@ -17,13 +16,14 @@ import {
   useReactFlow,
 } from "@xyflow/react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import React, { useCallback } from "react";
+import React, { useCallback, useRef, useState } from "react";
 
 import { CircuitChip, type Wire } from "@/lib/types/chips";
 import { generateId } from "@/lib/utils";
 
-import { ChipNode, ConnectionLine, InNode, OutNode, SaveChipDialog, WireEdge } from ".";
+import { ChipNode, ConnectionLine, InNode, OutNode, RenamePortDialog, SaveChipDialog, WireEdge } from ".";
 import { useChips, useDnd, useFlowStore } from "./flow-store";
+import { NodeContextMenu } from "./node-context-menu";
 import { Button, useSidebar } from "../ui";
 
 const nodeTypes = { chip: ChipNode, in: InNode, out: OutNode };
@@ -33,6 +33,10 @@ export function Circuit() {
   const { nodes, edges, setNodes, setEdges } = useFlowStore();
 
   const { screenToFlowPosition } = useReactFlow();
+  const ref = useRef<HTMLDivElement>(null);
+  const [menu, setMenu] = useState<{ id: string; top?: number; left?: number; right?: number; bottom?: number } | null>(
+    null,
+  );
   const { droppedName } = useDnd();
   const getChip = useChips((state) => state.getChip);
 
@@ -97,13 +101,20 @@ export function Circuit() {
 
       const type = CHIP_DEFINITION.name === "IN" ? "in" : CHIP_DEFINITION.name === "OUT" ? "out" : "chip";
 
+      let name = droppedName;
+      if (name === "IN") {
+        name = `IN-${id.slice(0, 3)}`;
+      } else if (name === "OUT") {
+        name = `OUT-${id.slice(0, 3)}`;
+      }
+
       const newNode: Node<CircuitChip> = {
         id,
         position,
         type,
         data: {
           id,
-          name: CHIP_DEFINITION.name,
+          name,
           chips: CHIP_DEFINITION.chips || [],
           wires: CHIP_DEFINITION.wires || [],
           ports: CHIP_DEFINITION.ports || [],
@@ -116,15 +127,42 @@ export function Circuit() {
     [screenToFlowPosition, droppedName],
   );
 
+  const onNodeContextMenu = useCallback(
+    (event: React.MouseEvent<Element>, node: Node<CircuitChip>) => {
+      // Prevent native context menu from showing
+      event.preventDefault();
+
+      // Calculate position of the context menu. We want to make sure it
+      // doesn't get positioned off-screen.
+      const pane = ref.current?.getBoundingClientRect();
+      if (!pane) return;
+
+      setMenu({
+        id: node.id,
+        top: event.clientY < pane.height - 50 ? event.clientY : undefined,
+        left: event.clientX < pane.width - 50 ? event.clientX : undefined,
+        right: event.clientX >= pane.width - 50 ? 50 : undefined,
+        bottom: event.clientY >= pane.height - 50 ? 50 : undefined,
+      });
+
+      // select the nodee
+      setNodes((nds) => nds.map((n) => ({ ...n, selected: n.id === node.id })));
+    },
+    [setMenu],
+  );
+
+  // Close the context menu if it's open whenever the window is clicked.
+  const onPaneClick = useCallback(() => setMenu(null), [setMenu]);
+
   return (
-    <div className="h-screen">
+    <div className="h-screen font-mono">
       <ReactFlow
+        ref={ref}
         nodes={nodes}
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
-        // onConnectEnd={handleConnectEnd}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         fitView
@@ -132,22 +170,19 @@ export function Circuit() {
           type: "wire",
           interactionWidth: 10,
         }}
-        // snapGrid={[5, 5]}
-        // snapToGrid={true}
         onDrop={onDrop}
         onDragOver={onDragOver}
         connectionLineComponent={ConnectionLine}
+        onNodeContextMenu={onNodeContextMenu}
         colorMode="dark"
       >
         <Background gap={10} />
-        <MiniMap />
+        {menu && <NodeContextMenu onClose={onPaneClick} {...menu} />}
         <Controls />
-        <Panel position="top-right">
+        <Panel position="top-left">
           <h1 className="text-foreground">
             <SaveChipDialog>
-              <Button variant="outline" size="sm">
-                Save Chip
-              </Button>
+              <Button variant="outline">Save Chip</Button>
             </SaveChipDialog>
           </h1>
         </Panel>
@@ -157,6 +192,7 @@ export function Circuit() {
         <Panel position="center-left">
           <FlowSidebarTrigger />
         </Panel>
+        <RenamePortDialog />
       </ReactFlow>
     </div>
   );
