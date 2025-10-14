@@ -1,17 +1,18 @@
 import { MenuIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import React from "react";
 
+import { useSaveChipDialogStore } from "@/hooks/save-chip-dialog-store";
 import { useControllableOpen } from "@/hooks/use-controllable-open";
 
-import { Button } from "../ui/button";
 import {
+  Button,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
-import { useSaveChipDialogStore } from "../../hooks/save-chip-dialog-store";
+} from "../ui";
 
 type Props = {
   onOpenChange?: (open: boolean) => void;
@@ -21,7 +22,7 @@ type Props = {
 export function CircuitMenu(props: Props) {
   const { open, onOpenChange } = useControllableOpen(props);
   const { openDialog } = useSaveChipDialogStore();
-
+  const router = useRouter();
   return (
     <DropdownMenu open={open} onOpenChange={onOpenChange}>
       <DropdownMenuTrigger asChild>
@@ -31,6 +32,14 @@ export function CircuitMenu(props: Props) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent side="bottom" align="start" className="font-mono font-semibold w-48 uppercase">
+        <DropdownMenuItem
+          onClick={() => {
+            router.push("/lab");
+          }}
+        >
+          New Chip
+          <DropdownMenuShortcut>Ctrl+N</DropdownMenuShortcut>
+        </DropdownMenuItem>
         <DropdownMenuItem onClick={openDialog}>
           Save Chip
           <DropdownMenuShortcut>Ctrl+S</DropdownMenuShortcut>

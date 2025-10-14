@@ -27,13 +27,15 @@ export function flowToCircuit(
       type: node.type === NodeType.IN ? PortType.IN : PortType.OUT,
     }));
 
-  const wires = edges.map((edge) => ({
-    id: edge.id,
-    sourceId: edge.data?.sourceId || "",
-    targetId: edge.data?.targetId || "",
-    sourcePortId: edge.data?.sourcePortId,
-    targetPortId: edge.data?.targetPortId,
-  }));
+  const wires = edges.map((edge) => {
+    return {
+      id: edge.id,
+      sourceId: edge.data?.sourceId || "",
+      targetId: edge.data?.targetId || "",
+      sourcePortId: edge.data?.sourcePortId,
+      targetPortId: edge.data?.targetPortId,
+    };
+  });
 
   return {
     chips,
