@@ -1,4 +1,9 @@
-import React, { useState } from "react";
+import { MenuIcon } from "lucide-react";
+import React from "react";
+
+import { useControllableOpen } from "@/hooks/use-controllable-open";
+
+import { Button } from "../ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -6,18 +11,14 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { Button } from "../ui/button";
-import { SaveChipDialog } from "./save-chip-dialog";
-import { useControllableOpen } from "@/hooks/use-controllable-open";
-import { MenuIcon } from "lucide-react";
-import { useSaveChipDialogStore } from "./save-chip-dialog-store";
+import { useSaveChipDialogStore } from "../../hooks/save-chip-dialog-store";
 
 type Props = {
   onOpenChange?: (open: boolean) => void;
   open?: boolean;
 };
 
-export function Menu(props: Props) {
+export function CircuitMenu(props: Props) {
   const { open, onOpenChange } = useControllableOpen(props);
   const { openDialog } = useSaveChipDialogStore();
 
@@ -35,15 +36,9 @@ export function Menu(props: Props) {
           <DropdownMenuShortcut>Ctrl+S</DropdownMenuShortcut>
         </DropdownMenuItem>
 
-        <DropdownMenuItem>
-          Save As
-          {/* <DropdownMenuShortcut>Ctrl+Alt+S</DropdownMenuShortcut> */}
-        </DropdownMenuItem>
+        <DropdownMenuItem>Save As</DropdownMenuItem>
 
-        <DropdownMenuItem>
-          Delete Chip
-          {/* <DropdownMenuShortcut>Ctrl+Delete</DropdownMenuShortcut> */}
-        </DropdownMenuItem>
+        <DropdownMenuItem variant="destructive">Delete Chip</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

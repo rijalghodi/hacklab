@@ -1,11 +1,12 @@
 import type { CircuitChip } from "../types/chips";
-import { PortType } from "../types/chips";
+import { NodeType, PortType } from "../types/chips";
 
 // Input node
 export const inChip: CircuitChip = {
   id: "in",
   name: "IN",
   color: "#854d0e",
+  type: NodeType.IN,
   chips: [],
   ports: [{ id: "in.port-out", name: "out", type: PortType.OUT }],
   wires: [],
@@ -17,6 +18,7 @@ export const outChip: CircuitChip = {
   id: "out",
   name: "OUT",
   color: "#854d0e",
+  type: NodeType.OUT,
   chips: [],
   ports: [{ id: "out.port-in", name: "in", type: PortType.IN }],
   wires: [],
@@ -27,6 +29,7 @@ export const outChip: CircuitChip = {
 export const nandChip: CircuitChip = {
   id: "nand",
   name: "NAND",
+  type: NodeType.CHIP,
   chips: [],
   ports: [
     { id: "nand.port-a", name: "a", type: PortType.IN },

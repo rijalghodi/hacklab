@@ -85,7 +85,7 @@ export function ChipNode(props: NodeProps<Node<CircuitChip>>) {
 
         return outputSubject.subscribe((value) => {
           updateNodeData(data.id, {
-            ports: data.ports.map((p) => (p.id === port.id ? { ...p, value } : p)),
+            ports: data.ports?.map((p) => (p.id === port.id ? { ...p, value } : p)),
           });
         });
       })

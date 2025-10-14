@@ -1,6 +1,6 @@
 import { BehaviorSubject, combineLatest, map } from "rxjs";
 
-import type { CircuitChip } from "./types/chips";
+import { CircuitChip, PortType } from "./types/chips";
 
 /** Base library of primitive gates */
 const baseLibrary: Record<
@@ -45,15 +45,15 @@ export function buildCircuit(def: CircuitChip): {
   const outputs: Record<string, BehaviorSubject<boolean>> = {};
 
   // Create top-level port subjects
-  for (const p of def.ports) {
+  for (const p of def.ports || []) {
     const subj = new BehaviorSubject(p.value ?? false);
-    if (p.type === "IN") inputs[p.id] = subj;
+    if (p.type === PortType.IN) inputs[p.id] = subj;
     else outputs[p.id] = subj;
   }
 
   // Instantiate sub-chips
   const chips: Record<string, ReturnType<typeof buildCircuit>> = {};
-  for (const chip of def.chips) {
+  for (const chip of def.chips || []) {
     // base gate
     const base = baseLibrary[chip.name];
     if (base) {
@@ -62,13 +62,13 @@ export function buildCircuit(def: CircuitChip): {
     }
 
     // composite gate
-    const subDef = def.definitions.find((d) => d.name === chip.name);
+    const subDef = def.definitions?.find((d) => d.name === chip.name);
     if (!subDef) throw new Error(`Missing definition for chip '${chip.name}'`);
     chips[chip.id] = buildCircuit(subDef);
   }
 
   // Connect wires
-  for (const w of def.wires) {
+  for (const w of def.wires || []) {
     console.log("Connecting wire:", w);
 
     // Source - can be from top-level output port or chip output

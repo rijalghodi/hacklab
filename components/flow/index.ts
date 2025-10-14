@@ -1,3 +1,5 @@
+export * from "../../hooks/rename-port-dialog-store";
+export * from "../../hooks/save-chip-dialog-store";
 export * from "./chip-node";
 export * from "./circuit";
 export * from "./connection-line";
@@ -7,8 +9,6 @@ export * from "./in-node";
 export * from "./node-context-menu";
 export * from "./out-node";
 export * from "./port-handle";
-export * from "./rename-dialog-store";
 export * from "./rename-port-dialog";
 export * from "./save-chip-dialog";
-export * from "./save-chip-dialog-store";
 export * from "./wire-edge";

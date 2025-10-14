@@ -2,13 +2,15 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Edge, Node, useEdges, useNodes } from "@xyflow/react";
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 import { HEX_COLOR_REGEX, VALID_HEX_CHARS } from "@/lib/constants/regex";
-import { CircuitChip, Port, PortType, Wire } from "@/lib/types/chips";
+import { flowToCircuit } from "@/lib/flow-utils";
+import { CircuitChip, Wire } from "@/lib/types/chips";
 import { generateId } from "@/lib/utils";
+import { useSaveChipDialogStore } from "@/hooks/save-chip-dialog-store";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -23,7 +25,6 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 
 import { useChips } from "./flow-store";
-import { useSaveChipDialogStore } from "./save-chip-dialog-store";
 
 const formSchema = z.object({
   name: z.string().min(1, "Chip name is required").max(50, "Chip name must be less than 50 characters"),
@@ -36,7 +37,9 @@ type FormData = z.infer<typeof formSchema>;
 const DEFAULT_COLOR = "#854d0e";
 
 export function SaveChipDialog() {
-  const { addSavedChip, savedChips } = useChips();
+  const { addSavedChip, getAllChips } = useChips();
+  const allChips = getAllChips();
+  console.log("allChips", allChips);
   const { isOpen, closeDialog } = useSaveChipDialogStore();
 
   const nodes = useNodes<Node<CircuitChip>>();
@@ -51,36 +54,6 @@ export function SaveChipDialog() {
     },
   });
 
-  console.log("nodes", nodes);
-  console.log("edges", edges);
-
-  const circuitData = useMemo(() => {
-    const circuitChips = nodes
-      .filter((node) => node.type === "chip")
-      .map((node) => ({
-        id: node.id,
-        name: node.data.name,
-      }));
-
-    const circuitPorts: Port[] = nodes
-      .filter((node) => node.type === "in" || node.type === "out")
-      .map((node) => ({
-        id: node.data.id,
-        name: node.data.name,
-        type: node.type === "in" ? PortType.IN : PortType.OUT,
-      }));
-
-    const circuitWires = edges.map((edge) => ({
-      id: edge.id,
-      sourceId: edge.data?.sourceId || "",
-      targetId: edge.data?.targetId || "",
-      sourcePortId: edge.data?.sourcePortId,
-      targetPortId: edge.data?.targetPortId,
-    }));
-
-    return { circuitChips, circuitPorts, circuitWires };
-  }, [nodes, edges]);
-
   const handleClose = useCallback(() => {
     closeDialog();
     form.reset();
@@ -88,25 +61,22 @@ export function SaveChipDialog() {
 
   const onSubmit = useCallback(
     (formData: FormData) => {
-      const newCircuit: CircuitChip = {
+      const newCircuit = flowToCircuit(nodes, edges);
+      console.log("formData", formData);
+      addSavedChip({
+        ...newCircuit,
         id: generateId(),
         name: formData.name,
         color: formData.color,
-        chips: circuitData.circuitChips,
-        wires: circuitData.circuitWires,
-        ports: circuitData.circuitPorts,
-        definitions: [],
-      };
-
-      addSavedChip(newCircuit);
-      handleClose();
+      });
+      closeDialog();
     },
-    [circuitData, addSavedChip, handleClose],
+    [nodes, edges, closeDialog],
   );
 
   return (
     <Dialog open={isOpen} onOpenChange={closeDialog}>
-      <DialogContent className="sm:max-w-[425px] font-mono">
+      <DialogContent className="sm:max-w-[425px] font-mono" showCloseButton={false}>
         <DialogHeader>
           <DialogTitle className="sr-only">Save Chip</DialogTitle>
           <DialogDescription className="sr-only">
@@ -128,7 +98,8 @@ export function SaveChipDialog() {
                       onChange={(e) => {
                         const name = e.target.value;
                         field.onChange(name);
-                        const isDuplicateChip = savedChips.some((savedChip) => savedChip.name === name);
+                        const isDuplicateChip = allChips.some((chip) => chip.name === name);
+                        console.log("isDuplicateChip", isDuplicateChip);
                         if (isDuplicateChip) {
                           form.setError("name", { message: "Chip name already taken" });
                           return;
@@ -199,13 +170,13 @@ export function SaveChipDialog() {
             />
 
             <DialogFooter>
-              <Button type="button" variant="outline" className="flex-1" onClick={handleClose}>
+              <Button type="button" variant="outline" className="flex-1 uppercase" onClick={handleClose}>
                 Cancel
               </Button>
               <Button
                 type="submit"
                 variant="outline"
-                className="flex-1"
+                className="flex-1 uppercase"
                 disabled={!!form.formState.errors.name || !form.formState.isValid}
               >
                 Save Chip

@@ -1,12 +1,11 @@
 "use client";
 
-import { Edge, Node } from "@xyflow/react";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 import { builtInChips } from "@/lib/constants/chips";
-import { LOCAL_STORAGE_FLOW, LOCAL_STORAGE_SAVED_CHIPS } from "@/lib/constants/names";
-import { CircuitChip, Wire } from "@/lib/types/chips";
+import { LOCAL_STORAGE_SAVED_CHIPS } from "@/lib/constants/names";
+import { CircuitChip } from "@/lib/types/chips";
 
 interface DndStore {
   droppedName: string;
@@ -24,8 +23,9 @@ interface ChipsStore {
   setSavedChips: (chips: CircuitChip[]) => void;
   addSavedChip: (chip: CircuitChip) => void;
   updateSavedChip: (chip: CircuitChip) => void;
-  allChips: () => CircuitChip[];
+  getAllChips: () => CircuitChip[];
   getChip: (name: string) => CircuitChip | undefined;
+  getChipById: (id: string) => CircuitChip | undefined;
 }
 
 export const useChips = create<ChipsStore>()(
@@ -36,7 +36,7 @@ export const useChips = create<ChipsStore>()(
       addSavedChip: (chip: CircuitChip) => set({ savedChips: [...get().savedChips, chip] }),
       updateSavedChip: (chip: CircuitChip) =>
         set({ savedChips: get().savedChips.map((c) => (c.id === chip.id ? chip : c)) }),
-      allChips() {
+      getAllChips() {
         return [...get().savedChips, ...builtInChips];
       },
       getChip: (name: string) => {
@@ -44,6 +44,15 @@ export const useChips = create<ChipsStore>()(
         const chip = allChips.find((chip) => chip.name === name);
         if (!chip) {
           throw new Error(`Chip '${name}' not found`);
+        }
+        chip.definitions = allChips;
+        return chip!;
+      },
+      getChipById: (id: string) => {
+        const allChips = [...get().savedChips, ...builtInChips];
+        const chip = allChips.find((chip) => chip.id === id);
+        if (!chip) {
+          throw new Error(`Chip '${id}' not found`);
         }
         chip.definitions = allChips;
         return chip!;

@@ -56,6 +56,7 @@ export function InNode(props: NodeProps<Node<CircuitChip>>) {
       {/* Output port */}
       <PortHandle
         id={data.ports?.[0]?.id || ""}
+        // id={data.id}
         name={data.name}
         active={VALUE}
         type="source"

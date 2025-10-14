@@ -7,20 +7,24 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 import { CircuitChip, Wire } from "@/lib/types/chips";
+import { useRenamePortDialogStore } from "@/hooks/rename-port-dialog-store";
 
-import { Button } from "@/components/ui/button";
 import {
+  Button,
   Dialog,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-
-import { useRenameDialogStore } from "./rename-dialog-store";
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+  Input,
+} from "@/components/ui";
 
 const formSchema = z.object({
   name: z.string().min(1, "Port name is required").max(50, "Port name must be less than 50 characters"),
@@ -29,7 +33,7 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 export function RenamePortDialog() {
-  const { isOpen, nodeId, initialName, closeDialog } = useRenameDialogStore();
+  const { isOpen, nodeId, initialName, closeDialog } = useRenamePortDialogStore();
   const { getNode, updateNodeData, getNodes } = useReactFlow<Node<CircuitChip>, Edge<Wire>>();
 
   const nodes = getNodes();
@@ -79,7 +83,7 @@ export function RenamePortDialog() {
 
   return (
     <Dialog open={isOpen} onOpenChange={closeDialog}>
-      <DialogContent className="sm:max-w-[425px] font-mono">
+      <DialogContent className="sm:max-w-[425px] font-mono" showCloseButton={false}>
         <DialogHeader>
           <DialogTitle className="sr-only">Rename Port</DialogTitle>
           <DialogDescription className="sr-only">Enter a new name for this port.</DialogDescription>
@@ -118,13 +122,13 @@ export function RenamePortDialog() {
               )}
             />
             <DialogFooter>
-              <Button type="button" variant="outline" className="flex-1" onClick={handleClose}>
+              <Button type="button" variant="outline" className="flex-1 uppercase" onClick={handleClose}>
                 Cancel
               </Button>
               <Button
                 type="submit"
                 variant="outline"
-                className="flex-1"
+                className="flex-1 uppercase"
                 disabled={!!form.formState.errors.name || !form.formState.isValid}
               >
                 Rename

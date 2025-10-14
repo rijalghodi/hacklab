@@ -2,15 +2,11 @@
 
 import {
   addEdge,
-  applyEdgeChanges,
-  applyNodeChanges,
   Background,
   Connection,
   Controls,
   type Edge,
-  EdgeChange,
   type Node,
-  NodeChange,
   Panel,
   ReactFlow,
   useEdgesState,
@@ -18,43 +14,50 @@ import {
   useReactFlow,
 } from "@xyflow/react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 
-import { CircuitChip, type Wire } from "@/lib/types/chips";
+import { circuitToFlow } from "@/lib/flow-utils";
+import { CircuitChip, NodeType, type Wire } from "@/lib/types/chips";
 import { generateId } from "@/lib/utils";
 
 import { ChipNode, ConnectionLine, InNode, OutNode, RenamePortDialog, SaveChipDialog, WireEdge } from ".";
+import { CircuitMenu } from "./circuit-menu";
 import { useChips, useDnd } from "./flow-store";
 import { NodeContextMenu } from "./node-context-menu";
 import { Button, useSidebar } from "../ui";
-import { Menu } from "./menu";
 
-const nodeTypes = { chip: ChipNode, in: InNode, out: OutNode };
+const nodeTypes = { [NodeType.CHIP]: ChipNode, [NodeType.IN]: InNode, [NodeType.OUT]: OutNode };
 const edgeTypes = { wire: WireEdge };
 
-export function Circuit() {
-  // const { nodes, edges, setNodes, setEdges } = useFlowStore();
+export function Circuit({ initialCircuit }: { initialCircuit?: CircuitChip | null }) {
+  const { getChip } = useChips();
+  // console.log("initialCircuit", initialCircuit);
+  const { fitView } = useReactFlow();
   const [nodes, setNodes, onNodesChange] = useNodesState<Node<CircuitChip>>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge<Wire>>([]);
+  const { droppedName } = useDnd();
+
+  useEffect(() => {
+    if (initialCircuit) {
+      const { nodes, edges } = circuitToFlow(initialCircuit);
+      setNodes(nodes);
+      setEdges(edges);
+      fitView();
+    }
+  }, [initialCircuit]);
+
+  console.log("nodes", nodes);
+  console.log("edges", edges);
 
   const { screenToFlowPosition } = useReactFlow();
   const ref = useRef<HTMLDivElement>(null);
-  const [menu, setMenu] = useState<{ id: string; top?: number; left?: number; right?: number; bottom?: number } | null>(
-    null,
-  );
-  const { droppedName } = useDnd();
-  const getChip = useChips((state) => state.getChip);
-
-  // const onNodesChange = useCallback(
-  //   (changes: NodeChange<Node<CircuitChip>>[]) =>
-  //     setNodes((nodesSnapshot: Node<CircuitChip>[]) => applyNodeChanges<Node<CircuitChip>>(changes, nodesSnapshot)),
-  //   [],
-  // );
-  // const onEdgesChange = useCallback(
-  //   (changes: EdgeChange<Edge<Wire>>[]) =>
-  //     setEdges((edgesSnapshot: Edge<Wire>[]) => applyEdgeChanges(changes, edgesSnapshot)),
-  //   [],
-  // );
+  const [menu, setMenu] = useState<{
+    id: string;
+    top?: number;
+    left?: number;
+    right?: number;
+    bottom?: number;
+  } | null>(null);
 
   const onConnect = useCallback((params: Connection) => {
     console.log(params);
@@ -70,7 +73,6 @@ export function Circuit() {
             targetPortId: params.targetHandle ?? undefined,
             sourceId: params.source,
             sourcePortId: params.sourceHandle ?? undefined,
-            // positionHandlers: [],
           },
         },
         edgesSnapshot,
@@ -98,18 +100,19 @@ export function Circuit() {
 
       const id = generateId();
 
-      const CHIP_DEFINITION = getChip(droppedName);
+      const chipDef = getChip(droppedName);
 
-      if (!CHIP_DEFINITION) {
+      if (!chipDef) {
         return;
       }
 
-      const type = CHIP_DEFINITION.name === "IN" ? "in" : CHIP_DEFINITION.name === "OUT" ? "out" : "chip";
+      const type: NodeType =
+        chipDef.type === NodeType.IN ? NodeType.IN : chipDef.type === NodeType.OUT ? NodeType.OUT : NodeType.CHIP;
 
       let name = droppedName;
-      if (name === "IN") {
+      if (type === NodeType.IN) {
         name = `IN-${id.slice(0, 3)}`;
-      } else if (name === "OUT") {
+      } else if (type === NodeType.OUT) {
         name = `OUT-${id.slice(0, 3)}`;
       }
 
@@ -120,10 +123,10 @@ export function Circuit() {
         data: {
           id,
           name,
-          chips: CHIP_DEFINITION.chips || [],
-          wires: CHIP_DEFINITION.wires || [],
-          ports: CHIP_DEFINITION.ports || [],
-          definitions: CHIP_DEFINITION.definitions || [],
+          chips: chipDef.chips,
+          wires: chipDef.wires,
+          ports: chipDef.ports,
+          definitions: chipDef.definitions,
         },
       };
 
@@ -133,9 +136,9 @@ export function Circuit() {
   );
 
   const onNodeContextMenu = useCallback(
-    (event: React.MouseEvent<Element>, node: Node<CircuitChip>) => {
+    (e: React.MouseEvent<Element>, node: Node<CircuitChip>) => {
       // Prevent native context menu from showing
-      event.preventDefault();
+      e.preventDefault();
 
       // Calculate position of the context menu. We want to make sure it
       // doesn't get positioned off-screen.
@@ -144,10 +147,10 @@ export function Circuit() {
 
       setMenu({
         id: node.id,
-        top: event.clientY < pane.height - 50 ? event.clientY : undefined,
-        left: event.clientX < pane.width - 50 ? event.clientX : undefined,
-        right: event.clientX >= pane.width - 50 ? 50 : undefined,
-        bottom: event.clientY >= pane.height - 50 ? 50 : undefined,
+        top: e.clientY < pane.height - 100 ? e.clientY : undefined,
+        left: e.clientX < pane.width - 100 ? e.clientX : undefined,
+        right: e.clientX >= pane.width - 100 ? 200 : undefined,
+        bottom: e.clientY >= pane.height - 100 ? 200 : undefined,
       });
 
       // select the nodee
@@ -157,7 +160,10 @@ export function Circuit() {
   );
 
   // Close the context menu if it's open whenever the window is clicked.
-  const onPaneClick = useCallback(() => setMenu(null), [setMenu]);
+  const onPaneClick = useCallback(() => {
+    console.log("onPaneClick");
+    setMenu(null);
+  }, [setMenu]);
 
   return (
     <div className="h-screen font-mono">
@@ -185,10 +191,10 @@ export function Circuit() {
         {menu && <NodeContextMenu onClose={onPaneClick} {...menu} />}
         <Controls />
         <Panel position="top-left">
-          <Menu />
+          <CircuitMenu />
         </Panel>
         <Panel position="top-center">
-          <h1 className="text-foreground">My Flow</h1>
+          <h1 className="font-mono font-bold py-2 text-lg">{initialCircuit?.name ?? "CHIP"}</h1>
         </Panel>
         <Panel position="center-left">
           <FlowSidebarTrigger />

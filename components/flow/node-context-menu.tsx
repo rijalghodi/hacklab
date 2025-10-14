@@ -1,10 +1,18 @@
 import { Edge, type Node, useReactFlow } from "@xyflow/react";
-import React, { useCallback, useRef } from "react";
+import React, { useCallback } from "react";
 
 import { CircuitChip, Wire } from "@/lib/types/chips";
-import { cn, generateId } from "@/lib/utils";
+import { generateId } from "@/lib/utils";
+import { useRenamePortDialogStore } from "@/hooks";
 
-import { useRenameDialogStore } from "./rename-dialog-store";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 
 type NodeContextMenuProps = {
   id: string;
@@ -15,12 +23,11 @@ type NodeContextMenuProps = {
   onClose: () => void;
 };
 
-export function NodeContextMenu({ id, top, left, right, bottom, onClose, ...props }: NodeContextMenuProps) {
+export function NodeContextMenu({ id, top, left, right, bottom, onClose }: NodeContextMenuProps) {
   const { getNode, setNodes, addNodes, setEdges } = useReactFlow<Node<CircuitChip>, Edge<Wire>>();
-  const { openDialog } = useRenameDialogStore();
+  const { openDialog } = useRenamePortDialogStore();
 
   const node = getNode(id);
-  const menuRef = useRef<HTMLDivElement>(null);
 
   const duplicateNode = useCallback(() => {
     const position = {
@@ -53,90 +60,56 @@ export function NodeContextMenu({ id, top, left, right, bottom, onClose, ...prop
       id: newId,
       position,
     });
-    onClose(); // Close menu after action
-  }, [id, node, addNodes, onClose]);
+  }, [id, node, addNodes]);
 
   const renameNode = useCallback(() => {
     if (node?.data?.name) {
       openDialog(id, node.data.name);
     }
-    onClose(); // Close menu after action
-  }, [id, node?.data?.name, openDialog, onClose]);
+  }, [id, node?.data?.name, openDialog]);
 
   const deleteNode = useCallback(() => {
     setNodes((nodes) => nodes.filter((node) => node.id !== id));
     setEdges((edges) => edges.filter((edge) => edge.source !== id));
-    onClose(); // Close menu after action
-  }, [id, setNodes, setEdges, onClose]);
+  }, [id, setNodes, setEdges]);
 
-  const viewNode = useCallback(() => {
-    onClose(); // Close menu after action
-  }, [onClose]);
+  const viewNode = useCallback(() => {}, []);
 
-  const openNode = useCallback(() => {
-    onClose(); // Close menu after action
-  }, [onClose]);
+  const openNode = useCallback(() => {}, []);
+
+  if (!node) return null;
 
   return (
     <>
-      <div className="fixed inset-0 z-50 font-mono" onClick={onClose}>
-        {/* Menu content */}
-        <div
-          ref={menuRef}
-          className="absolute w-32 overflow-hidden bg-popover border-2 border-border rounded-lg shadow-lg p-1.5 space-y-0"
+      <DropdownMenu open={!!id} onOpenChange={onClose}>
+        <DropdownMenuTrigger
+          className="sr-only fixed"
+          title="Node Context Menu"
           style={{ top, left, right, bottom }}
-          onClick={(e) => e.stopPropagation()}
-          {...props}
-        >
-          {/* <div className="px-2 py-1 text-sm border-b-2 border-border pb-1">{node?.data.name}</div> */}
-          <div className="w-full text-left px-2 py-1.5 text-sm rounded-md font-bold" onClick={viewNode}>
-            {node?.data.name}
-          </div>
+        ></DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="font-mono font-semibold uppercase">
+          <DropdownMenuLabel>{node?.data.name}</DropdownMenuLabel>
+          <DropdownMenuSeparator />
           {node?.type == "in" || node?.type == "out" ? (
             <>
-              <NodeContextMenuButton onClick={renameNode}>Rename</NodeContextMenuButton>
-              <NodeContextMenuButton onClick={duplicateNode}>Duplicate</NodeContextMenuButton>
-              <NodeContextMenuButton onClick={deleteNode} variant="destructive">
+              <DropdownMenuItem onClick={renameNode}>Rename</DropdownMenuItem>
+              <DropdownMenuItem onClick={duplicateNode}>Duplicate</DropdownMenuItem>
+              <DropdownMenuItem onClick={deleteNode} variant="destructive">
                 Delete
-              </NodeContextMenuButton>
+              </DropdownMenuItem>
             </>
           ) : (
             <>
-              <NodeContextMenuButton onClick={viewNode}>View</NodeContextMenuButton>
-              <NodeContextMenuButton onClick={openNode}>Open</NodeContextMenuButton>
-              <NodeContextMenuButton onClick={duplicateNode}>Duplicate</NodeContextMenuButton>
-              <NodeContextMenuButton onClick={deleteNode} variant="destructive">
+              <DropdownMenuItem onClick={viewNode}>View</DropdownMenuItem>
+              <DropdownMenuItem onClick={openNode}>Open</DropdownMenuItem>
+              <DropdownMenuItem onClick={duplicateNode}>Duplicate</DropdownMenuItem>
+              <DropdownMenuItem onClick={deleteNode} variant="destructive">
                 Delete
-              </NodeContextMenuButton>
+              </DropdownMenuItem>
             </>
           )}
-        </div>
-      </div>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </>
-  );
-}
-
-function NodeContextMenuButton({
-  children,
-  onClick,
-  className,
-  variant,
-}: {
-  children: React.ReactNode;
-  onClick: () => void;
-  className?: string;
-  variant?: "default" | "destructive";
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={cn(
-        "w-full text-left px-2 py-1.5 text-sm rounded-md hover:bg-muted transition-colors",
-        className,
-        variant === "destructive" && "text-destructive hover:bg-destructive/10",
-      )}
-    >
-      {children}
-    </button>
   );
 }

@@ -1,6 +1,12 @@
 export enum PortType {
-  IN = "IN",
-  OUT = "OUT",
+  IN = "in",
+  OUT = "out",
+}
+
+export enum NodeType {
+  CHIP = "chip",
+  IN = "in",
+  OUT = "out",
 }
 
 export type Port = {
@@ -13,6 +19,7 @@ export type Port = {
 export type Chip = {
   id: string;
   name: string;
+  type?: NodeType;
   value?: boolean;
 };
 
@@ -29,9 +36,10 @@ export type Wire = {
 export type CircuitChip = {
   id: string;
   name: string;
+  type?: NodeType;
   color?: string;
-  chips: Chip[];
-  wires: Wire[];
-  ports: Port[];
-  definitions: CircuitChip[];
+  chips?: Chip[];
+  wires?: Wire[];
+  ports?: Port[];
+  definitions?: CircuitChip[];
 };

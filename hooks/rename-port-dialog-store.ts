@@ -1,14 +1,14 @@
 import { create } from "zustand";
 
-interface RenameDialogState {
+type RenamePortDialogState = {
   isOpen: boolean;
   nodeId: string | null;
   initialName: string;
   openDialog: (nodeId: string, initialName: string) => void;
   closeDialog: () => void;
-}
+};
 
-export const useRenameDialogStore = create<RenameDialogState>((set) => ({
+export const useRenamePortDialogStore = create<RenamePortDialogState>((set) => ({
   isOpen: false,
   nodeId: null,
   initialName: "",
