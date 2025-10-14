@@ -10,4 +10,5 @@ export * from "./port-handle";
 export * from "./rename-dialog-store";
 export * from "./rename-port-dialog";
 export * from "./save-chip-dialog";
+export * from "./save-chip-dialog-store";
 export * from "./wire-edge";

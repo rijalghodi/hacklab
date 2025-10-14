@@ -31,7 +31,7 @@ export function FlowSidebar() {
       <SidebarHeader></SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="font-mono">Built-in Chips</SidebarGroupLabel>
+          <SidebarGroupLabel className="font-mono uppercase">Built-in Chips</SidebarGroupLabel>
           <SidebarGroupContent>
             <div className="flex flex-wrap gap-2">
               {builtInChips.map((chip) => (
@@ -43,7 +43,7 @@ export function FlowSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
         <SidebarGroup>
-          <SidebarGroupLabel className="font-mono">Saved Chips</SidebarGroupLabel>
+          <SidebarGroupLabel className="font-mono uppercase">Saved Chips</SidebarGroupLabel>
           <SidebarGroupContent>
             <div className="flex flex-wrap gap-2">
               {savedChips?.map((chip: CircuitChip) => (

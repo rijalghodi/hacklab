@@ -7,7 +7,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
 export default function LabPage() {
   return (
-    <div className="h-screen w-screen">
+    <div className="h-screen w-screen font-mono">
       <SidebarProvider>
         <FlowSidebar />
         <SidebarInset>

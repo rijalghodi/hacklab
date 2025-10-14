@@ -13,6 +13,8 @@ import {
   NodeChange,
   Panel,
   ReactFlow,
+  useEdgesState,
+  useNodesState,
   useReactFlow,
 } from "@xyflow/react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
@@ -22,15 +24,18 @@ import { CircuitChip, type Wire } from "@/lib/types/chips";
 import { generateId } from "@/lib/utils";
 
 import { ChipNode, ConnectionLine, InNode, OutNode, RenamePortDialog, SaveChipDialog, WireEdge } from ".";
-import { useChips, useDnd, useFlowStore } from "./flow-store";
+import { useChips, useDnd } from "./flow-store";
 import { NodeContextMenu } from "./node-context-menu";
 import { Button, useSidebar } from "../ui";
+import { Menu } from "./menu";
 
 const nodeTypes = { chip: ChipNode, in: InNode, out: OutNode };
 const edgeTypes = { wire: WireEdge };
 
 export function Circuit() {
-  const { nodes, edges, setNodes, setEdges } = useFlowStore();
+  // const { nodes, edges, setNodes, setEdges } = useFlowStore();
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node<CircuitChip>>([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge<Wire>>([]);
 
   const { screenToFlowPosition } = useReactFlow();
   const ref = useRef<HTMLDivElement>(null);
@@ -40,16 +45,16 @@ export function Circuit() {
   const { droppedName } = useDnd();
   const getChip = useChips((state) => state.getChip);
 
-  const onNodesChange = useCallback(
-    (changes: NodeChange<Node<CircuitChip>>[]) =>
-      setNodes((nodesSnapshot: Node<CircuitChip>[]) => applyNodeChanges<Node<CircuitChip>>(changes, nodesSnapshot)),
-    [],
-  );
-  const onEdgesChange = useCallback(
-    (changes: EdgeChange<Edge<Wire>>[]) =>
-      setEdges((edgesSnapshot: Edge<Wire>[]) => applyEdgeChanges(changes, edgesSnapshot)),
-    [],
-  );
+  // const onNodesChange = useCallback(
+  //   (changes: NodeChange<Node<CircuitChip>>[]) =>
+  //     setNodes((nodesSnapshot: Node<CircuitChip>[]) => applyNodeChanges<Node<CircuitChip>>(changes, nodesSnapshot)),
+  //   [],
+  // );
+  // const onEdgesChange = useCallback(
+  //   (changes: EdgeChange<Edge<Wire>>[]) =>
+  //     setEdges((edgesSnapshot: Edge<Wire>[]) => applyEdgeChanges(changes, edgesSnapshot)),
+  //   [],
+  // );
 
   const onConnect = useCallback((params: Connection) => {
     console.log(params);
@@ -180,11 +185,7 @@ export function Circuit() {
         {menu && <NodeContextMenu onClose={onPaneClick} {...menu} />}
         <Controls />
         <Panel position="top-left">
-          <h1 className="text-foreground">
-            <SaveChipDialog>
-              <Button variant="outline">Save Chip</Button>
-            </SaveChipDialog>
-          </h1>
+          <Menu />
         </Panel>
         <Panel position="top-center">
           <h1 className="text-foreground">My Flow</h1>
@@ -193,6 +194,7 @@ export function Circuit() {
           <FlowSidebarTrigger />
         </Panel>
         <RenamePortDialog />
+        <SaveChipDialog />
       </ReactFlow>
     </div>
   );

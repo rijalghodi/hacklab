@@ -1,11 +1,13 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Edge, Node, useEdges, useNodes } from "@xyflow/react";
 import React, { useCallback, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
-import { CircuitChip, Port, PortType } from "@/lib/types/chips";
+import { HEX_COLOR_REGEX, VALID_HEX_CHARS } from "@/lib/constants/regex";
+import { CircuitChip, Port, PortType, Wire } from "@/lib/types/chips";
 import { generateId } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
@@ -16,15 +18,12 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-import { useChips, useFlowStore } from "./flow-store";
-
-const HEX_COLOR_REGEX = /^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$/;
-const VALID_HEX_CHARS = /^[0-9A-Fa-f#]*$/;
+import { useChips } from "./flow-store";
+import { useSaveChipDialogStore } from "./save-chip-dialog-store";
 
 const formSchema = z.object({
   name: z.string().min(1, "Chip name is required").max(50, "Chip name must be less than 50 characters"),
@@ -34,16 +33,14 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-interface SaveChipDialogProps {
-  children: React.ReactNode;
-}
-
 const DEFAULT_COLOR = "#854d0e";
 
-export function SaveChipDialog({ children }: SaveChipDialogProps) {
-  const [open, setOpen] = React.useState(false);
-  const { nodes, edges } = useFlowStore();
-  const { savedChips, setSavedChips } = useChips();
+export function SaveChipDialog() {
+  const { addSavedChip, savedChips } = useChips();
+  const { isOpen, closeDialog } = useSaveChipDialogStore();
+
+  const nodes = useNodes<Node<CircuitChip>>();
+  const edges = useEdges<Edge<Wire>>();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -54,7 +51,9 @@ export function SaveChipDialog({ children }: SaveChipDialogProps) {
     },
   });
 
-  // Memoize circuit data extraction to avoid recalculation on every render
+  console.log("nodes", nodes);
+  console.log("edges", edges);
+
   const circuitData = useMemo(() => {
     const circuitChips = nodes
       .filter((node) => node.type === "chip")
@@ -83,31 +82,30 @@ export function SaveChipDialog({ children }: SaveChipDialogProps) {
   }, [nodes, edges]);
 
   const handleClose = useCallback(() => {
-    setOpen(false);
+    closeDialog();
     form.reset();
-  }, [form]);
+  }, [closeDialog, form]);
 
   const onSubmit = useCallback(
-    (data: FormData) => {
+    (formData: FormData) => {
       const newCircuit: CircuitChip = {
         id: generateId(),
-        name: data.name,
-        color: data.color,
+        name: formData.name,
+        color: formData.color,
         chips: circuitData.circuitChips,
         wires: circuitData.circuitWires,
         ports: circuitData.circuitPorts,
         definitions: [],
       };
 
-      setSavedChips([...savedChips, newCircuit]);
+      addSavedChip(newCircuit);
       handleClose();
     },
-    [circuitData, savedChips, setSavedChips, handleClose],
+    [circuitData, addSavedChip, handleClose],
   );
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+    <Dialog open={isOpen} onOpenChange={closeDialog}>
       <DialogContent className="sm:max-w-[425px] font-mono">
         <DialogHeader>
           <DialogTitle className="sr-only">Save Chip</DialogTitle>
@@ -124,7 +122,21 @@ export function SaveChipDialog({ children }: SaveChipDialogProps) {
                 <FormItem>
                   <FormLabel>Chip Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter chip name" {...field} />
+                    <Input
+                      placeholder="Enter chip name"
+                      {...field}
+                      onChange={(e) => {
+                        const name = e.target.value;
+                        field.onChange(name);
+                        const isDuplicateChip = savedChips.some((savedChip) => savedChip.name === name);
+                        if (isDuplicateChip) {
+                          form.setError("name", { message: "Chip name already taken" });
+                          return;
+                        } else {
+                          form.clearErrors("name");
+                        }
+                      }}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -153,29 +165,25 @@ export function SaveChipDialog({ children }: SaveChipDialogProps) {
                         placeholder={DEFAULT_COLOR}
                         {...field}
                         value={field.value}
-                        maxLength={7} // # + 6 hex digits
+                        maxLength={7}
                         onChange={(e) => {
                           const input = e.target.value;
 
-                          // Only allow valid hex characters
                           if (!VALID_HEX_CHARS.test(input)) {
-                            return; // Reject invalid characters
+                            return;
                           }
 
-                          // Ensure it starts with # if it has any content
                           let processedInput = input;
                           if (input.length > 0 && !input.startsWith("#")) {
                             processedInput = "#" + input;
                           }
 
-                          // Prevent adding more characters if we already have a valid hex
                           if (HEX_COLOR_REGEX.test(processedInput) && input.length > processedInput.length) {
-                            return; // Don't allow more characters after valid hex
+                            return;
                           }
 
-                          // Limit length to prevent overflow
                           if (processedInput.length > 7) {
-                            return; // Max length is 7 (# + 6 digits)
+                            return;
                           }
 
                           field.onChange(processedInput);
@@ -194,7 +202,12 @@ export function SaveChipDialog({ children }: SaveChipDialogProps) {
               <Button type="button" variant="outline" className="flex-1" onClick={handleClose}>
                 Cancel
               </Button>
-              <Button type="submit" variant="outline" className="flex-1">
+              <Button
+                type="submit"
+                variant="outline"
+                className="flex-1"
+                disabled={!!form.formState.errors.name || !form.formState.isValid}
+              >
                 Save Chip
               </Button>
             </DialogFooter>

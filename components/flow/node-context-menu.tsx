@@ -83,7 +83,7 @@ export function NodeContextMenu({ id, top, left, right, bottom, onClose, ...prop
         {/* Menu content */}
         <div
           ref={menuRef}
-          className="absolute w-32 overflow-hidden bg-background border-2 border-border rounded-lg shadow-lg p-1.5 space-y-0"
+          className="absolute w-32 overflow-hidden bg-popover border-2 border-border rounded-lg shadow-lg p-1.5 space-y-0"
           style={{ top, left, right, bottom }}
           onClick={(e) => e.stopPropagation()}
           {...props}

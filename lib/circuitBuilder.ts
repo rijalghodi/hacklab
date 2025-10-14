@@ -63,7 +63,7 @@ export function buildCircuit(def: CircuitChip): {
 
     // composite gate
     const subDef = def.definitions.find((d) => d.name === chip.name);
-    if (!subDef) throw new Error(`Missing definition for ${chip.name}`);
+    if (!subDef) throw new Error(`Missing definition for chip '${chip.name}'`);
     chips[chip.id] = buildCircuit(subDef);
   }
 
