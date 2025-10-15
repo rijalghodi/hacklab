@@ -35,7 +35,9 @@ export function OutNode(props: NodeProps<Node<CircuitChip>>) {
 
       {/* Input port */}
       <PortHandle
-        id={data.ports?.[0]?.id || ""}
+        // id={data.ports?.[0]?.id || ""}
+        id={data.id}
+        // id={null}
         name={data.name}
         active={VALUE}
         type="target"

@@ -26,6 +26,7 @@ export function InNode(props: NodeProps<Node<CircuitChip>>) {
     }
 
     updateNodeData(data.id, {
+      // value: !VALUE,
       ports: data.ports?.map((port) => ({ ...port, value: !VALUE })),
     });
   };
@@ -55,8 +56,9 @@ export function InNode(props: NodeProps<Node<CircuitChip>>) {
 
       {/* Output port */}
       <PortHandle
-        id={data.ports?.[0]?.id || ""}
-        // id={data.id}
+        // id={data.ports?.[0]?.id || ""}
+        // id={null}
+        id={data.id}
         name={data.name}
         active={VALUE}
         type="source"

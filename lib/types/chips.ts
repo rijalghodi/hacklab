@@ -27,8 +27,8 @@ export type Wire = {
   id: string;
   sourceId: string;
   targetId: string;
-  sourcePortId?: string;
-  targetPortId?: string;
+  sourcePortId: string | null;
+  targetPortId: string | null;
   value?: boolean;
   color?: string;
 };

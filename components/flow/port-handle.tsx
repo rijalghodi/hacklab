@@ -6,7 +6,7 @@ const PORT_WIDTH = 7;
 
 export interface PortHandleProps {
   /** The port ID */
-  id: string;
+  id: string | null;
   /** The port name to display on hover */
   name: string;
   /** Whether the port is active (has a value) */

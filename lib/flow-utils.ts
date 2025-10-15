@@ -32,8 +32,8 @@ export function flowToCircuit(
       id: edge.id,
       sourceId: edge.data?.sourceId || "",
       targetId: edge.data?.targetId || "",
-      sourcePortId: edge.data?.sourcePortId,
-      targetPortId: edge.data?.targetPortId,
+      sourcePortId: edge.data?.sourcePortId || null,
+      targetPortId: edge.data?.targetPortId || null,
     };
   });
 
