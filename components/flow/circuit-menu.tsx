@@ -25,11 +25,8 @@ export function CircuitMenu(props: Props) {
   const { setChipId } = useCircuitPageParams();
   const { open, onOpenChange } = useControllableOpen(props);
   const { openDialog } = useSaveChipDialogStore();
-  const { setEdges, setNodes } = useReactFlow<Node<CircuitChip>, Edge<Wire>>();
 
   const handleNewChip = () => {
-    setEdges([]);
-    setNodes([]);
     setChipId(null);
   };
 

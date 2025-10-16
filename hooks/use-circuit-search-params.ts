@@ -18,9 +18,9 @@ export function useCircuitPageParams() {
   const edges = useEdges<Edge<Wire>>();
 
   function setChipId(newChipId: string | null | undefined) {
-    if (!newChipId) return router.push(`/chips/new`);
+    if (!chipId) return router.push(`/chips/new`);
 
-    const saved = getSavedChipFromLocalStorage(newChipId);
+    const saved = getSavedChipFromLocalStorage(chipId);
     const current = flowToCircuit(nodes, edges);
 
     const savedEssential = {
@@ -30,6 +30,8 @@ export function useCircuitPageParams() {
     };
 
     if (isEqual(savedEssential, current)) return router.push(`/chips/${newChipId}`);
+
+    if (!newChipId) return router.push(`/chips/new`);
 
     openDialog({
       title: "Unsaved Changes",

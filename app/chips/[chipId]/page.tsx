@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactFlowProvider } from "@xyflow/react";
+import { ReactFlowProvider, useReactFlow } from "@xyflow/react";
 import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useMemo } from "react";
 
@@ -9,10 +9,11 @@ import { FlowSidebar } from "@/components/flow/flow-sidebar";
 import { useChips } from "@/components/flow/flow-store";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
-export default function LabPage() {
+export default function ChipPage() {
   const router = useRouter();
 
   const { chipId } = useParams<{ chipId: string }>();
+  const { setNodes, setEdges } = useReactFlow();
 
   const { getChipById } = useChips();
   const circuit = useMemo(() => {
@@ -32,20 +33,11 @@ export default function LabPage() {
 
   useEffect(() => {
     if (chipId && !circuit) {
+      setEdges([]);
+      setNodes([]);
       router.replace("/chips/new");
     }
-  }, [chipId, circuit, router]);
+  }, [chipId, circuit, router, setEdges, setNodes]);
 
-  return (
-    <div className="h-screen w-screen font-mono dark">
-      <ReactFlowProvider>
-        <SidebarProvider>
-          <FlowSidebar />
-          <SidebarInset>
-            <Circuit initialCircuit={circuit} />
-          </SidebarInset>
-        </SidebarProvider>
-      </ReactFlowProvider>
-    </div>
-  );
+  return <Circuit initialCircuit={circuit} />;
 }
