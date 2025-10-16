@@ -35,7 +35,15 @@ export function useCircuitPageParams() {
     return nodes.length > 0 || edges.length > 0;
   }, [chipId, nodes, edges]);
 
-  function setChipId(newChipId: string | null | undefined) {
+  function navigateToChipIdNoConfirm(newChipId: string | null | undefined) {
+    if (!newChipId) {
+      setEdges([]);
+      setNodes([]);
+    }
+    router.push(`/chips/${newChipId}`);
+  }
+
+  function navigateToChipId(newChipId: string | null | undefined) {
     if (!hasUnsavedChanges) {
       newChipId = !newChipId ? "new" : newChipId;
       router.push(`/chips/${newChipId}`);
@@ -58,5 +66,5 @@ export function useCircuitPageParams() {
     });
   }
 
-  return { chipId, setChipId };
+  return { chipId, navigateToChipId, navigateToChipIdNoConfirm };
 }

@@ -20,12 +20,12 @@ type Props = {
 };
 
 export function CircuitMenu(props: Props) {
-  const { setChipId } = useCircuitPageParams();
+  const { navigateToChipId } = useCircuitPageParams();
   const { open, onOpenChange } = useControllableOpen(props);
   const { openDialog } = useSaveChipDialogStore();
 
   const handleNewChip = () => {
-    setChipId(null);
+    navigateToChipId(null);
   };
 
   return (

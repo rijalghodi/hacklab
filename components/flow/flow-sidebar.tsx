@@ -178,13 +178,13 @@ type ChipOptionMenuProps = {
 };
 
 function ChipOptionMenu({ open, menuPosition, onOpenChange, chipName, chipId }: ChipOptionMenuProps) {
-  const { setChipId } = useCircuitPageParams();
+  const { navigateToChipId } = useCircuitPageParams();
 
   // Early return for invalid state
   if (!chipName || !chipId) return null;
 
   const handleOpen = () => {
-    setChipId(chipId);
+    navigateToChipId(chipId);
   };
 
   return (

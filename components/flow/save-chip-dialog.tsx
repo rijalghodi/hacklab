@@ -38,7 +38,7 @@ type FormData = z.infer<typeof formSchema>;
 const DEFAULT_COLOR = "#854d0e";
 
 export function SaveChipDialog() {
-  const { chipId, setChipId } = useCircuitPageParams();
+  const { chipId, navigateToChipIdNoConfirm: setChipIdWithoutConfirmation } = useCircuitPageParams();
   const { addSavedChip, getAllChips, getChipById, updateSavedChip } = useChips();
   const allChips = getAllChips();
   const { isOpen, closeDialog } = useSaveChipDialogStore();
@@ -91,7 +91,7 @@ export function SaveChipDialog() {
             color: formData.color,
           });
 
-          setChipId(newChipId);
+          setChipIdWithoutConfirmation(newChipId);
         }
         handleClose();
         toast.success("Chip saved");
@@ -100,7 +100,7 @@ export function SaveChipDialog() {
         toast.error("Failed to save chip");
       }
     },
-    [nodes, edges, handleClose, initialChip, updateSavedChip, addSavedChip, setChipId],
+    [nodes, edges, handleClose, initialChip, updateSavedChip, addSavedChip, setChipIdWithoutConfirmation],
   );
 
   return (
