@@ -2,8 +2,9 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Edge, Node, useEdges, useNodes } from "@xyflow/react";
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import * as z from "zod";
 
 import { HEX_COLOR_REGEX, VALID_HEX_CHARS } from "@/lib/constants/regex";
@@ -11,6 +12,7 @@ import { flowToCircuit } from "@/lib/flow-utils";
 import { CircuitChip, Wire } from "@/lib/types/chips";
 import { generateId } from "@/lib/utils";
 import { useSaveChipDialogStore } from "@/hooks/save-chip-dialog-store";
+import { useCircuitPageParams } from "@/hooks/use-circuit-search-params";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -29,7 +31,6 @@ import { useChips } from "./flow-store";
 const formSchema = z.object({
   name: z.string().min(1, "Chip name is required").max(50, "Chip name must be less than 50 characters"),
   color: z.string().regex(HEX_COLOR_REGEX, "Invalid hex color format"),
-  description: z.string().optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -37,10 +38,12 @@ type FormData = z.infer<typeof formSchema>;
 const DEFAULT_COLOR = "#854d0e";
 
 export function SaveChipDialog() {
-  const { addSavedChip, getAllChips } = useChips();
+  const { chipId, setChipId } = useCircuitPageParams();
+  const { addSavedChip, getAllChips, getChipById, updateSavedChip } = useChips();
   const allChips = getAllChips();
-  console.log("allChips", allChips);
   const { isOpen, closeDialog } = useSaveChipDialogStore();
+
+  const initialChip = chipId ? getChipById(chipId) : null;
 
   const nodes = useNodes<Node<CircuitChip>>();
   const edges = useEdges<Edge<Wire>>();
@@ -50,33 +53,59 @@ export function SaveChipDialog() {
     defaultValues: {
       name: "",
       color: DEFAULT_COLOR,
-      description: "",
     },
   });
 
-  const handleClose = useCallback(() => {
+  useEffect(() => {
+    if (initialChip) {
+      form.setValue("name", initialChip.name);
+      if (initialChip.color) {
+        form.setValue("color", initialChip.color);
+      }
+    }
+  }, [initialChip, form]);
+
+  const handleClose = () => {
     closeDialog();
     form.reset();
-  }, [closeDialog, form]);
+  };
 
   const onSubmit = useCallback(
     (formData: FormData) => {
-      const newCircuit = flowToCircuit(nodes, edges);
-      console.log("formData", formData);
-      addSavedChip({
-        ...newCircuit,
-        id: generateId(),
-        name: formData.name,
-        color: formData.color,
-      });
-      closeDialog();
+      try {
+        const newCircuit = flowToCircuit(nodes, edges);
+
+        if (initialChip) {
+          updateSavedChip(initialChip.id, {
+            ...newCircuit,
+            id: initialChip.id,
+            name: formData.name,
+            color: formData.color,
+          });
+        } else {
+          const newChipId = generateId();
+          addSavedChip({
+            ...newCircuit,
+            id: newChipId,
+            name: formData.name,
+            color: formData.color,
+          });
+
+          setChipId(newChipId);
+        }
+        handleClose();
+        toast.success("Chip saved");
+      } catch (error) {
+        console.error(error);
+        toast.error("Failed to save chip");
+      }
     },
-    [nodes, edges, closeDialog],
+    [nodes, edges, handleClose, initialChip, updateSavedChip, addSavedChip, setChipId],
   );
 
   return (
     <Dialog open={isOpen} onOpenChange={closeDialog}>
-      <DialogContent className="sm:max-w-[425px] font-mono" showCloseButton={false}>
+      <DialogContent className="sm:max-w-[500px] font-mono" showCloseButton={false}>
         <DialogHeader>
           <DialogTitle className="sr-only">Save Chip</DialogTitle>
           <DialogDescription className="sr-only">
@@ -169,13 +198,16 @@ export function SaveChipDialog() {
               )}
             />
 
-            <DialogFooter>
-              <Button type="button" variant="outline" className="flex-1 uppercase" onClick={handleClose}>
+            <DialogFooter className="mt-6">
+              <Button type="button" variant="accent" className="flex-1 uppercase" onClick={handleClose}>
                 Cancel
               </Button>
+              {/* <Button type="button" variant="accent" className="flex-1 uppercase" onClick={handleClose}>
+                Customize
+              </Button> */}
               <Button
                 type="submit"
-                variant="outline"
+                variant="accent"
                 className="flex-1 uppercase"
                 disabled={!!form.formState.errors.name || !form.formState.isValid}
               >

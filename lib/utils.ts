@@ -18,7 +18,7 @@ export function getBgColor(color?: string) {
 }
 
 export function getBorderColor(color?: string) {
-  return color ? colorFn(color).darken(0.5).toString() : "var(--xy-node-border-color-default)";
+  return color ? colorFn(color).darken(0.7).toString() : "var(--xy-node-border-color-default)";
 }
 
 export function getBgBorderTextColor(color?: string, borderWidth?: number) {

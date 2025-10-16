@@ -1,5 +1,6 @@
 "use client";
 
+import { toast } from "sonner";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
@@ -22,10 +23,10 @@ interface ChipsStore {
   savedChips: CircuitChip[];
   setSavedChips: (chips: CircuitChip[]) => void;
   addSavedChip: (chip: CircuitChip) => void;
-  updateSavedChip: (chip: CircuitChip) => void;
+  updateSavedChip: (chipId: string, chip: CircuitChip) => void;
   getAllChips: () => CircuitChip[];
-  getChip: (name: string) => CircuitChip | undefined;
-  getChipById: (id: string) => CircuitChip | undefined;
+  getChip: (name: string) => CircuitChip | null;
+  getChipById: (id: string) => CircuitChip | null;
 }
 
 export const useChips = create<ChipsStore>()(
@@ -33,29 +34,51 @@ export const useChips = create<ChipsStore>()(
     (set, get) => ({
       savedChips: [],
       setSavedChips: (chips: CircuitChip[]) => set({ savedChips: chips }),
-      addSavedChip: (chip: CircuitChip) => set({ savedChips: [...get().savedChips, chip] }),
-      updateSavedChip: (chip: CircuitChip) =>
-        set({ savedChips: get().savedChips.map((c) => (c.id === chip.id ? chip : c)) }),
+      addSavedChip: (chip: CircuitChip) => {
+        const currentSavedChips = get().savedChips;
+        const allChips = [...currentSavedChips, ...builtInChips];
+        const isDuplicate = allChips.some((c) => c.name === chip.name || c.id === chip.id);
+        if (isDuplicate) return toast.error("Chip name already taken");
+
+        // Create a clean copy without circular references
+        const cleanChip = {
+          ...chip,
+          definitions: undefined, // Remove definitions to avoid circular refs
+        };
+
+        set({ savedChips: [...currentSavedChips, cleanChip] });
+      },
+      updateSavedChip: (chipId: string, chip: CircuitChip) => {
+        const cleanChip = {
+          ...chip,
+          definitions: undefined, // Remove definitions to avoid circular refs
+        };
+        set({ savedChips: get().savedChips.map((c) => (c.id === chipId ? cleanChip : c)) });
+      },
       getAllChips() {
         return [...get().savedChips, ...builtInChips];
       },
       getChip: (name: string) => {
         const allChips = [...get().savedChips, ...builtInChips];
         const chip = allChips.find((chip) => chip.name === name);
-        if (!chip) {
-          throw new Error(`Chip '${name}' not found`);
-        }
-        chip.definitions = allChips;
-        return chip!;
+        if (!chip) return null;
+
+        // Return a copy with definitions to avoid mutating the original
+        return {
+          ...chip,
+          definitions: allChips,
+        };
       },
       getChipById: (id: string) => {
         const allChips = [...get().savedChips, ...builtInChips];
         const chip = allChips.find((chip) => chip.id === id);
-        if (!chip) {
-          throw new Error(`Chip '${id}' not found`);
-        }
-        chip.definitions = allChips;
-        return chip!;
+        if (!chip) return null;
+
+        // Return a copy with definitions to avoid mutating the original
+        return {
+          ...chip,
+          definitions: allChips,
+        };
       },
     }),
     {

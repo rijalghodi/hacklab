@@ -1,11 +1,11 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import React, { useCallback, useState } from "react";
 
 import { builtInChips } from "@/lib/constants/chips";
 import { CircuitChip } from "@/lib/types/chips";
-import { getBgBorderTextColor } from "@/lib/utils";
+import { cn, getBgBorderTextColor } from "@/lib/utils";
+import { useCircuitPageParams } from "@/hooks/use-circuit-search-params";
 
 import { useChips, useDnd } from "./flow-store";
 import {
@@ -34,6 +34,8 @@ type ContextMenuState = {
 export function FlowSidebar() {
   const { setDroppedName } = useDnd();
   const { savedChips } = useChips();
+  const { chipId } = useCircuitPageParams();
+
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
 
@@ -99,6 +101,7 @@ export function FlowSidebar() {
                   onDragStart={(e) => handleDragStart(e, chip.name)}
                   onContextMenu={handleContextMenu}
                   selected={contextMenu?.chipName === chip.name}
+                  disabled={chip.id === chipId}
                 />
               ))}
             </ChipGrid>
@@ -119,7 +122,7 @@ export function FlowSidebar() {
 }
 
 function ChipGrid({ children }: { children: React.ReactNode }) {
-  return <div className="flex flex-wrap gap-2">{children}</div>;
+  return <div className="grid grid-cols-3 gap-1.5">{children}</div>;
 }
 
 type ChipOptionComponentProps = {
@@ -129,9 +132,18 @@ type ChipOptionComponentProps = {
   onDragStart?: (e: React.DragEvent<HTMLDivElement>) => void;
   onContextMenu?: (e: React.MouseEvent, chipName: string, chipId: string) => void;
   selected?: boolean;
+  disabled?: boolean;
 };
 
-function ChipOptionComponent({ color, name, chipId, onDragStart, onContextMenu, selected }: ChipOptionComponentProps) {
+function ChipOptionComponent({
+  color,
+  name,
+  chipId,
+  onDragStart,
+  onContextMenu,
+  selected,
+  disabled,
+}: ChipOptionComponentProps) {
   const handleContextMenu = useCallback(
     (e: React.MouseEvent) => {
       onContextMenu?.(e, name, chipId ?? "");
@@ -142,11 +154,15 @@ function ChipOptionComponent({ color, name, chipId, onDragStart, onContextMenu, 
   return (
     <div
       data-selected={selected}
-      className="p-2 font-mono box-border w-16 h-8 flex items-center justify-center text-sm font-semibold cursor-grab rounded-sm data-[selected=true]:ring-ring data-[selected=true]:ring-2"
+      className={cn(
+        "p-2 font-mono box-border w-full h-11 flex items-center justify-center text-base font-semibold cursor-grab rounded-sm data-[selected=true]:ring-ring/80 data-[selected=true]:ring-3",
+        disabled && "opacity-50 cursor-not-allowed",
+      )}
       style={getBgBorderTextColor(color)}
       onDragStart={onDragStart}
       onContextMenu={handleContextMenu}
-      draggable
+      draggable={!disabled}
+      title={disabled ? "Cannot add the chip due to cyclic dependency" : ""}
     >
       {name}
     </div>
@@ -162,10 +178,14 @@ type ChipOptionMenuProps = {
 };
 
 function ChipOptionMenu({ open, menuPosition, onOpenChange, chipName, chipId }: ChipOptionMenuProps) {
-  const router = useRouter();
+  const { setChipId } = useCircuitPageParams();
 
   // Early return for invalid state
   if (!chipName || !chipId) return null;
+
+  const handleOpen = () => {
+    setChipId(chipId);
+  };
 
   return (
     <DropdownMenu open={open} onOpenChange={onOpenChange}>
@@ -179,13 +199,7 @@ function ChipOptionMenu({ open, menuPosition, onOpenChange, chipName, chipId }: 
       <DropdownMenuContent className="font-mono font-semibold uppercase" align="start">
         <DropdownMenuLabel>{chipName}</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onClick={() => {
-            router.push(`/lab?nodeId=${chipId}`);
-          }}
-        >
-          Open
-        </DropdownMenuItem>
+        <DropdownMenuItem onClick={handleOpen}>Open</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

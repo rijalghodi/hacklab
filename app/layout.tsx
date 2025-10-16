@@ -17,6 +17,8 @@ import {
   BRAND_URL,
 } from "@/lib/constants/brand";
 
+import { Toaster } from "@/components/ui/sonner";
+
 const sans = Inter({
   variable: "--font-sans",
   subsets: ["latin"],
@@ -69,7 +71,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${sans.variable} ${sans.className} ${mono.variable} dark`}>{children}</body>
+      <body className={`${sans.variable} ${sans.className} ${mono.variable} dark`}>
+        {children}
+        <Toaster theme="dark" richColors position="bottom-center" />
+      </body>
     </html>
   );
 }

@@ -1,4 +1,5 @@
 import { BookOpen, Code, Cpu, Eye, Github, Monitor, Play, Settings } from "lucide-react";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 
@@ -17,12 +18,12 @@ export default function Home() {
             {/* Navigation */}
             <nav className="flex items-center space-x-4">
               <Button variant="outline" asChild>
-                <a href="/lab">Enter Lab</a>
+                <Link href="/chips/new">Enter Lab</Link>
               </Button>
               <Button variant="outline" size="icon" asChild>
-                <a href="https://github.com/your-username/hack-lab">
+                <Link href="https://github.com/your-username/hack-lab">
                   <Github className="h-5 w-5" />
-                </a>
+                </Link>
               </Button>
             </nav>
           </div>
@@ -47,11 +48,11 @@ export default function Home() {
               </div>
 
               <div className="flex flex-col gap-4 sm:flex-row">
-                <Button size="lg" asChild>
-                  <a href="/lab">Start Building</a>
+                <Button size="lg" variant="gradient" asChild>
+                  <Link href="/chips/new">Start Building</Link>
                 </Button>
                 <Button variant="outline" size="lg" asChild>
-                  <a href="#features">Learn More</a>
+                  <Link href="#features">Learn More</Link>
                 </Button>
               </div>
             </div>
@@ -188,7 +189,7 @@ export default function Home() {
             </p>
             <div className="flex flex-col justify-center gap-4 sm:flex-row">
               <Button size="lg" asChild>
-                <a href="/lab">Start Building Now</a>
+                <Link href="/chips/new">Start Building Now</Link>
               </Button>
             </div>
           </div>

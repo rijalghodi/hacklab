@@ -6,7 +6,7 @@ import { CircuitChip } from "@/lib/types/chips";
 
 export function useDragAndDrop(
   droppedName: string,
-  getChip: (name: string) => CircuitChip | undefined,
+  getChip: (name: string) => CircuitChip | null,
   screenToFlowPosition: (position: { x: number; y: number }) => { x: number; y: number },
 ) {
   const onDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {

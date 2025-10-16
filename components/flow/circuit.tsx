@@ -22,7 +22,7 @@ import { ChipNode, ConnectionLine, InNode, OutNode, RenamePortDialog, SaveChipDi
 import { CircuitMenu } from "./circuit-menu";
 import { useChips, useDnd } from "./flow-store";
 import { NodeContextMenu } from "./node-context-menu";
-import { Button, useSidebar } from "../ui";
+import { Button, ConfirmDialog, useSidebar } from "../ui";
 
 const nodeTypes = { [NodeType.CHIP]: ChipNode, [NodeType.IN]: InNode, [NodeType.OUT]: OutNode };
 const edgeTypes = { wire: WireEdge };
@@ -47,9 +47,6 @@ export function Circuit({ initialCircuit }: { initialCircuit?: CircuitChip | nul
       fitView();
     }
   }, [initialCircuit]);
-
-  console.log("nodes", nodes);
-  console.log("edges", edges);
 
   return (
     <div className="h-screen font-mono">
@@ -80,13 +77,14 @@ export function Circuit({ initialCircuit }: { initialCircuit?: CircuitChip | nul
           <CircuitMenu />
         </Panel>
         <Panel position="top-center">
-          <h1 className="font-mono font-bold py-2 text-lg">{initialCircuit?.name ?? "CHIP"}</h1>
+          <h1 className="font-mono font-bold py-2 text-lg">{initialCircuit?.name ?? "New Chip"}</h1>
         </Panel>
         <Panel position="center-left">
           <FlowSidebarTrigger />
         </Panel>
         <RenamePortDialog />
         <SaveChipDialog />
+        <ConfirmDialog />
       </ReactFlow>
     </div>
   );

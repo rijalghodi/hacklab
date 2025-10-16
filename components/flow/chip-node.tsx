@@ -108,7 +108,7 @@ export function ChipNode(props: NodeProps<Node<CircuitChip>>) {
 
   return (
     <div
-      className={cn("relative rounded-xs p-2 font-mono box-border", selected && "ring-ring/20 ring-4")}
+      className={cn("relative rounded-sm p-2 font-mono box-border", selected && "ring-ring/20 ring-4")}
       style={{
         height: chipHeight,
         maxHeight: chipHeight,

@@ -1,8 +1,10 @@
+import { Edge, Node, useReactFlow } from "@xyflow/react";
 import { MenuIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
 import React from "react";
 
+import { CircuitChip, Wire } from "@/lib/types/chips";
 import { useSaveChipDialogStore } from "@/hooks/save-chip-dialog-store";
+import { useCircuitPageParams } from "@/hooks/use-circuit-search-params";
 import { useControllableOpen } from "@/hooks/use-controllable-open";
 
 import {
@@ -20,9 +22,17 @@ type Props = {
 };
 
 export function CircuitMenu(props: Props) {
+  const { setChipId } = useCircuitPageParams();
   const { open, onOpenChange } = useControllableOpen(props);
   const { openDialog } = useSaveChipDialogStore();
-  const router = useRouter();
+  const { setEdges, setNodes } = useReactFlow<Node<CircuitChip>, Edge<Wire>>();
+
+  const handleNewChip = () => {
+    setEdges([]);
+    setNodes([]);
+    setChipId(null);
+  };
+
   return (
     <DropdownMenu open={open} onOpenChange={onOpenChange}>
       <DropdownMenuTrigger asChild>
@@ -31,23 +41,19 @@ export function CircuitMenu(props: Props) {
           Menu
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent side="bottom" align="start" className="font-mono font-semibold w-48 uppercase">
-        <DropdownMenuItem
-          onClick={() => {
-            router.push("/lab");
-          }}
-        >
-          New Chip
-          <DropdownMenuShortcut>Ctrl+N</DropdownMenuShortcut>
-        </DropdownMenuItem>
+      <DropdownMenuContent side="bottom" align="start" className="font-mono font-semibold w-52 uppercase">
         <DropdownMenuItem onClick={openDialog}>
           Save Chip
           <DropdownMenuShortcut>Ctrl+S</DropdownMenuShortcut>
         </DropdownMenuItem>
-
-        <DropdownMenuItem>Save As</DropdownMenuItem>
-
-        <DropdownMenuItem variant="destructive">Delete Chip</DropdownMenuItem>
+        <DropdownMenuItem onClick={handleNewChip}>
+          New Chip
+          <DropdownMenuShortcut>Ctrl+N</DropdownMenuShortcut>
+        </DropdownMenuItem>
+        <DropdownMenuItem variant="destructive">
+          Delete Chip
+          <DropdownMenuShortcut>Ctrl+⌫</DropdownMenuShortcut>
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

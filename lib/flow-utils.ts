@@ -51,18 +51,19 @@ export function circuitToFlow(circuit: Pick<CircuitChip, "chips" | "ports" | "wi
   console.log("circuit", circuit);
 
   // Get saved chips from local storage using constants.LOCAL_STORAGE_SAVED_CHIPS
-  let savedChips: any[] = [];
-  if (typeof window !== "undefined") {
-    try {
-      const chipsStr = window.localStorage.getItem(LOCAL_STORAGE_SAVED_CHIPS);
-      if (chipsStr) {
-        const ls = JSON.parse(chipsStr);
-        savedChips = ls.state.savedChips;
-      }
-    } catch (_e) {
-      savedChips = [];
-    }
-  }
+  // let savedChips: CircuitChip[] = [];
+  const savedChips = getSavedChipsFromLocalStorage();
+  // if (typeof window !== "undefined") {
+  //   try {
+  //     const chipsStr = window.localStorage.getItem(LOCAL_STORAGE_SAVED_CHIPS);
+  //     if (chipsStr) {
+  //       const ls = JSON.parse(chipsStr);
+  //       savedChips = ls.state.savedChips;
+  //     }
+  //   } catch (_e) {
+  //     savedChips = [];
+  //   }
+  // }
 
   const nodes: Node<CircuitChip>[] =
     circuit.chips
@@ -139,4 +140,24 @@ export function circuitToFlow(circuit: Pick<CircuitChip, "chips" | "ports" | "wi
     nodes: [...nodes, ...portNodes],
     edges,
   };
+}
+
+export function getSavedChipsFromLocalStorage(): CircuitChip[] {
+  if (typeof window !== "undefined") {
+    try {
+      const chipsStr = window.localStorage.getItem(LOCAL_STORAGE_SAVED_CHIPS);
+      if (chipsStr) {
+        const ls = JSON.parse(chipsStr);
+        return ls.state.savedChips;
+      }
+    } catch (_e) {
+      return [];
+    }
+  }
+  return [];
+}
+
+export function getSavedChipFromLocalStorage(chipId: string): CircuitChip | null {
+  const savedChips = getSavedChipsFromLocalStorage();
+  return savedChips.find((chip) => chip.id === chipId) || null;
 }
