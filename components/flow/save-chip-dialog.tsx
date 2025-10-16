@@ -12,7 +12,7 @@ import { flowToCircuit } from "@/lib/flow-utils";
 import { CircuitChip, Wire } from "@/lib/types/chips";
 import { generateId } from "@/lib/utils";
 import { useSaveChipDialogStore } from "@/hooks/save-chip-dialog-store";
-import { useCircuitPageParams } from "@/hooks/use-circuit-search-params";
+import { useCircuitPageParams } from "@/hooks/use-circuit-page-params";
 
 import { Button } from "@/components/ui/button";
 import {

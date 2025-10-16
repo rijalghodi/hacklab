@@ -1,13 +1,16 @@
 "use client";
 
-import { Edge, Node, useEdges, useNodes } from "@xyflow/react";
+import { Edge, Node, useEdges, useNodes, useReactFlow } from "@xyflow/react";
 import { isEqual } from "lodash";
 import { useParams, useRouter } from "next/navigation";
+import { useMemo } from "react";
 
 import { flowToCircuit, getSavedChipFromLocalStorage } from "@/lib/flow-utils";
 import { CircuitChip, Wire } from "@/lib/types/chips";
 
 import { useConfirmDialogStore } from "./confirm-dialog-store";
+
+export const isChipIdEmpty = (chipId: string | null | undefined) => chipId === "new" || chipId === "";
 
 export function useCircuitPageParams() {
   const router = useRouter();
@@ -16,10 +19,9 @@ export function useCircuitPageParams() {
   const { openDialog } = useConfirmDialogStore();
   const nodes = useNodes<Node<CircuitChip>>();
   const edges = useEdges<Edge<Wire>>();
+  const { setEdges, setNodes } = useReactFlow();
 
-  function setChipId(newChipId: string | null | undefined) {
-    let hasChanges = false;
-
+  const hasUnsavedChanges = useMemo(() => {
     if (chipId) {
       const saved = getSavedChipFromLocalStorage(chipId);
       const current = flowToCircuit(nodes, edges);
@@ -28,12 +30,17 @@ export function useCircuitPageParams() {
         wires: saved?.wires,
         ports: saved?.ports,
       };
-      if (!isEqual(savedEssential, current)) {
-        hasChanges = true;
-      }
+      return !isEqual(savedEssential, current);
     }
+    return nodes.length > 0 || edges.length > 0;
+  }, [chipId, nodes, edges]);
 
-    if (!hasChanges) return router.push(`/chips/${newChipId}`);
+  function setChipId(newChipId: string | null | undefined) {
+    if (!hasUnsavedChanges) {
+      newChipId = !newChipId ? "new" : newChipId;
+      router.push(`/chips/${newChipId}`);
+      return;
+    }
 
     openDialog({
       title: "Unsaved Changes",
@@ -41,7 +48,13 @@ export function useCircuitPageParams() {
       confirmText: "Continue",
       cancelText: "Stay Here",
       variant: "destructive",
-      onConfirm: () => router.push(`/chips/${newChipId}`),
+      onConfirm: () => {
+        if (!newChipId) {
+          setEdges([]);
+          setNodes([]);
+        }
+        router.push(`/chips/${newChipId}`);
+      },
     });
   }
 

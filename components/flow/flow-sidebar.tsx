@@ -5,7 +5,7 @@ import React, { useCallback, useState } from "react";
 import { builtInChips } from "@/lib/constants/chips";
 import { CircuitChip } from "@/lib/types/chips";
 import { cn, getBgBorderTextColor } from "@/lib/utils";
-import { useCircuitPageParams } from "@/hooks/use-circuit-search-params";
+import { useCircuitPageParams } from "@/hooks/use-circuit-page-params";
 
 import { useChips, useDnd } from "./flow-store";
 import {

@@ -1,10 +1,8 @@
-import { Edge, Node, useReactFlow } from "@xyflow/react";
 import { MenuIcon } from "lucide-react";
 import React from "react";
 
-import { CircuitChip, Wire } from "@/lib/types/chips";
 import { useSaveChipDialogStore } from "@/hooks/save-chip-dialog-store";
-import { useCircuitPageParams } from "@/hooks/use-circuit-search-params";
+import { useCircuitPageParams } from "@/hooks/use-circuit-page-params";
 import { useControllableOpen } from "@/hooks/use-controllable-open";
 
 import {

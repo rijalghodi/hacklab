@@ -1,19 +1,16 @@
 "use client";
 
-import { ReactFlowProvider, useReactFlow } from "@xyflow/react";
 import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useMemo } from "react";
 
 import { Circuit } from "@/components/flow/circuit";
-import { FlowSidebar } from "@/components/flow/flow-sidebar";
 import { useChips } from "@/components/flow/flow-store";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
 export default function ChipPage() {
   const router = useRouter();
 
-  const { chipId } = useParams<{ chipId: string }>();
-  const { setNodes, setEdges } = useReactFlow();
+  let { chipId: chipIdParam } = useParams<{ chipId: string }>();
+  const chipId = chipIdParam === "new" ? "" : chipIdParam;
 
   const { getChipById } = useChips();
   const circuit = useMemo(() => {
@@ -33,11 +30,9 @@ export default function ChipPage() {
 
   useEffect(() => {
     if (chipId && !circuit) {
-      setEdges([]);
-      setNodes([]);
       router.replace("/chips/new");
     }
-  }, [chipId, circuit, router, setEdges, setNodes]);
+  }, [chipId, circuit, router]);
 
   return <Circuit initialCircuit={circuit} />;
 }
