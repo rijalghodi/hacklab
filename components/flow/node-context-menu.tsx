@@ -76,8 +76,8 @@ export function NodeContextMenu({ id, top, left, right, bottom, onClose }: NodeC
   }, [id, setNodes, setEdges]);
 
   const viewNode = useCallback(() => {
-    viewChip(id);
-  }, [id, viewChip]);
+    viewChip(node?.data.name ?? "");
+  }, [node?.data.name, viewChip]);
 
   const openNode = useCallback(() => {}, []);
 
