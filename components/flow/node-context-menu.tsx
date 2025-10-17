@@ -79,8 +79,6 @@ export function NodeContextMenu({ id, top, left, right, bottom, onClose }: NodeC
     viewChip(node?.data.name ?? "");
   }, [node?.data.name, viewChip]);
 
-  const openNode = useCallback(() => {}, []);
-
   if (!node) return null;
 
   const isNand = node?.data.name === NAND_NAME;
@@ -106,11 +104,9 @@ export function NodeContextMenu({ id, top, left, right, bottom, onClose }: NodeC
             {!isNand && (
               <>
                 <DropdownMenuItem onClick={viewNode}>View</DropdownMenuItem>
-                <DropdownMenuItem onClick={openNode}>Open</DropdownMenuItem>
               </>
             )}
             <DropdownMenuItem onClick={duplicateNode}>Duplicate</DropdownMenuItem>
-            <DropdownMenuItem onClick={openNode}>Open Chip</DropdownMenuItem>
             <DropdownMenuItem onClick={deleteNode} variant="destructive">
               Delete
             </DropdownMenuItem>

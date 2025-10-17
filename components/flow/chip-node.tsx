@@ -12,7 +12,7 @@ import { PortHandle } from "./port-handle";
 
 const PORT_SPACING = 10;
 const MIN_CHIP_HEIGHT = 30;
-const MIN_CHIP_WIDTH = 40;
+const MIN_CHIP_WIDTH = 50;
 const PORT_OFFSET_MULTIPLIER = 0.5; // Used in chipHeight calculation
 const CENTER_INDEX_OFFSET = 0.5; // Used in portOffset calculation
 

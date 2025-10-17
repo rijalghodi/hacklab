@@ -9,7 +9,6 @@ import {
   ReactFlow,
   useEdgesState,
   useNodesState,
-  useReactFlow,
 } from "@xyflow/react";
 import React, { useEffect } from "react";
 
@@ -65,7 +64,6 @@ export function Circuit({
   maxZoom?: number;
   defaultZoom?: number;
 }) {
-  const { fitView } = useReactFlow<Node<CircuitChip>, Edge<Wire>>();
   const [nodes, setNodes, onNodesChange] = useNodesState<Node<CircuitChip>>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge<Wire>>([]);
 
@@ -78,7 +76,6 @@ export function Circuit({
       const { nodes, edges } = circuitToFlow(initialCircuit);
       setNodes(nodes);
       setEdges(edges);
-      fitView();
     }
   }, [initialCircuit]);
 
