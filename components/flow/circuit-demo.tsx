@@ -1,139 +1,66 @@
 "use client";
 
-import { type Edge, type Node, ReactFlow, useEdgesState, useNodesState } from "@xyflow/react";
 import React from "react";
 
-import { CircuitChip, NodeType, PortType, type Wire } from "@/lib/types/chips";
+import { CircuitChip, PortType } from "@/lib/types/chips";
 
-import { edgeTypes, nodeTypes } from "./circuit";
+import { Circuit } from "./circuit";
 
-const initialNodes: Node<CircuitChip>[] = [
-  {
-    id: "in-a",
-    type: NodeType.IN,
-    position: { x: 0, y: 70 },
-    data: {
-      id: "in-a",
-      name: "IN A",
-      type: NodeType.IN,
-      ports: [{ id: "in-a", name: "in-a", type: PortType.OUT, value: false }],
-    },
-  },
-  {
-    id: "in-b",
-    type: NodeType.IN,
-    position: { x: 0, y: 140 },
-    data: {
-      id: "in-b",
-      name: "IN B",
-      type: NodeType.IN,
-      ports: [{ id: "in-b", name: "in-b", type: PortType.OUT, value: false }],
-    },
-  },
-  {
-    id: "nand",
-    type: NodeType.CHIP,
-    position: { x: 80, y: 100 },
-    data: {
-      id: "nand",
+export const nandChipDemo: CircuitChip = {
+  id: "nand-demo",
+  name: "NAND DEMO",
+  chips: [
+    {
       name: "NAND",
-      type: NodeType.CHIP,
-      ports: [
-        { id: "nand.port-a", name: "a", type: PortType.IN },
-        { id: "nand.port-b", name: "b", type: PortType.IN },
-        { id: "nand.port-out", name: "out", type: PortType.OUT },
-      ],
+      id: "nand",
+      position: { x: 80, y: 100 },
     },
-  },
-  {
-    id: "out",
-    type: NodeType.OUT,
-    position: { x: 170, y: 105 },
-    data: {
-      id: "out",
-      name: "OUT",
-      type: NodeType.OUT,
-      ports: [{ id: "out", name: "out", type: PortType.IN }],
-    },
-  },
-];
-
-const initialEdges: Edge<Wire>[] = [
-  {
-    id: "wire-1",
-    source: "in-a",
-    target: "nand",
-    sourceHandle: "in-a",
-    targetHandle: "nand.port-a",
-    data: {
+  ],
+  ports: [
+    { id: "a", name: "a", type: PortType.IN, position: { x: 0, y: 70 } },
+    { id: "b", name: "b", type: PortType.IN, position: { x: 0, y: 140 } },
+    { id: "out", name: "out", type: PortType.OUT, position: { x: 170, y: 105 } },
+  ],
+  wires: [
+    {
       id: "wire-1",
-      sourceId: "in-a",
+      sourceId: "a",
+      sourcePortId: "a",
       targetId: "nand",
-      sourcePortId: "in-a",
       targetPortId: "nand.port-a",
     },
-  },
-  {
-    id: "wire-2",
-    source: "in-b",
-    target: "nand",
-    sourceHandle: "in-b",
-    targetHandle: "nand.port-b",
-    data: {
+    {
       id: "wire-2",
-      sourceId: "in-b",
+      sourceId: "b",
+      sourcePortId: "b",
       targetId: "nand",
-      sourcePortId: "in-b",
       targetPortId: "nand.port-b",
     },
-  },
-  {
-    id: "wire-3",
-    source: "nand",
-    target: "out",
-    sourceHandle: "nand.port-out",
-    targetHandle: "out",
-    data: {
+    {
       id: "wire-3",
       sourceId: "nand",
-      targetId: "out",
       sourcePortId: "nand.port-out",
+      targetId: "out",
       targetPortId: "out",
     },
-  },
-];
+  ],
+  definitions: [],
+};
 
 export function CircuitDemo() {
-  const [nodes, _setNodes, onNodesChange] = useNodesState<Node<CircuitChip>>(initialNodes);
-  const [edges, _setEdges, onEdgesChange] = useEdgesState<Edge<Wire>>(initialEdges);
-
   return (
     <div className="h-full w-full relative rounded-2xl">
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        nodeTypes={nodeTypes}
-        edgeTypes={edgeTypes}
-        fitView
-        defaultEdgeOptions={{
-          type: "wire",
-        }}
-        nodesDraggable={true}
-        nodesConnectable={false}
-        elementsSelectable={false}
-        panOnDrag={false}
+      <Circuit
+        initialCircuit={nandChipDemo}
+        viewOnly
+        showTitle={false}
+        withBackground={false}
+        showControls={false}
+        nodesDraggable={false}
         zoomOnScroll={false}
-        colorMode="dark"
-        style={
-          {
-            "--xy-background-color": "transparent",
-          } as React.CSSProperties
-        }
-      >
-        {/* <Background gap={20} /> */}
-      </ReactFlow>
+        contextMenuEnabled={false}
+        style={{ "--xy-background-color": "transparent" } as React.CSSProperties}
+      />
     </div>
   );
 }

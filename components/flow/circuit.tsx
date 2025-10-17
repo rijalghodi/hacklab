@@ -11,7 +11,6 @@ import {
   useNodesState,
   useReactFlow,
 } from "@xyflow/react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import React, { useEffect } from "react";
 
 import { circuitToFlow } from "@/lib/flow-utils";
@@ -27,14 +26,45 @@ import {
   OutNode,
   RenamePortDialog,
   SaveChipDialog,
+  ViewChipDialog,
   WireEdge,
 } from ".";
-import { Button, ConfirmDialog, useSidebar } from "../ui";
+import { ConfirmDialog } from "../ui";
 
 export const nodeTypes = { [NodeType.CHIP]: ChipNode, [NodeType.IN]: InNode, [NodeType.OUT]: OutNode };
 export const edgeTypes = { wire: WireEdge };
 
-export function Circuit({ initialCircuit }: { initialCircuit?: CircuitChip | null }) {
+export function Circuit({
+  initialCircuit,
+  viewOnly = false,
+  withBackground = true,
+  showTitle = true,
+  showControls = true,
+  elementsSelectable = true,
+  nodesDraggable = true,
+  zoomOnScroll = true,
+  contextMenuEnabled = true,
+  style = {},
+  isFitView = false,
+  minZoom = 1,
+  maxZoom = 6,
+  defaultZoom = 2,
+}: {
+  initialCircuit?: CircuitChip | null;
+  viewOnly?: boolean;
+  withBackground?: boolean;
+  showTitle?: boolean;
+  showControls?: boolean;
+  elementsSelectable?: boolean;
+  nodesDraggable?: boolean;
+  zoomOnScroll?: boolean;
+  contextMenuEnabled?: boolean;
+  style?: React.CSSProperties;
+  isFitView?: boolean;
+  minZoom?: number;
+  maxZoom?: number;
+  defaultZoom?: number;
+}) {
   const { fitView } = useReactFlow<Node<CircuitChip>, Edge<Wire>>();
   const [nodes, setNodes, onNodesChange] = useNodesState<Node<CircuitChip>>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge<Wire>>([]);
@@ -53,7 +83,7 @@ export function Circuit({ initialCircuit }: { initialCircuit?: CircuitChip | nul
   }, [initialCircuit]);
 
   return (
-    <div className="h-screen font-mono">
+    <div className="h-full w-full font-mono">
       <ReactFlow
         ref={ref}
         nodes={nodes}
@@ -63,7 +93,7 @@ export function Circuit({ initialCircuit }: { initialCircuit?: CircuitChip | nul
         onConnect={(params) => onConnect(params, setEdges)}
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
-        fitView
+        fitView={isFitView}
         defaultEdgeOptions={{
           type: "wire",
           interactionWidth: 10,
@@ -71,34 +101,39 @@ export function Circuit({ initialCircuit }: { initialCircuit?: CircuitChip | nul
         onDrop={(event) => onDrop(event, setNodes)}
         onDragOver={onDragOver}
         connectionLineComponent={ConnectionLine}
-        onNodeContextMenu={(e, node) => onNodeContextMenu(e, node, setNodes)}
+        onNodeContextMenu={contextMenuEnabled ? (e, node) => onNodeContextMenu(e, node, setNodes) : undefined}
         colorMode="dark"
+        maxZoom={maxZoom}
+        minZoom={minZoom}
+        defaultViewport={{ x: 0, y: 0, zoom: defaultZoom }}
+        panOnDrag={false}
+        elementsSelectable={elementsSelectable}
+        nodesDraggable={nodesDraggable}
+        zoomOnScroll={zoomOnScroll}
+        style={style}
       >
-        <Background gap={10} />
-        {menu && <NodeContextMenu onClose={onPaneClick} {...menu} />}
-        <Controls />
-        <Panel position="top-left">
-          <CircuitMenu />
-        </Panel>
-        <Panel position="top-center">
-          <h1 className="font-mono font-bold py-2 text-lg">{initialCircuit?.name ?? "New Chip"}</h1>
-        </Panel>
-        <Panel position="center-left">
-          <FlowSidebarTrigger />
-        </Panel>
-        <RenamePortDialog />
-        <SaveChipDialog />
-        <ConfirmDialog />
-      </ReactFlow>
-    </div>
-  );
-}
+        {withBackground && <Background gap={10} />}
+        {menu && contextMenuEnabled && <NodeContextMenu onClose={onPaneClick} {...menu} />}
+        {showControls && <Controls />}
 
-function FlowSidebarTrigger() {
-  const { toggleSidebar, open } = useSidebar();
-  return (
-    <Button className="h-12 w-7" variant="ghost" size="icon" onClick={toggleSidebar} title="Toggle Sidebar">
-      {open ? <ChevronLeft className="size-6" /> : <ChevronRight className="size-6" />}
-    </Button>
+        {showTitle && (
+          <Panel position="top-center">
+            <h1 className="font-mono font-bold py-2 text-lg">{initialCircuit?.name ?? "New Chip"}</h1>
+          </Panel>
+        )}
+
+        {!viewOnly && (
+          <>
+            <Panel position="top-left">
+              <CircuitMenu />
+            </Panel>
+            <RenamePortDialog />
+            <SaveChipDialog />
+            <ConfirmDialog />
+          </>
+        )}
+      </ReactFlow>
+      {!viewOnly && <ViewChipDialog />}
+    </div>
   );
 }

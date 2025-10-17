@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import * as z from "zod";
 
 import { CircuitChip, NodeType, Wire } from "@/lib/types/chips";
-import { useRenamePortDialogStore } from "@/hooks/rename-port-dialog-store";
+import { useRenamePortDialogStore } from "@/hooks";
 
 import {
   Button,

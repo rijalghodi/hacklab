@@ -62,7 +62,7 @@ export default function Home() {
 
             {/* Hero Image */}
             <div className="relative">
-              <div className="flex aspect-[4/3] sm:aspect-[4/3] items-center justify-center rounded-2xl">
+              <div className="flex aspect-[4/3] sm:aspect-[4/3] items-center justify-center rounded-2xl sm:p-6">
                 <ReactFlowProvider>
                   <CircuitDemo />
                 </ReactFlowProvider>

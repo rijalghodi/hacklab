@@ -1,3 +1,5 @@
+export const NAND_NAME = "NAND";
+
 export enum PortType {
   IN = "in",
   OUT = "out",
@@ -14,13 +16,21 @@ export type Port = {
   name: string;
   type: PortType;
   value?: boolean;
+  position?: {
+    x?: number;
+    y?: number;
+  };
 };
 
 export type Chip = {
   id: string;
   name: string;
-  type?: NodeType;
+  // type?: NodeType;
   value?: boolean;
+  position?: {
+    x?: number;
+    y?: number;
+  };
 };
 
 export type Wire = {

@@ -10,9 +10,9 @@ import { useChips } from "@/hooks";
 
 import { PortHandle } from "./port-handle";
 
-const PORT_SPACING = 12;
-const MIN_CHIP_HEIGHT = 24;
-const MIN_CHIP_WIDTH = 50;
+const PORT_SPACING = 10;
+const MIN_CHIP_HEIGHT = 30;
+const MIN_CHIP_WIDTH = 40;
 const PORT_OFFSET_MULTIPLIER = 0.5; // Used in chipHeight calculation
 const CENTER_INDEX_OFFSET = 0.5; // Used in portOffset calculation
 
@@ -127,7 +127,7 @@ export function ChipNode(props: NodeProps<Node<CircuitChip>>) {
         ...getBgBorderTextColor(CHIP_DEFINITION?.color),
       }}
     >
-      <div className="text-xs font-semibold w-full h-full text-center flex items-center justify-center">
+      <div className="text-sm font-semibold w-full h-full text-center flex items-center justify-center">
         {data.name}
       </div>
 

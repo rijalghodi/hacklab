@@ -1,9 +1,10 @@
 import { Edge, type Node, useReactFlow } from "@xyflow/react";
 import React, { useCallback } from "react";
 
-import { CircuitChip, Wire } from "@/lib/types/chips";
+import { CircuitChip, NAND_NAME, NodeType, Wire } from "@/lib/types/chips";
 import { generateId } from "@/lib/utils";
 import { useRenamePortDialogStore } from "@/hooks";
+import { useViewChipDialogStore } from "@/hooks/use-view-chip-dialog-store";
 
 import {
   DropdownMenu,
@@ -26,6 +27,7 @@ type NodeContextMenuProps = {
 export function NodeContextMenu({ id, top, left, right, bottom, onClose }: NodeContextMenuProps) {
   const { getNode, setNodes, addNodes, setEdges } = useReactFlow<Node<CircuitChip>, Edge<Wire>>();
   const { openDialog } = useRenamePortDialogStore();
+  const { viewChip } = useViewChipDialogStore();
 
   const node = getNode(id);
 
@@ -38,10 +40,10 @@ export function NodeContextMenu({ id, top, left, right, bottom, onClose }: NodeC
     const newId = generateId();
     let newName = node?.data.name;
 
-    if (node?.type === "in") {
-      newName = `IN-${newId.slice(0, 3)}`;
-    } else if (node?.type === "out") {
-      newName = `OUT-${newId.slice(0, 3)}`;
+    if (node?.type === NodeType.IN) {
+      newName = "IN";
+    } else if (node?.type === NodeType.OUT) {
+      newName = "OUT";
     }
 
     addNodes({
@@ -73,43 +75,48 @@ export function NodeContextMenu({ id, top, left, right, bottom, onClose }: NodeC
     setEdges((edges) => edges.filter((edge) => edge.source !== id));
   }, [id, setNodes, setEdges]);
 
-  const viewNode = useCallback(() => {}, []);
+  const viewNode = useCallback(() => {
+    viewChip(id);
+  }, [id, viewChip]);
 
   const openNode = useCallback(() => {}, []);
 
   if (!node) return null;
 
+  const isNand = node?.data.name === NAND_NAME;
+  const isIn = node?.type === NodeType.IN;
+  const isOut = node?.type === NodeType.OUT;
+
   return (
-    <>
-      <DropdownMenu open={!!id} onOpenChange={onClose}>
-        <DropdownMenuTrigger
-          className="sr-only fixed"
-          title="Node Context Menu"
-          style={{ top, left, right, bottom }}
-        ></DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="font-mono font-semibold uppercase">
-          <DropdownMenuLabel>{node?.data.name}</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          {node?.type == "in" || node?.type == "out" ? (
-            <>
-              <DropdownMenuItem onClick={renameNode}>Rename</DropdownMenuItem>
-              <DropdownMenuItem onClick={duplicateNode}>Duplicate</DropdownMenuItem>
-              <DropdownMenuItem onClick={deleteNode} variant="destructive">
-                Delete
-              </DropdownMenuItem>
-            </>
-          ) : (
-            <>
-              <DropdownMenuItem onClick={viewNode}>View</DropdownMenuItem>
-              <DropdownMenuItem onClick={openNode}>Open</DropdownMenuItem>
-              <DropdownMenuItem onClick={duplicateNode}>Duplicate</DropdownMenuItem>
-              <DropdownMenuItem onClick={deleteNode} variant="destructive">
-                Delete
-              </DropdownMenuItem>
-            </>
-          )}
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </>
+    <DropdownMenu open={!!id} onOpenChange={onClose}>
+      <DropdownMenuTrigger className="sr-only fixed" title="Node Context Menu" style={{ top, left, right, bottom }} />
+      <DropdownMenuContent align="start" className="font-mono font-semibold uppercase">
+        <DropdownMenuLabel>{node?.data.name}</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        {isIn || isOut ? (
+          <>
+            <DropdownMenuItem onClick={renameNode}>Rename</DropdownMenuItem>
+            <DropdownMenuItem onClick={duplicateNode}>Duplicate</DropdownMenuItem>
+            <DropdownMenuItem onClick={deleteNode} variant="destructive">
+              Delete
+            </DropdownMenuItem>
+          </>
+        ) : (
+          <>
+            {!isNand && (
+              <>
+                <DropdownMenuItem onClick={viewNode}>View</DropdownMenuItem>
+                <DropdownMenuItem onClick={openNode}>Open</DropdownMenuItem>
+              </>
+            )}
+            <DropdownMenuItem onClick={duplicateNode}>Duplicate</DropdownMenuItem>
+            <DropdownMenuItem onClick={openNode}>Open Chip</DropdownMenuItem>
+            <DropdownMenuItem onClick={deleteNode} variant="destructive">
+              Delete
+            </DropdownMenuItem>
+          </>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

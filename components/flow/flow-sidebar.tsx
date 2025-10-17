@@ -1,5 +1,6 @@
 "use client";
 
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import React, { useCallback, useState } from "react";
 
 import { builtInChips } from "@/lib/constants/chips";
@@ -24,6 +25,8 @@ import {
   SidebarGroupContent,
   SidebarGroupLabel,
   SidebarHeader,
+  SidebarTrigger,
+  useSidebar,
 } from "../ui/sidebar";
 
 type ContextMenuState = {
@@ -69,7 +72,7 @@ export function FlowSidebar() {
   return (
     <Sidebar className="react-flow dark">
       <SidebarHeader />
-      <SidebarContent>
+      <SidebarContent className="p-1">
         {/* Built-in Chips Section */}
         <SidebarGroup>
           <SidebarGroupLabel className="font-mono uppercase">Built-in Chips</SidebarGroupLabel>
@@ -215,5 +218,20 @@ function ChipOptionMenu({ open, menuPosition, onOpenChange, chipName, chipId }: 
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+  );
+}
+
+export function FlowSidebarTrigger(props: { className?: string }) {
+  const { toggleSidebar, open } = useSidebar();
+  return (
+    <SidebarTrigger
+      className={cn("h-12 w-7", props.className)}
+      variant="ghost"
+      size="icon"
+      onClick={toggleSidebar}
+      title="Toggle Chip Menu"
+    >
+      {open ? <ChevronLeft className="size-6" /> : <ChevronRight className="size-6" />}
+    </SidebarTrigger>
   );
 }

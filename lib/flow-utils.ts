@@ -3,9 +3,23 @@
 import type { Node } from "@xyflow/react";
 import type { Edge } from "@xyflow/react";
 
+import { builtInChips } from "./constants/chips";
 import { LOCAL_STORAGE_SAVED_CHIPS } from "./constants/names";
 import type { Chip, Wire } from "./types/chips";
 import { CircuitChip, NodeType, Port, PortType } from "./types/chips";
+
+export function isValidPosition(position: { x?: number; y?: number }): boolean {
+  return (
+    position !== undefined && position !== null && typeof position.x === "number" && typeof position.y === "number"
+  );
+}
+
+export function getValidPosition(position?: { x?: number; y?: number }): { x: number; y: number } {
+  if (!position || !isValidPosition(position)) {
+    return { x: 0, y: 0 };
+  }
+  return { x: position.x!, y: position.y! };
+}
 
 export function flowToCircuit(
   nodes: Node<CircuitChip>[],
@@ -17,6 +31,7 @@ export function flowToCircuit(
     .map((node) => ({
       id: node.id,
       name: node.data.name,
+      position: getValidPosition(node.position),
     }));
 
   const ports: Port[] = nodes
@@ -25,6 +40,7 @@ export function flowToCircuit(
       id: node.data.id,
       name: node.data.name,
       type: node.type === NodeType.IN ? PortType.IN : PortType.OUT,
+      position: getValidPosition(node.position),
     }));
 
   const wires = edges.map((edge) => {
@@ -64,17 +80,19 @@ export function circuitToFlow(circuit: Pick<CircuitChip, "chips" | "ports" | "wi
   //     savedChips = [];
   //   }
   // }
+  const allChips = [...savedChips, ...builtInChips];
+  console.log("234 allChips", allChips);
 
   const nodes: Node<CircuitChip>[] =
     circuit.chips
       ?.map((chip) => {
-        const savedChip = savedChips.find((savedChip) => savedChip.id === chip.id);
+        const savedChip = allChips.find((savedChip) => savedChip.name === chip.name);
         if (!savedChip) {
           return null;
         }
         return {
           id: chip.id,
-          position: { x: 100, y: 100 },
+          position: getValidPosition(chip.position),
           type: NodeType.CHIP,
           data: {
             id: chip.id,
@@ -87,6 +105,9 @@ export function circuitToFlow(circuit: Pick<CircuitChip, "chips" | "ports" | "wi
         } as Node<CircuitChip>;
       })
       .filter((node): node is Node<CircuitChip> => node !== null) || [];
+
+  // console.log("234 nodes", circuit);
+  console.log("234 nodes", nodes);
 
   const portNodes: Node<CircuitChip>[] =
     circuit.ports
@@ -112,12 +133,12 @@ export function circuitToFlow(circuit: Pick<CircuitChip, "chips" | "ports" | "wi
               },
             ],
           },
-          position: { x: 100, y: 100 },
+          position: getValidPosition(port.position),
         } as Node<CircuitChip>;
       })
       .filter((node): node is Node<CircuitChip> => node !== null) || [];
 
-  console.log("123 portNodes", portNodes);
+  console.log("234 portNodes", portNodes);
   const edges: Edge<Wire>[] =
     circuit.wires?.map((wire) => ({
       id: wire.id,
@@ -135,7 +156,7 @@ export function circuitToFlow(circuit: Pick<CircuitChip, "chips" | "ports" | "wi
       },
     })) || [];
 
-  console.log("123 edges", edges);
+  console.log("234 edges", edges);
   return {
     nodes: [...nodes, ...portNodes],
     edges,

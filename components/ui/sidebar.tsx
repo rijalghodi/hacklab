@@ -234,26 +234,52 @@ function Sidebar({
   );
 }
 
-function SidebarTrigger({ className, onClick, ...props }: React.ComponentProps<typeof Button>) {
+function SidebarTrigger({
+  className,
+  onClick,
+  asChild = false,
+  children,
+  ...props
+}: React.ComponentProps<typeof Button> & { asChild?: boolean }) {
   const { toggleSidebar } = useSidebar();
 
+  const Comp = asChild ? Slot : Button;
+
   return (
-    <Button
+    <Comp
       data-sidebar="trigger"
       data-slot="sidebar-trigger"
-      variant="ghost"
-      size="icon"
-      className={cn("size-8", className)}
-      onClick={(event) => {
+      onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
         onClick?.(event);
         toggleSidebar();
       }}
+      className={cn("size-8", className)}
+      variant="ghost"
+      size="icon"
+      title="Toggle Sidebar"
       {...props}
     >
-      <PanelLeftIcon />
-      <span className="sr-only">Toggle Sidebar</span>
-    </Button>
+      {children ?? <PanelLeftIcon />}
+    </Comp>
   );
+
+  // return (
+  //   <Button
+  //     data-sidebar="trigger"
+  //     data-slot="sidebar-trigger"
+  //     variant="ghost"
+  //     title="Toggle Sidebar"
+  //     size="icon"
+  //     className={cn("size-8", className)}
+  //     onClick={(event) => {
+  //       onClick?.(event);
+  //       toggleSidebar();
+  //     }}
+  //     {...props}
+  //   >
+  //     <PanelLeftIcon />
+  //   </Button>
+  // );
 }
 
 function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {

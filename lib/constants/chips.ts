@@ -1,5 +1,5 @@
 import type { CircuitChip } from "../types/chips";
-import { NodeType, PortType } from "../types/chips";
+import { NAND_NAME, NodeType, PortType } from "../types/chips";
 
 // Input node
 export const inChip: CircuitChip = {
@@ -8,7 +8,7 @@ export const inChip: CircuitChip = {
   color: "#854d0e",
   type: NodeType.IN,
   chips: [],
-  // ports: [{ id: "in.port-out", name: "out", type: PortType.OUT }],
+  ports: [],
   wires: [],
   definitions: [],
 };
@@ -20,7 +20,7 @@ export const outChip: CircuitChip = {
   color: "#854d0e",
   type: NodeType.OUT,
   chips: [],
-  // ports: [{ id: "out.port-in", name: "in", type: PortType.IN }],
+  ports: [],
   wires: [],
   definitions: [],
 };
@@ -28,7 +28,7 @@ export const outChip: CircuitChip = {
 // NAND
 export const nandChip: CircuitChip = {
   id: "nand",
-  name: "NAND",
+  name: NAND_NAME,
   type: NodeType.CHIP,
   chips: [],
   ports: [

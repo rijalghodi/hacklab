@@ -10,4 +10,5 @@ export * from "./out-node";
 export * from "./port-handle";
 export * from "./rename-port-dialog";
 export * from "./save-chip-dialog";
+export * from "./view-chip-dialog";
 export * from "./wire-edge";

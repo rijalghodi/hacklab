@@ -11,10 +11,14 @@ type Props = {
 export default function ChipTemplate({ children }: Props) {
   return (
     <div className="h-screen w-screen font-mono dark">
+      {/* <ViewChipDialog /> */}
       <ReactFlowProvider>
         <SidebarProvider>
           <FlowSidebar />
-          <SidebarInset>{children}</SidebarInset>
+          <SidebarInset>
+            {/* <SidebarTrigger /> */}
+            {children}
+          </SidebarInset>
         </SidebarProvider>
       </ReactFlowProvider>
     </div>
