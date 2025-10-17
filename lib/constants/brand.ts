@@ -31,3 +31,4 @@ export const BRAND_OG_IMAGE = "https://hacklab.vercel.app/og-image.png";
 export const BRAND_AUTHOR_URL = "https://rijalghodi.xyz";
 export const BRAND_AUTHOR_NAME = "Rijal Ghodi";
 export const BRAND_AUTHOR_EMAIL = "rijalghodi.dev@gmail.com";
+export const PROJECT_GITHUB_URL = "https://github.com/rijalghodi/hacklab";

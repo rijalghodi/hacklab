@@ -1,5 +1,6 @@
 export * from "./chip-node";
 export * from "./circuit";
+export * from "./circuit-demo";
 export * from "./circuit-menu";
 export * from "./connection-line";
 export * from "./flow-sidebar";

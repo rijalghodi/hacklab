@@ -1,4 +1,14 @@
-import { BaseEdge, Edge, type EdgeProps, getSmoothStepPath, type Node, useNodes, useReactFlow } from "@xyflow/react";
+"use client";
+
+import {
+  BaseEdge,
+  Edge,
+  type EdgeProps,
+  getSmoothStepPath,
+  type Node,
+  useNodesData,
+  useReactFlow,
+} from "@xyflow/react";
 import React, { useEffect } from "react";
 
 import { CircuitChip, type Wire } from "@/lib/types/chips";
@@ -23,12 +33,16 @@ export function WireEdge({
   data,
 }: EdgeProps<Edge<Wire>>) {
   const { updateEdgeData } = useReactFlow<Node<CircuitChip>, Edge<Wire>>();
-  const nodes = useNodes<Node<CircuitChip>>();
+  const node = useNodesData<Node<CircuitChip>>(source);
 
-  const node = nodes.find((node) => node.id === source);
-  const VALUE = node?.data.ports?.find((port) => port.id === sourceHandleId)?.value;
+  // const node = getNode(source);
+  console.log("123 wire node", node);
+  const VALUE = node?.data?.ports?.find((port) => port.id === sourceHandleId)?.value;
+
+  console.log("123 VALUE", VALUE);
 
   useEffect(() => {
+    console.log("123 useEffect VALUE", VALUE);
     if (!data?.id) {
       return;
     }

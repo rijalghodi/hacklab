@@ -31,8 +31,8 @@ import {
 } from ".";
 import { Button, ConfirmDialog, useSidebar } from "../ui";
 
-const nodeTypes = { [NodeType.CHIP]: ChipNode, [NodeType.IN]: InNode, [NodeType.OUT]: OutNode };
-const edgeTypes = { wire: WireEdge };
+export const nodeTypes = { [NodeType.CHIP]: ChipNode, [NodeType.IN]: InNode, [NodeType.OUT]: OutNode };
+export const edgeTypes = { wire: WireEdge };
 
 export function Circuit({ initialCircuit }: { initialCircuit?: CircuitChip | null }) {
   const { fitView } = useReactFlow<Node<CircuitChip>, Edge<Wire>>();

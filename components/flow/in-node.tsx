@@ -25,6 +25,8 @@ export function InNode(props: NodeProps<Node<CircuitChip>>) {
       return;
     }
 
+    console.log("123 in-node data", data);
+
     updateNodeData(data.id, {
       // value: !VALUE,
       ports: data.ports?.map((port) => ({ ...port, value: !VALUE })),
