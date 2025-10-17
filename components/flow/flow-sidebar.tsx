@@ -85,6 +85,7 @@ export function FlowSidebar() {
                   name={chip.name}
                   chipId={chip.id}
                   onDragStart={(e) => handleDragStart(e, chip.name)}
+                  // selected={chip.id === chipId}
                 />
               ))}
             </ChipGrid>

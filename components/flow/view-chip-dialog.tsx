@@ -39,7 +39,16 @@ export function ViewChipDialog() {
         </DialogHeader>
         <div className="rounded-2xl overflow-hidden h-full w-full flex-1">
           <ReactFlowProvider>
-            <Circuit initialCircuit={chipDef} viewOnly={true} withBackground={false} showTitle={false} />
+            <Circuit
+              initialCircuit={chipDef}
+              viewOnly={true}
+              withBackground={false}
+              nodesDraggable={false}
+              elementsSelectable={false}
+              contextMenuEnabled={false}
+              showTitle={false}
+              isFitView={false}
+            />
           </ReactFlowProvider>
         </div>
       </DialogContent>
