@@ -105,7 +105,7 @@ export function ChipNode(props: NodeProps<Node<CircuitChip>>) {
       subscriptionsRef.current.forEach((sub) => sub?.unsubscribe());
       subscriptionsRef.current = [];
     };
-  }, [circuitInstance, data.id, edges.length, sourceEdges, data.ports]);
+  }, [circuitInstance, data.id, sourceEdges, data.ports]);
 
   const chipHeight = useMemo(() => {
     const maxPorts = Math.max(inputPorts.length, outputPorts.length);
