@@ -42,7 +42,7 @@ export function ChipNode(props: NodeProps<Node<CircuitChip>>) {
     return Object.values(portEdgeMap);
   }, [edges, data.id]);
 
-  const CHIP_DEFINITION = getChip(data.name);
+  const CHIP_DEFINITION = useMemo(() => getChip(data.name), [data.name]);
 
   // Build circuit once
   const circuitInstance = useMemo(() => {
@@ -50,8 +50,13 @@ export function ChipNode(props: NodeProps<Node<CircuitChip>>) {
     return buildCircuit(CHIP_DEFINITION);
   }, [CHIP_DEFINITION]);
 
-  const inputPorts = useMemo(() => data?.ports?.filter((port) => port.type === PortType.IN) || [], [data?.ports]);
-  const outputPorts = useMemo(() => data?.ports?.filter((port) => port.type === PortType.OUT) || [], [data?.ports]);
+  const { inputPorts, outputPorts } = useMemo(() => {
+    const ports = data?.ports || [];
+    return {
+      inputPorts: ports.filter((port) => port.type === PortType.IN),
+      outputPorts: ports.filter((port) => port.type === PortType.OUT),
+    };
+  }, [data?.ports]);
 
   // Handle edge value changes and update input ports
   useEffect(() => {
@@ -100,7 +105,7 @@ export function ChipNode(props: NodeProps<Node<CircuitChip>>) {
       subscriptionsRef.current.forEach((sub) => sub?.unsubscribe());
       subscriptionsRef.current = [];
     };
-  }, [circuitInstance, data.id, edges.length]);
+  }, [circuitInstance, data.id, edges.length, sourceEdges, data.ports]);
 
   const chipHeight = useMemo(() => {
     const maxPorts = Math.max(inputPorts.length, outputPorts.length);
