@@ -36,21 +36,20 @@ export default function Home() {
 
       {/* Hero Section */}
       <section className="px-4 py-20">
-        <div className="container mx-auto max-w-6xl">
+        <div className="mx-auto max-w-6xl">
           <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
             {/* Hero Content */}
-            <div className="space-y-8">
-              <div className="space-y-4">
-                <h1 className="text-5xl leading-snug font-bold tracking-normal text-foreground">
+            <div className="space-y-12">
+              <div className="space-y-8">
+                <h1 className="text-4xl sm:text-5xl leading-snug font-bold tracking-normal text-foreground">
                   Build Computers from <span className="text-primary">Scratch</span>
                 </h1>
-                <p className="text-xl leading-relaxed text-muted-foreground">
+                <p className="text-lg sm:text-xl leading-relaxed text-muted-foreground">
                   HackLab is an interactive computer simulation inspired by <em>Nand to Tetris</em>. Learn how computers
                   work by building them from the ground up, starting with simple NAND gates all the way to a complete
-                  machine capable of running high-level programs.
+                  computers.
                 </p>
               </div>
-
               <div className="flex flex-col gap-4 sm:flex-row">
                 <Button size="lg" variant="default" asChild>
                   <Link href="/chips/new">Start Building</Link>
@@ -63,7 +62,7 @@ export default function Home() {
 
             {/* Hero Image */}
             <div className="relative">
-              <div className="flex aspect-square items-center justify-center rounded-2xl">
+              <div className="flex aspect-[4/3] sm:aspect-[4/3] items-center justify-center rounded-2xl">
                 <ReactFlowProvider>
                   <CircuitDemo />
                 </ReactFlowProvider>
@@ -78,18 +77,16 @@ export default function Home() {
         </div>
       </section>
       {/* Video Section */}
-      <section id="video" className="px-4 py-20">
+      <section id="video" className="px-4 py-12">
         <div className="container mx-auto max-w-6xl">
           <div className="overflow-hidden rounded-2xl border bg-card shadow-sm">
-            <div className="flex aspect-video items-center justify-center bg-muted/50">
+            <div className="flex aspect-[3/4] sm:aspect-video items-center justify-center bg-muted/50">
               <div className="space-y-4 p-8 text-center">
                 <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
                   <Play className="h-10 w-10 text-primary" />
                 </div>
-                <h3 className="text-2xl font-bold text-foreground">See HackLab in Action</h3>
-                <p className="mx-auto max-w-md text-muted-foreground">
-                  Watch how students learn computer architecture through interactive simulation and hands-on building.
-                </p>
+                <h3 className="text-2xl font-bold leading-snug text-foreground">See HackLab in Action</h3>
+                <p className="mx-auto max-w-md text-muted-foreground text-lg leading-relaxed"></p>
                 <Button size="lg" className="mt-4">
                   Watch Demo Video
                 </Button>
@@ -102,8 +99,8 @@ export default function Home() {
       <section id="features" className="px-4 py-20">
         <div className="container mx-auto max-w-6xl">
           <div className="mb-16 space-y-4 text-center">
-            <h2 className="text-4xl font-bold text-foreground">Why HackLab?</h2>
-            <p className="mx-auto max-w-3xl text-xl text-muted-foreground">
+            <h2 className="text-4xl font-bold text-foreground leading-snug">Why HackLab?</h2>
+            <p className="mx-auto max-w-3xl text-lg sm:text-xl text-muted-foreground leading-relaxed">
               Experience computer architecture like never before through hands-on exploration and interactive
               visualization.
             </p>
@@ -116,7 +113,7 @@ export default function Home() {
                 <Cpu className="h-6 w-6 text-primary" />
               </div>
               <h3 className="mb-2 text-xl font-semibold">Hierarchical Visualization</h3>
-              <p className="text-muted-foreground">
+              <p className="text-muted-foreground leading-relaxed">
                 Explore the complete structure from NAND gates, flip-flops, registers, ALU, CPU, RAM, up to the complete
                 Hack computer.
               </p>
@@ -188,8 +185,8 @@ export default function Home() {
       <section className="px-4 py-20">
         <div className="container mx-auto max-w-4xl text-center">
           <div className="space-y-8">
-            <h2 className="text-4xl font-bold text-foreground">Ready to Build Your First Computer?</h2>
-            <p className="text-xl text-muted-foreground">
+            <h2 className="text-4xl font-bold text-foreground leading-snug">Ready to Build Your First Computer?</h2>
+            <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed">
               Join thousands of students learning computer architecture through interactive simulation.
             </p>
             <div className="flex flex-col justify-center gap-4 sm:flex-row">

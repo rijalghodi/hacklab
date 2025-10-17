@@ -11,7 +11,7 @@ const initialNodes: Node<CircuitChip>[] = [
   {
     id: "in-a",
     type: NodeType.IN,
-    position: { x: 50, y: 80 },
+    position: { x: 0, y: 70 },
     data: {
       id: "in-a",
       name: "IN A",
@@ -22,7 +22,7 @@ const initialNodes: Node<CircuitChip>[] = [
   {
     id: "in-b",
     type: NodeType.IN,
-    position: { x: 50, y: 120 },
+    position: { x: 0, y: 140 },
     data: {
       id: "in-b",
       name: "IN B",
@@ -33,7 +33,7 @@ const initialNodes: Node<CircuitChip>[] = [
   {
     id: "nand",
     type: NodeType.CHIP,
-    position: { x: 140, y: 100 },
+    position: { x: 80, y: 100 },
     data: {
       id: "nand",
       name: "NAND",
@@ -48,7 +48,7 @@ const initialNodes: Node<CircuitChip>[] = [
   {
     id: "out",
     type: NodeType.OUT,
-    position: { x: 250, y: 100 },
+    position: { x: 170, y: 105 },
     data: {
       id: "out",
       name: "OUT",
