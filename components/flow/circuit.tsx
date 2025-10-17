@@ -110,7 +110,7 @@ export function Circuit({
         style={style}
       >
         {withBackground && <Background gap={10} />}
-        {menu && contextMenuEnabled && <NodeContextMenu onClose={onPaneClick} {...menu} />}
+        {menu && contextMenuEnabled && <NodeContextMenu onClose={onPaneClick} {...menu} viewOnly={viewOnly} />}
         {showControls && <Controls />}
 
         {showTitle && (

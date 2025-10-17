@@ -22,9 +22,10 @@ type NodeContextMenuProps = {
   right?: number;
   bottom?: number;
   onClose: () => void;
+  viewOnly?: boolean;
 };
 
-export function NodeContextMenu({ id, top, left, right, bottom, onClose }: NodeContextMenuProps) {
+export function NodeContextMenu({ id, top, left, right, bottom, onClose, viewOnly = false }: NodeContextMenuProps) {
   const { getNode, setNodes, addNodes, setEdges } = useReactFlow<Node<CircuitChip>, Edge<Wire>>();
   const { openDialog } = useRenamePortDialogStore();
   const { viewChip } = useViewChipDialogStore();
@@ -85,6 +86,10 @@ export function NodeContextMenu({ id, top, left, right, bottom, onClose }: NodeC
   const isIn = node?.type === NodeType.IN;
   const isOut = node?.type === NodeType.OUT;
 
+  if (viewOnly && (isIn || isOut || isNand)) {
+    return null;
+  }
+
   return (
     <DropdownMenu open={!!id} onOpenChange={onClose}>
       <DropdownMenuTrigger className="sr-only fixed" title="Node Context Menu" style={{ top, left, right, bottom }} />
@@ -106,10 +111,18 @@ export function NodeContextMenu({ id, top, left, right, bottom, onClose }: NodeC
                 <DropdownMenuItem onClick={viewNode}>View</DropdownMenuItem>
               </>
             )}
-            <DropdownMenuItem onClick={duplicateNode}>Duplicate</DropdownMenuItem>
-            <DropdownMenuItem onClick={deleteNode} variant="destructive">
-              Delete
-            </DropdownMenuItem>
+            {!viewOnly && (
+              <>
+                <DropdownMenuItem onClick={duplicateNode}>Duplicate</DropdownMenuItem>
+              </>
+            )}
+            {!viewOnly && (
+              <>
+                <DropdownMenuItem onClick={deleteNode} variant="destructive">
+                  Delete
+                </DropdownMenuItem>
+              </>
+            )}
           </>
         )}
       </DropdownMenuContent>

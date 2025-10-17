@@ -44,8 +44,8 @@ export function ViewChipDialog() {
               viewOnly={true}
               withBackground={false}
               nodesDraggable={false}
-              elementsSelectable={false}
-              contextMenuEnabled={false}
+              // elementsSelectable={false}
+              // contextMenuEnabled={false}
               showTitle={false}
               isFitView={false}
             />
