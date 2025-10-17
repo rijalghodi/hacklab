@@ -9,8 +9,8 @@ export function ConnectionLine({ fromX, fromY, toX, toY, fromPosition, toPositio
     targetY: toY,
     sourcePosition: fromPosition,
     targetPosition: toPosition,
-    offset: 10,
-    borderRadius: 10,
+    offset: 5,
+    borderRadius: 5,
   });
 
   return <path fill="none" strokeWidth={1.5} d={d} stroke="var(--xy-connectionline-stroke-default)" />;

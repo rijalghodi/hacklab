@@ -42,6 +42,8 @@ export function WireEdge({
     targetX: targetX,
     targetY: targetY,
     targetPosition: targetPosition,
+    offset: 5,
+    borderRadius: 5,
   });
 
   return (

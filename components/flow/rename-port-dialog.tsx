@@ -6,7 +6,7 @@ import React, { useEffect, useMemo } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
-import { CircuitChip, Wire } from "@/lib/types/chips";
+import { CircuitChip, NodeType, Wire } from "@/lib/types/chips";
 import { useRenamePortDialogStore } from "@/hooks/rename-port-dialog-store";
 
 import {
@@ -34,9 +34,8 @@ type FormData = z.infer<typeof formSchema>;
 
 export function RenamePortDialog() {
   const { isOpen, nodeId, initialName, closeDialog } = useRenamePortDialogStore();
-  const { getNode, updateNodeData, getNodes } = useReactFlow<Node<CircuitChip>, Edge<Wire>>();
+  const { getNode, updateNodeData } = useReactFlow<Node<CircuitChip>, Edge<Wire>>();
 
-  const nodes = getNodes();
   const node = useMemo(() => (nodeId ? getNode(nodeId) : null), [getNode, nodeId]);
 
   const form = useForm<FormData>({
@@ -79,7 +78,7 @@ export function RenamePortDialog() {
     handleClose();
   };
 
-  if (!node || (node.type !== "in" && node.type !== "out")) return null;
+  if (!node || (node.type !== NodeType.IN && node.type !== NodeType.OUT)) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={closeDialog}>
@@ -97,25 +96,7 @@ export function RenamePortDialog() {
                 <FormItem>
                   <FormLabel>Port Name</FormLabel>
                   <FormControl>
-                    <Input
-                      placeholder="Enter port name"
-                      {...field}
-                      onChange={(e) => {
-                        const name = e.target.value;
-                        field.onChange(name);
-                        const isDuplicatePort = nodes.some(
-                          (node) =>
-                            node.data.name === name &&
-                            node.id !== nodeId &&
-                            (node.type === "in" || node.type === "out"),
-                        );
-                        if (isDuplicatePort) {
-                          form.setError("name", { message: "Port name already taken" });
-                        } else {
-                          form.clearErrors("name");
-                        }
-                      }}
-                    />
+                    <Input placeholder="Enter port name" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

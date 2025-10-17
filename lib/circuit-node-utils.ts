@@ -18,7 +18,7 @@ export function createNodeFromChip({ chipDef, position, droppedName }: CreateNod
   let ports = chipDef.ports;
 
   if (type === NodeType.IN) {
-    name = `IN-${id.slice(0, 3)}`;
+    name = "IN";
     ports = [
       {
         id,
@@ -27,7 +27,7 @@ export function createNodeFromChip({ chipDef, position, droppedName }: CreateNod
       },
     ];
   } else if (type === NodeType.OUT) {
-    name = `OUT-${id.slice(0, 3)}`;
+    name = "OUT";
     ports = [
       {
         id,
