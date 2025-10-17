@@ -12,6 +12,7 @@ import { flowToCircuit } from "@/lib/flow-utils";
 import { CircuitChip, Wire } from "@/lib/types/chips";
 import { generateId } from "@/lib/utils";
 import { useSaveChipDialogStore } from "@/hooks/save-chip-dialog-store";
+import { useChips } from "@/hooks/use-chips-store";
 import { useCircuitPageParams } from "@/hooks/use-circuit-page-params";
 
 import { Button } from "@/components/ui/button";
@@ -25,8 +26,6 @@ import {
 } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-
-import { useChips } from "./flow-store";
 
 const formSchema = z.object({
   name: z.string().min(1, "Chip name is required").max(50, "Chip name must be less than 50 characters"),

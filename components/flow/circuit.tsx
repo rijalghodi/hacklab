@@ -16,28 +16,32 @@ import React, { useEffect } from "react";
 
 import { circuitToFlow } from "@/lib/flow-utils";
 import { CircuitChip, NodeType, type Wire } from "@/lib/types/chips";
-import { useConnectionHandler, useContextMenu, useDragAndDrop } from "@/hooks";
+import { useCircuitConnectHandler, useCircuitDndHandler, useContextMenu } from "@/hooks";
 
-import { ChipNode, ConnectionLine, InNode, OutNode, RenamePortDialog, SaveChipDialog, WireEdge } from ".";
-import { CircuitMenu } from "./circuit-menu";
-import { useChips, useDnd } from "./flow-store";
-import { NodeContextMenu } from "./node-context-menu";
+import {
+  ChipNode,
+  CircuitMenu,
+  ConnectionLine,
+  InNode,
+  NodeContextMenu,
+  OutNode,
+  RenamePortDialog,
+  SaveChipDialog,
+  WireEdge,
+} from ".";
 import { Button, ConfirmDialog, useSidebar } from "../ui";
 
 const nodeTypes = { [NodeType.CHIP]: ChipNode, [NodeType.IN]: InNode, [NodeType.OUT]: OutNode };
 const edgeTypes = { wire: WireEdge };
 
 export function Circuit({ initialCircuit }: { initialCircuit?: CircuitChip | null }) {
-  const { getChip } = useChips();
-  const { fitView, getNode, screenToFlowPosition } = useReactFlow<Node<CircuitChip>, Edge<Wire>>();
+  const { fitView } = useReactFlow<Node<CircuitChip>, Edge<Wire>>();
   const [nodes, setNodes, onNodesChange] = useNodesState<Node<CircuitChip>>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge<Wire>>([]);
-  const { droppedName } = useDnd();
 
-  // Custom hooks for different functionalities
   const { ref, menu, onNodeContextMenu, onPaneClick } = useContextMenu();
-  const { onConnect } = useConnectionHandler(getNode);
-  const { onDragOver, onDrop } = useDragAndDrop(droppedName, getChip, screenToFlowPosition);
+  const { onConnect } = useCircuitConnectHandler();
+  const { onDragOver, onDrop } = useCircuitDndHandler();
 
   useEffect(() => {
     if (initialCircuit) {

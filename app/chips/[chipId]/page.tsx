@@ -3,8 +3,9 @@
 import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useMemo } from "react";
 
+import { useChips } from "@/hooks";
+
 import { Circuit } from "@/components/flow/circuit";
-import { useChips } from "@/components/flow/flow-store";
 
 export default function ChipPage() {
   const router = useRouter();
@@ -13,7 +14,7 @@ export default function ChipPage() {
   const chipId = chipIdParam === "new" ? "" : chipIdParam;
 
   const { getChipById } = useChips();
-  const circuit = useMemo(() => {
+  const currentCircuit = useMemo(() => {
     try {
       if (!chipId) {
         return null;
@@ -29,10 +30,10 @@ export default function ChipPage() {
   }, [chipId]);
 
   useEffect(() => {
-    if (chipId && !circuit) {
+    if (chipId && !currentCircuit) {
       router.replace("/chips/new");
     }
-  }, [chipId, circuit, router]);
+  }, [chipId, currentCircuit]);
 
-  return <Circuit initialCircuit={circuit} />;
+  return <Circuit initialCircuit={currentCircuit} />;
 }

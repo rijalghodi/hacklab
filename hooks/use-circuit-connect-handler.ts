@@ -1,13 +1,12 @@
-import type { Connection, Edge, Node } from "@xyflow/react";
+import { type Connection, type Edge, type Node, useReactFlow } from "@xyflow/react";
 import { addEdge } from "@xyflow/react";
 import { useCallback } from "react";
 
-import { NodeType } from "@/lib/types/chips";
-import { Wire } from "@/lib/types/chips";
-import { CircuitChip } from "@/lib/types/chips";
+import { CircuitChip, NodeType, Wire } from "@/lib/types/chips";
 import { generateId } from "@/lib/utils";
 
-export function useConnectionHandler(getNode: (id: string) => Node<CircuitChip> | undefined) {
+export function useCircuitConnectHandler() {
+  const { getNode } = useReactFlow<Node<CircuitChip>, Edge<Wire>>();
   const onConnect = useCallback(
     (params: Connection, setEdges: (updater: (edges: Edge<Wire>[]) => Edge<Wire>[]) => void) => {
       console.log("onConnect", params);

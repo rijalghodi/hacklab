@@ -3,8 +3,8 @@ import React from "react";
 
 import { CircuitChip, type Wire } from "@/lib/types/chips";
 import { cn, getActiveColor, getBgColor } from "@/lib/utils";
+import { useChips } from "@/hooks";
 
-import { useChips } from "./flow-store";
 import { PortHandle } from "./port-handle";
 
 export function OutNode(props: NodeProps<Node<CircuitChip>>) {

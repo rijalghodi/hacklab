@@ -5,9 +5,10 @@ import React, { useCallback, useState } from "react";
 import { builtInChips } from "@/lib/constants/chips";
 import { CircuitChip } from "@/lib/types/chips";
 import { cn, getBgBorderTextColor } from "@/lib/utils";
+import { useChips, useDnd } from "@/hooks";
 import { useCircuitPageParams } from "@/hooks/use-circuit-page-params";
+import { useDeleteChipHandler } from "@/hooks/use-delete-chip-handler";
 
-import { useChips, useDnd } from "./flow-store";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -88,23 +89,28 @@ export function FlowSidebar() {
         </SidebarGroup>
 
         {/* Saved Chips Section */}
+
         <SidebarGroup>
           <SidebarGroupLabel className="font-mono uppercase">Saved Chips</SidebarGroupLabel>
           <SidebarGroupContent>
-            <ChipGrid>
-              {savedChips?.map((chip: CircuitChip) => (
-                <ChipOptionComponent
-                  key={chip.name}
-                  color={chip.color}
-                  name={chip.name}
-                  chipId={chip.id}
-                  onDragStart={(e) => handleDragStart(e, chip.name)}
-                  onContextMenu={handleContextMenu}
-                  selected={contextMenu?.chipName === chip.name}
-                  disabled={chip.id === chipId}
-                />
-              ))}
-            </ChipGrid>
+            {savedChips.length > 0 ? (
+              <ChipGrid>
+                {savedChips?.map((chip: CircuitChip) => (
+                  <ChipOptionComponent
+                    key={chip.name}
+                    color={chip.color}
+                    name={chip.name}
+                    chipId={chip.id}
+                    onDragStart={(e) => handleDragStart(e, chip.name)}
+                    onContextMenu={handleContextMenu}
+                    selected={contextMenu?.chipName === chip.name}
+                    disabled={chip.id === chipId}
+                  />
+                ))}
+              </ChipGrid>
+            ) : (
+              <div className="text-center text-sm text-muted-foreground py-6 px-2">No saved chips</div>
+            )}
           </SidebarGroupContent>
         </SidebarGroup>
 
@@ -179,12 +185,16 @@ type ChipOptionMenuProps = {
 
 function ChipOptionMenu({ open, menuPosition, onOpenChange, chipName, chipId }: ChipOptionMenuProps) {
   const { navigateToChipId } = useCircuitPageParams();
+  const { deleteChipWithConfirm } = useDeleteChipHandler();
 
-  // Early return for invalid state
   if (!chipName || !chipId) return null;
 
   const handleOpen = () => {
     navigateToChipId(chipId);
+  };
+
+  const handleDelete = () => {
+    deleteChipWithConfirm(chipId);
   };
 
   return (
@@ -200,6 +210,9 @@ function ChipOptionMenu({ open, menuPosition, onOpenChange, chipName, chipId }: 
         <DropdownMenuLabel>{chipName}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleOpen}>Open</DropdownMenuItem>
+        <DropdownMenuItem variant="destructive" onClick={handleDelete}>
+          Delete
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );

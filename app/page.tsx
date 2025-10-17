@@ -48,7 +48,7 @@ export default function Home() {
               </div>
 
               <div className="flex flex-col gap-4 sm:flex-row">
-                <Button size="lg" variant="gradient" asChild>
+                <Button size="lg" variant="default" asChild>
                   <Link href="/chips/new">Start Building</Link>
                 </Button>
                 <Button variant="outline" size="lg" asChild>

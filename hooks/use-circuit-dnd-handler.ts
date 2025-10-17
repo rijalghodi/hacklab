@@ -1,14 +1,20 @@
-import type { Node } from "@xyflow/react";
+import { type Edge, type Node,useReactFlow } from "@xyflow/react";
 import { useCallback } from "react";
 
 import { createNodeFromChip } from "@/lib/circuit-node-utils";
-import { CircuitChip } from "@/lib/types/chips";
+import { CircuitChip, Wire } from "@/lib/types/chips";
 
-export function useDragAndDrop(
-  droppedName: string,
-  getChip: (name: string) => CircuitChip | null,
-  screenToFlowPosition: (position: { x: number; y: number }) => { x: number; y: number },
-) {
+import { useChips } from "./use-chips-store";
+import { useDnd } from "./use-dnd-store";
+
+export function useCircuitDndHandler() {
+  // droppedName: string,
+  // getChip: (name: string) => CircuitChip | null,
+  // screenToFlowPosition: (position: { x: number; y: number }) => { x: number; y: number },
+  const { screenToFlowPosition } = useReactFlow<Node<CircuitChip>, Edge<Wire>>();
+  const { getChip } = useChips();
+  const { droppedName } = useDnd();
+
   const onDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     event.dataTransfer.dropEffect = "move";
@@ -39,7 +45,7 @@ export function useDragAndDrop(
       const newNode = createNodeFromChip({ chipDef, position, droppedName });
       setNodes((nds) => nds.concat(newNode));
     },
-    [droppedName, getChip, screenToFlowPosition],
+    [droppedName],
   );
 
   return { onDragOver, onDrop };

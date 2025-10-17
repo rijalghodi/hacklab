@@ -1,13 +1,13 @@
 "use client";
 
 import { Edge, type Node, type NodeProps, Position, useEdges, useReactFlow } from "@xyflow/react";
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 
 import { buildCircuit } from "@/lib/circuitBuilder";
 import { CircuitChip, PortType, Wire } from "@/lib/types/chips";
 import { cn, getBgBorderTextColor } from "@/lib/utils";
+import { useChips } from "@/hooks";
 
-import { useChips } from "./flow-store";
 import { PortHandle } from "./port-handle";
 
 const PORT_SPACING = 12;
@@ -23,6 +23,7 @@ export function ChipNode(props: NodeProps<Node<CircuitChip>>) {
   const { updateNodeData } = useReactFlow<Node<CircuitChip>, Edge<Wire>>();
 
   const edges = useEdges<Edge<Wire>>();
+  const subscriptionsRef = useRef<any[]>([]);
 
   const sourceEdges = useMemo(() => {
     // Group edges by targetPortId, then choose one per the rules:
@@ -50,7 +51,6 @@ export function ChipNode(props: NodeProps<Node<CircuitChip>>) {
   }, [CHIP_DEFINITION]);
 
   const inputPorts = useMemo(() => data?.ports?.filter((port) => port.type === PortType.IN) || [], [data?.ports]);
-
   const outputPorts = useMemo(() => data?.ports?.filter((port) => port.type === PortType.OUT) || [], [data?.ports]);
 
   // Handle edge value changes and update input ports
@@ -70,12 +70,11 @@ export function ChipNode(props: NodeProps<Node<CircuitChip>>) {
       if (subj) {
         subj.next(edgeValue);
       }
-
-      // Update port value in node data
-      updateNodeData(data.id, {
-        ports: data.ports.map((p) => (p.id === port.id ? { ...p, value: edgeValue } : p)),
-      });
     }
+
+    // Clean up existing subscriptions
+    subscriptionsRef.current.forEach((sub) => sub?.unsubscribe());
+    subscriptionsRef.current = [];
 
     // Subscribe to output port changes
     const subscriptions = outputPorts
@@ -84,17 +83,24 @@ export function ChipNode(props: NodeProps<Node<CircuitChip>>) {
         if (!outputSubject) return null;
 
         return outputSubject.subscribe((value) => {
-          updateNodeData(data.id, {
-            ports: data.ports?.map((p) => (p.id === port.id ? { ...p, value } : p)),
-          });
+          // Only update if value actually changed
+          if (port.value !== value) {
+            updateNodeData(data.id, {
+              ports: data.ports?.map((p) => (p.id === port.id ? { ...p, value } : p)),
+            });
+          }
         });
       })
       .filter(Boolean);
 
+    // Store subscriptions in ref for cleanup
+    subscriptionsRef.current = subscriptions;
+
     return () => {
-      subscriptions.forEach((sub) => sub?.unsubscribe());
+      subscriptionsRef.current.forEach((sub) => sub?.unsubscribe());
+      subscriptionsRef.current = [];
     };
-  }, [circuitInstance, JSON.stringify(sourceEdges)]);
+  }, [circuitInstance, data.id, edges.length]);
 
   const chipHeight = useMemo(() => {
     const maxPorts = Math.max(inputPorts.length, outputPorts.length);
