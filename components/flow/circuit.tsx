@@ -119,7 +119,7 @@ export function Circuit({
 
         {showTitle && (
           <Panel position="top-center">
-            <h1 className="font-mono font-bold py-2 text-lg">{initialCircuit?.name ?? "New Chip"}</h1>
+            <h1 className="font-mono font-bold py-1 text-xl">Chip: {initialCircuit?.name ?? "New Chip"}</h1>
           </Panel>
         )}
 

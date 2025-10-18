@@ -28,7 +28,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 
 const DEFAULT_COLOR = "#854d0e";
-const MAX_CHIP_NAME_LENGTH = 10;
+const MAX_CHIP_NAME_LENGTH = 16;
 
 const formSchema = z.object({
   name: z
@@ -128,6 +128,12 @@ export function SaveChipDialog() {
                       {...field}
                       onChange={(e) => {
                         const name = e.target.value;
+                        if (name.length > MAX_CHIP_NAME_LENGTH + 1) {
+                          form.setError("name", {
+                            message: `Chip name must be less than ${MAX_CHIP_NAME_LENGTH} characters`,
+                          });
+                          return;
+                        }
                         field.onChange(name);
                         const isDuplicateChip = allChips.some((chip) => chip.name === name);
                         if (isDuplicateChip) {
