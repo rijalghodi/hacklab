@@ -41,7 +41,7 @@ export function Circuit({
   showControls = true,
   elementsSelectable = true,
   nodesDraggable = true,
-  zoomOnScroll = true,
+  zoomEnabled = true,
   contextMenuEnabled = true,
   style = {},
   isFitView = false,
@@ -56,7 +56,7 @@ export function Circuit({
   showControls?: boolean;
   elementsSelectable?: boolean;
   nodesDraggable?: boolean;
-  zoomOnScroll?: boolean;
+  zoomEnabled?: boolean;
   contextMenuEnabled?: boolean;
   style?: React.CSSProperties;
   isFitView?: boolean;
@@ -106,8 +106,12 @@ export function Circuit({
         panOnDrag={false}
         elementsSelectable={elementsSelectable}
         nodesDraggable={nodesDraggable}
-        zoomOnScroll={zoomOnScroll}
+        zoomOnScroll={zoomEnabled}
+        zoomOnDoubleClick={zoomEnabled}
         style={style}
+        proOptions={{
+          hideAttribution: true,
+        }}
       >
         {withBackground && <Background gap={10} />}
         {menu && contextMenuEnabled && <NodeContextMenu onClose={onPaneClick} {...menu} viewOnly={viewOnly} />}

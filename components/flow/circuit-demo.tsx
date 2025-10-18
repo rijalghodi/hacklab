@@ -57,7 +57,7 @@ export function CircuitDemo() {
         withBackground={false}
         showControls={false}
         nodesDraggable={false}
-        zoomOnScroll={false}
+        zoomEnabled={false}
         contextMenuEnabled={false}
         style={{ "--xy-background-color": "transparent" } as React.CSSProperties}
       />
