@@ -27,14 +27,18 @@ import {
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
+const DEFAULT_COLOR = "#854d0e";
+const MAX_CHIP_NAME_LENGTH = 10;
+
 const formSchema = z.object({
-  name: z.string().min(1, "Chip name is required").max(50, "Chip name must be less than 50 characters"),
+  name: z
+    .string()
+    .min(1, "Chip name is required")
+    .max(MAX_CHIP_NAME_LENGTH, `Chip name must be less than ${MAX_CHIP_NAME_LENGTH} characters`),
   color: z.string().regex(HEX_COLOR_REGEX, "Invalid hex color format"),
 });
 
 type FormData = z.infer<typeof formSchema>;
-
-const DEFAULT_COLOR = "#854d0e";
 
 export function SaveChipDialog() {
   const { chipId, navigateToChipIdNoConfirm: setChipIdWithoutConfirmation } = useCircuitPageParams();
@@ -73,7 +77,6 @@ export function SaveChipDialog() {
     (formData: FormData) => {
       try {
         const newCircuit = flowToCircuit(nodes, edges);
-        console.log("678 newCircuit", newCircuit);
         if (initialChip) {
           updateSavedChip(initialChip.id, {
             ...newCircuit,
@@ -127,7 +130,6 @@ export function SaveChipDialog() {
                         const name = e.target.value;
                         field.onChange(name);
                         const isDuplicateChip = allChips.some((chip) => chip.name === name);
-                        console.log("isDuplicateChip", isDuplicateChip);
                         if (isDuplicateChip) {
                           form.setError("name", { message: "Chip name already taken" });
                           return;
@@ -204,12 +206,7 @@ export function SaveChipDialog() {
               {/* <Button type="button" variant="accent" className="flex-1 uppercase" onClick={handleClose}>
                 Customize
               </Button> */}
-              <Button
-                type="submit"
-                variant="accent"
-                className="flex-1 uppercase"
-                disabled={!!form.formState.errors.name || !form.formState.isValid}
-              >
+              <Button type="submit" variant="accent" className="flex-1 uppercase">
                 Save Chip
               </Button>
             </DialogFooter>

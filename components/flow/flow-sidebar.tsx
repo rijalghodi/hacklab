@@ -132,7 +132,7 @@ export function FlowSidebar() {
 }
 
 function ChipGrid({ children }: { children: React.ReactNode }) {
-  return <div className="grid grid-cols-3 gap-1.5">{children}</div>;
+  return <div className="flex flex-wrap gap-1.5">{children}</div>;
 }
 
 type ChipOptionComponentProps = {
@@ -165,7 +165,7 @@ function ChipOptionComponent({
     <div
       data-selected={selected}
       className={cn(
-        "p-2 font-mono box-border w-full h-11 flex items-center justify-center text-base font-semibold cursor-grab rounded-sm data-[selected=true]:ring-ring/80 data-[selected=true]:ring-3",
+        "p-2 font-mono box-border min-w-18 h-11 flex items-center justify-center text-base font-semibold cursor-grab rounded-sm data-[selected=true]:ring-ring/80 data-[selected=true]:ring-3",
         disabled && "opacity-50 cursor-not-allowed",
       )}
       style={getBgBorderTextColor(color)}

@@ -2,8 +2,10 @@
 
 import { Edge, type Node, type NodeProps, Position, useEdges, useReactFlow } from "@xyflow/react";
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import { toast } from "sonner";
 
-import { buildCircuit } from "@/lib/circuitBuilder";
+import { buildRxjsCircuit } from "@/lib/circuit-rxjs-builder";
+import { tryCatchSync } from "@/lib/try-catch";
 import { CircuitChip, PortType, Wire } from "@/lib/types/chips";
 import { cn, getBgBorderTextColor } from "@/lib/utils";
 import { useChips } from "@/hooks";
@@ -11,7 +13,7 @@ import { useChips } from "@/hooks";
 import { PortHandle } from "./port-handle";
 
 const PORT_SPACING = 10;
-const MIN_CHIP_HEIGHT = 30;
+const MIN_CHIP_HEIGHT = 20;
 const MIN_CHIP_WIDTH = 50;
 const PORT_OFFSET_MULTIPLIER = 0.5; // Used in chipHeight calculation
 const CENTER_INDEX_OFFSET = 0.5; // Used in portOffset calculation
@@ -42,13 +44,21 @@ export function ChipNode(props: NodeProps<Node<CircuitChip>>) {
     return Object.values(portEdgeMap);
   }, [edges, data.id]);
 
-  const CHIP_DEFINITION = useMemo(() => getChip(data.name), [data.name]);
+  const circuitChip = useMemo(() => getChip(data.name), [data.name]);
 
   // Build circuit once
   const circuitInstance = useMemo(() => {
-    if (!CHIP_DEFINITION) return null;
-    return buildCircuit(CHIP_DEFINITION);
-  }, [CHIP_DEFINITION]);
+    if (!circuitChip) {
+      toast.error(`No chip definition for '${data.name}'`);
+      return null;
+    }
+    const [circuitInstance, error] = tryCatchSync(() => buildRxjsCircuit(circuitChip));
+    if (error) {
+      toast.error(`Failed to build circuit instance for chip '${data.name}': ${error.message}`);
+      return null;
+    }
+    return circuitInstance;
+  }, [circuitChip]);
 
   const { inputPorts, outputPorts } = useMemo(() => {
     const ports = data?.ports || [];
@@ -117,19 +127,23 @@ export function ChipNode(props: NodeProps<Node<CircuitChip>>) {
     return (index - centerIndex) * PORT_SPACING;
   }, []);
 
+  if (!circuitInstance) return null;
+
   return (
     <div
-      className={cn("relative rounded-sm p-2 font-mono box-border", selected && "ring-ring/20 ring-4")}
+      className={cn("relative rounded-sm py-0.5 px-2 font-mono box-border", selected && "ring-ring/20 ring-4")}
       style={{
-        height: chipHeight,
-        maxHeight: chipHeight,
+        minHeight: chipHeight,
         minWidth: MIN_CHIP_WIDTH,
-        ...getBgBorderTextColor(CHIP_DEFINITION?.color),
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        textAlign: "center",
+        ...getBgBorderTextColor(circuitChip?.color),
       }}
     >
-      <div className="text-sm font-semibold w-full h-full text-center flex items-center justify-center">
-        {data.name}
-      </div>
+      <div className="text-sm font-semibold break-all">{data.name}</div>
 
       {/* Input ports */}
       {inputPorts.map((port, index) => (

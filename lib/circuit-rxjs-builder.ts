@@ -32,7 +32,7 @@ const baseLibrary: Record<
 };
 
 /** Recursively build circuit */
-export function buildCircuit(def: CircuitChip): {
+export function buildRxjsCircuit(def: CircuitChip): {
   inputs: Record<string, BehaviorSubject<boolean>>;
   outputs: Record<string, BehaviorSubject<boolean>>;
 } {
@@ -52,7 +52,7 @@ export function buildCircuit(def: CircuitChip): {
   }
 
   // Instantiate sub-chips
-  const chips: Record<string, ReturnType<typeof buildCircuit>> = {};
+  const chips: Record<string, ReturnType<typeof buildRxjsCircuit>> = {};
   for (const chip of def.chips || []) {
     // base gate
     const base = baseLibrary[chip.name];
@@ -64,7 +64,8 @@ export function buildCircuit(def: CircuitChip): {
     // composite gate
     const subDef = def.definitions?.find((d) => d.name === chip.name);
     if (!subDef) throw new Error(`Missing definition for chip '${chip.name}'`);
-    chips[chip.id] = buildCircuit(subDef);
+    // pass definitions to sub-chips to provide access to all chips
+    chips[chip.id] = buildRxjsCircuit({ ...subDef, definitions: def.definitions });
   }
 
   // Connect wires
