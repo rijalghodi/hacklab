@@ -165,7 +165,7 @@ function ChipOptionComponent({
     <div
       data-selected={selected}
       className={cn(
-        "p-2 font-mono box-border min-w-18 h-11 flex items-center justify-center text-base font-semibold cursor-grab rounded-sm data-[selected=true]:ring-ring/80 data-[selected=true]:ring-3",
+        "px-2 py-1 font-mono box-border min-w-18 h-10 flex items-center justify-center text-base font-semibold cursor-grab rounded-sm data-[selected=true]:ring-ring/80 data-[selected=true]:ring-3",
         disabled && "opacity-50 cursor-not-allowed",
       )}
       style={getBgBorderTextColor(color)}
