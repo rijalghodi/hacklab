@@ -4,6 +4,7 @@ export * from "./save-chip-dialog-store";
 export * from "./use-chips-store";
 export * from "./use-circuit-connect-handler";
 export * from "./use-circuit-dnd-handler";
+export * from "./use-circuit-keyboard-shortcuts";
 export * from "./use-circuit-page-params";
 export * from "./use-context-menu";
 export * from "./use-controllable-open";

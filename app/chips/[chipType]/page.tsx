@@ -3,12 +3,13 @@
 import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useMemo } from "react";
 
-import { useChips } from "@/hooks";
+import { useChips, useCircuitKeyboardShortcuts } from "@/hooks";
 
 import { Circuit, FlowSidebarTrigger } from "@/components/flow";
 
 export default function ChipPage() {
   const router = useRouter();
+  useCircuitKeyboardShortcuts();
 
   let { chipType: chipTypeParam } = useParams<{ chipType: string }>();
   const chipType = chipTypeParam === "new" ? "" : chipTypeParam;

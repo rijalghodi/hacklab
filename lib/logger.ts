@@ -1,3 +1,5 @@
+"use client";
+
 type LoggerArgs = {
   group: string;
   message?: string;

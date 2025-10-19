@@ -41,10 +41,10 @@ export function CircuitMenu(props: Props) {
           Menu
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent side="bottom" align="start" className="font-mono font-semibold w-52 uppercase">
+      <DropdownMenuContent side="bottom" align="start" className="font-mono font-semibold w-60 uppercase">
         <DropdownMenuItem onClick={handleNewChip}>
           New Chip
-          <DropdownMenuShortcut>Ctrl+N</DropdownMenuShortcut>
+          <DropdownMenuShortcut>Ctrl+Shift+N</DropdownMenuShortcut>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={openSaveChipDialog}>
           Save Chip
