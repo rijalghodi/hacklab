@@ -9,6 +9,7 @@ import { cn, getBgBorderTextColor } from "@/lib/utils";
 import { useChips, useDndStore } from "@/hooks";
 import { useCircuitPageParams } from "@/hooks/use-circuit-page-params";
 import { useDeleteChipHandler } from "@/hooks/use-delete-chip-handler";
+import { useViewChipDialogStore } from "@/hooks/use-view-chip-dialog-store";
 
 import {
   DropdownMenu,
@@ -196,7 +197,7 @@ type ChipOptionMenuProps = {
 function ChipOptionMenu({ open, menuPosition, onOpenChange, chip }: ChipOptionMenuProps) {
   const { navigateToChip } = useCircuitPageParams();
   const { deleteChipWithConfirm } = useDeleteChipHandler();
-
+  const { viewChip } = useViewChipDialogStore();
   if (!chip?.chipType) return null;
 
   const handleOpen = () => {
@@ -205,6 +206,10 @@ function ChipOptionMenu({ open, menuPosition, onOpenChange, chip }: ChipOptionMe
 
   const handleDelete = () => {
     deleteChipWithConfirm(chip.chipType);
+  };
+
+  const handleView = () => {
+    viewChip(chip.chipType);
   };
 
   return (
@@ -220,6 +225,7 @@ function ChipOptionMenu({ open, menuPosition, onOpenChange, chip }: ChipOptionMe
         <DropdownMenuLabel>{chip.name || chip.chipType}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleOpen}>Open</DropdownMenuItem>
+        <DropdownMenuItem onClick={handleView}>View</DropdownMenuItem>
         <DropdownMenuItem variant="destructive" onClick={handleDelete}>
           Delete
         </DropdownMenuItem>

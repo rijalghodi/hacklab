@@ -45,7 +45,7 @@ export function NodeContextMenu({ id, top, left, right, bottom, onClose, viewOnl
     };
 
     const newId = generateId();
-    let newName = node?.data.name;
+    let newName = node?.data.name || node?.data.chipType;
 
     if (node?.type === NodeType.IN) {
       newName = "IN";
@@ -58,7 +58,7 @@ export function NodeContextMenu({ id, top, left, right, bottom, onClose, viewOnl
       data: {
         ...node?.data,
         id: newId,
-        name: newName ?? "",
+        name: newName,
         chipType: node?.data.chipType,
         chips: node?.data.chips ?? [],
         wires: node?.data.wires ?? [],
