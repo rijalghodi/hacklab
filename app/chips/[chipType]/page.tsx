@@ -5,8 +5,7 @@ import React, { useEffect, useMemo } from "react";
 
 import { useChips } from "@/hooks";
 
-import { Circuit } from "@/components/flow/circuit";
-import { FlowSidebarTrigger } from "@/components/flow/flow-sidebar";
+import { Circuit, FlowSidebarTrigger } from "@/components/flow";
 
 export default function ChipPage() {
   const router = useRouter();
@@ -39,7 +38,6 @@ export default function ChipPage() {
   return (
     <div className="h-screen w-full relative">
       <FlowSidebarTrigger className="absolute top-1/2 -translate-y-1/2 left-4 z-10" />
-
       <Circuit initialCircuit={currentCircuit} />
     </div>
   );

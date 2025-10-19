@@ -1,8 +1,8 @@
 import { ReactFlowProvider } from "@xyflow/react";
 import React from "react";
 
-import { FlowSidebar } from "@/components/flow/flow-sidebar";
-import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { FlowSidebar } from "@/components/flow";
+import { SidebarInset, SidebarProvider } from "@/components/ui";
 
 type Props = {
   children: React.ReactNode;

@@ -77,14 +77,15 @@ export function SaveChipDialog() {
   const onSubmit = useCallback(
     (formData: FormData) => {
       try {
+        const newCircuit = flowToCircuit(nodes, edges);
         if (initialChip) {
           updateSavedChip(initialChip.chipType, {
+            ...newCircuit,
             name: formData.name,
             color: formData.color,
           });
         } else {
           const newChipId = generateId();
-          const newCircuit = flowToCircuit(nodes, edges);
           addSavedChip({
             ...newCircuit,
             id: newChipId,

@@ -72,7 +72,7 @@ export function PortHandle({
       }}
     >
       <div
-        className={`opacity-0 group-hover:opacity-100 text-[8px] absolute bg-background shadow-lg border border-border px-1 py-[1px] rounded-xs font-semibold whitespace-nowrap ${getTooltipStyle()}`}
+        className={`opacity-0 group-hover:opacity-100 text-[8px] absolute bg-background text-foreground shadow-lg border border-border px-1 py-[1px] rounded-xs font-semibold whitespace-nowrap ${getTooltipStyle()}`}
         style={{ wordBreak: "keep-all", whiteSpace: "nowrap" }}
       >
         {name}
