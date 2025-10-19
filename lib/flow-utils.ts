@@ -5,6 +5,7 @@ import type { Edge } from "@xyflow/react";
 
 import { builtInChips } from "./constants/chips";
 import { LOCAL_STORAGE_SAVED_CHIPS } from "./constants/names";
+import { logger } from "./logger";
 import type { Chip, Wire } from "./types/chips";
 import { CircuitChip, NodeType, Port, PortType } from "./types/chips";
 
@@ -25,7 +26,10 @@ export function flowToCircuit(
   nodes: Node<CircuitChip>[],
   edges: Edge<Wire>[],
 ): Pick<CircuitChip, "chips" | "ports" | "wires"> {
-  console.log("555", nodes, edges);
+  logger.debug({
+    group: "flowToCircuit",
+    message: `Converting flow to circuit: ${nodes.length} nodes, ${edges.length} edges`,
+  });
   const chips: Chip[] = nodes
     .filter((node) => node.type === NodeType.CHIP)
     .map((node) => ({
@@ -66,29 +70,29 @@ export function circuitToFlow(circuit: Pick<CircuitChip, "chips" | "ports" | "wi
   nodes: Node<CircuitChip>[];
   edges: Edge<Wire>[];
 } {
-  console.log("circuit", circuit);
+  logger.debug({
+    group: "circuitToFlow",
+    message: `Converting circuit to flow: ${circuit.chips?.length || 0} chips, ${circuit.wires?.length || 0} wires`,
+  });
 
-  // Get saved chips from local storage using constants.LOCAL_STORAGE_SAVED_CHIPS
-  // let savedChips: CircuitChip[] = [];
   const savedChips = getSavedChipsFromLocalStorage();
-  // if (typeof window !== "undefined") {
-  //   try {
-  //     const chipsStr = window.localStorage.getItem(LOCAL_STORAGE_SAVED_CHIPS);
-  //     if (chipsStr) {
-  //       const ls = JSON.parse(chipsStr);
-  //       savedChips = ls.state.savedChips;
-  //     }
-  //   } catch (_e) {
-  //     savedChips = [];
-  //   }
-  // }
+
   const allChips = [...savedChips, ...builtInChips];
-  console.log("234 allChips", allChips);
+  logger.debug({
+    group: "circuitToFlow",
+    message: `Found ${allChips.length} total chips (${savedChips.length} saved + ${builtInChips.length} built-in)`,
+  });
+
+  logger.debug({
+    group: "circuitToFlow",
+    message: "All chips:",
+    data: allChips,
+  });
 
   const nodes: Node<CircuitChip>[] =
     circuit.chips
       ?.map((chip) => {
-        const savedChip = allChips.find((savedChip) => savedChip.name === chip.name);
+        const savedChip = allChips.find((savedChip) => savedChip.chipType === chip.chipType);
         if (!savedChip) {
           return null;
         }
@@ -98,7 +102,7 @@ export function circuitToFlow(circuit: Pick<CircuitChip, "chips" | "ports" | "wi
           type: NodeType.CHIP,
           data: {
             id: chip.id,
-            name: chip.name,
+            name: savedChip.name || savedChip.chipType,
             chipType: savedChip.chipType,
             chips: savedChip.chips,
             wires: savedChip.wires,
@@ -109,8 +113,7 @@ export function circuitToFlow(circuit: Pick<CircuitChip, "chips" | "ports" | "wi
       })
       .filter((node): node is Node<CircuitChip> => node !== null) || [];
 
-  // console.log("234 nodes", circuit);
-  console.log("234 nodes", nodes);
+  logger.debug({ group: "circuitToFlow", message: `Created ${nodes.length} chip nodes`, data: nodes });
 
   const portNodes: Node<CircuitChip>[] =
     circuit.ports
@@ -142,7 +145,7 @@ export function circuitToFlow(circuit: Pick<CircuitChip, "chips" | "ports" | "wi
       })
       .filter((node): node is Node<CircuitChip> => node !== null) || [];
 
-  console.log("234 portNodes", portNodes);
+  logger.debug({ group: "circuitToFlow", message: `Created ${portNodes.length} port nodes`, data: portNodes });
   const edges: Edge<Wire>[] =
     circuit.wires?.map((wire) => ({
       id: wire.id,
@@ -160,7 +163,8 @@ export function circuitToFlow(circuit: Pick<CircuitChip, "chips" | "ports" | "wi
       },
     })) || [];
 
-  console.log("234 edges", edges);
+  logger.debug({ group: "circuitToFlow", message: `Created ${edges.length} edges`, data: edges });
+
   return {
     nodes: [...nodes, ...portNodes],
     edges,

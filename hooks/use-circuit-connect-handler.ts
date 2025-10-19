@@ -2,6 +2,7 @@ import { type Connection, type Edge, type Node, useReactFlow } from "@xyflow/rea
 import { addEdge } from "@xyflow/react";
 import { useCallback } from "react";
 
+import { logger } from "@/lib/logger";
 import { CircuitChip, NodeType, Wire } from "@/lib/types/chips";
 import { generateId } from "@/lib/utils";
 
@@ -9,7 +10,10 @@ export function useCircuitConnectHandler() {
   const { getNode } = useReactFlow<Node<CircuitChip>, Edge<Wire>>();
   const onConnect = useCallback(
     (params: Connection, setEdges: (updater: (edges: Edge<Wire>[]) => Edge<Wire>[]) => void) => {
-      console.log("onConnect", params);
+      logger.info({
+        group: "useCircuitConnectHandler",
+        message: `Connecting nodes: ${params.source} -> ${params.target}`,
+      });
       const id = generateId();
 
       setEdges((edgesSnapshot: Edge<Wire>[]) => {
@@ -17,13 +21,19 @@ export function useCircuitConnectHandler() {
         let sourcePortId = params.sourceHandle;
 
         const sourceNode = getNode(params.source);
-        console.log("sourceNode", sourceNode);
+        logger.debug({
+          group: "useCircuitConnectHandler",
+          message: `Source node: ${sourceNode?.type} (${params.source})`,
+        });
         if (sourceNode?.type === NodeType.IN) {
           sourcePortId = params.source;
         }
 
         const targetNode = getNode(params.target);
-        console.log("targetNode", targetNode);
+        logger.debug({
+          group: "useCircuitConnectHandler",
+          message: `Target node: ${targetNode?.type} (${params.target})`,
+        });
         if (targetNode?.type === NodeType.OUT) {
           targetPortId = params.target;
         }

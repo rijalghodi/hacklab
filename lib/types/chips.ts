@@ -25,8 +25,7 @@ export type Port = {
 
 export type Chip = {
   id: string;
-  chipType: string; // xyz, 1232, sjjj
-  name?: string;
+  chipType: string;
   value?: boolean;
   position?: {
     x?: number;

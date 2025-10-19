@@ -1,6 +1,7 @@
 import { type Edge, type Node, type NodeProps, Position, useReactFlow } from "@xyflow/react";
 import React from "react";
 
+import { logger } from "@/lib/logger";
 import { CircuitChip, type Wire } from "@/lib/types/chips";
 import { cn, getActiveColor, getBgColor } from "@/lib/utils";
 import { useChips } from "@/hooks";
@@ -25,7 +26,7 @@ export function InNode(props: NodeProps<Node<CircuitChip>>) {
       return;
     }
 
-    console.log("123 in-node data", data);
+    logger.debug({ group: "InNode", message: `Port clicked, current value: ${VALUE}, new value: ${!VALUE}` });
 
     updateNodeData(data.id, {
       // value: !VALUE,

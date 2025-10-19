@@ -11,6 +11,7 @@ import {
 } from "@xyflow/react";
 import React, { useEffect } from "react";
 
+import { logger } from "@/lib/logger";
 import { CircuitChip, type Wire } from "@/lib/types/chips";
 import { getActiveColor, getBorderColor } from "@/lib/utils";
 
@@ -36,13 +37,13 @@ export function WireEdge({
   const node = useNodesData<Node<CircuitChip>>(source);
 
   // const node = getNode(source);
-  console.log("123 wire node", node);
+  logger.debug({ group: "WireEdge", message: `Wire node data: ${JSON.stringify(node?.data)}` });
   const VALUE = node?.data?.ports?.find((port) => port.id === sourceHandleId)?.value;
 
-  console.log("123 VALUE", VALUE);
+  logger.debug({ group: "WireEdge", message: `Wire value: ${VALUE}` });
 
   useEffect(() => {
-    console.log("123 useEffect VALUE", VALUE);
+    logger.debug({ group: "WireEdge", message: `useEffect triggered with VALUE: ${VALUE}` });
     if (!data?.id) {
       return;
     }

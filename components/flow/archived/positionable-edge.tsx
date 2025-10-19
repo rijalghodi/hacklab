@@ -1,12 +1,9 @@
-import {
-  Edge,
-  EdgeProps,
-  getSmoothStepPath,
-  useReactFlow,
-} from "@xyflow/react";
+import { Edge, EdgeProps, getSmoothStepPath, useReactFlow } from "@xyflow/react";
 import React from "react";
 
 import "./positionable-edge.css";
+
+import { logger } from "@/lib/logger";
 
 import ClickableBaseEdge from "./clickable-base-edge";
 
@@ -92,7 +89,10 @@ export default function PositionableEdge({
             reactFlowInstance.setEdges((edges) => {
               const edgeIndex = edges.findIndex((edge) => edge.id === id);
 
-              console.log("edges[edgeIndex]", edges[edgeIndex]);
+              logger.debug({
+                group: "PositionableEdge",
+                message: `Edge at index ${edgeIndex}: ${JSON.stringify(edges[edgeIndex])}`,
+              });
 
               // Defensive: Ensure edgeIndex is valid, edge is defined, and positionHandlers is an array
               if (

@@ -51,7 +51,6 @@ export const notChip: CircuitChip = {
   chipType: "not",
   chips: [
     {
-      name: "NAND",
       id: "not.chip-nand",
       chipType: "nand",
     },
@@ -93,12 +92,10 @@ export const andChip: CircuitChip = {
   name: "AND",
   chips: [
     {
-      name: "NAND",
       id: "and.chip-nand",
       chipType: "nand",
     },
     {
-      name: "NOT",
       id: "and.chip-not",
       chipType: "not",
     },

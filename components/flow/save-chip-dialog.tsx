@@ -9,6 +9,7 @@ import * as z from "zod";
 
 import { HEX_COLOR_REGEX, VALID_HEX_CHARS } from "@/lib/constants/regex";
 import { flowToCircuit } from "@/lib/flow-utils";
+import { logger } from "@/lib/logger";
 import { CircuitChip, Wire } from "@/lib/types/chips";
 import { generateId } from "@/lib/utils";
 import { useSaveChipDialogStore } from "@/hooks/save-chip-dialog-store";
@@ -97,7 +98,7 @@ export function SaveChipDialog() {
         handleClose();
         toast.success("Chip saved");
       } catch (error) {
-        console.error(error);
+        logger.error({ group: "SaveChipDialog", message: `Failed to save chip: ${error}` });
         toast.error("Failed to save chip");
       }
     },

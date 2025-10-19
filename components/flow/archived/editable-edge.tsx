@@ -4,6 +4,7 @@ import React from "react";
 import "./positionable-edge.css";
 
 import { getMultiStepPath } from "@/lib/get-multi-step-path";
+import { logger } from "@/lib/logger";
 
 type PositionableEdgeData = {
   positionHandlers: { x: number; y: number; active?: boolean }[];
@@ -27,8 +28,8 @@ export function EditableEdge({
     // targetPosition,
   });
 
-  console.log("centerPoints", centerPoints);
-  console.log("points", points);
+  logger.debug({ group: "EditableEdge", message: `Center points: ${JSON.stringify(centerPoints)}` });
+  logger.debug({ group: "EditableEdge", message: `Points: ${JSON.stringify(points)}` });
   return (
     <>
       <BaseEdge
