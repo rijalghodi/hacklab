@@ -100,14 +100,18 @@ export function NodeContextMenu({ id, top, left, right, bottom, onClose, viewOnl
   return (
     <DropdownMenu open={!!id} onOpenChange={onClose}>
       <DropdownMenuTrigger className="sr-only fixed" title="Node Context Menu" style={{ top, left, right, bottom }} />
-      <DropdownMenuContent align="start" className="font-mono font-semibold uppercase">
+      <DropdownMenuContent align="start" className="font-mono font-semibold">
         <DropdownMenuLabel>{node?.data.name}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {isIn || isOut ? (
           <>
-            <DropdownMenuItem onClick={renameNode}>Rename</DropdownMenuItem>
-            <DropdownMenuItem onClick={duplicateNode}>Duplicate</DropdownMenuItem>
-            <DropdownMenuItem onClick={deleteNode} variant="destructive">
+            <DropdownMenuItem className="uppercase" onClick={renameNode}>
+              Rename
+            </DropdownMenuItem>
+            <DropdownMenuItem className="uppercase" onClick={duplicateNode}>
+              Duplicate
+            </DropdownMenuItem>
+            <DropdownMenuItem className="uppercase" onClick={deleteNode} variant="destructive">
               Delete
             </DropdownMenuItem>
           </>
@@ -115,17 +119,21 @@ export function NodeContextMenu({ id, top, left, right, bottom, onClose, viewOnl
           <>
             {!isNand && (
               <>
-                <DropdownMenuItem onClick={viewNode}>View</DropdownMenuItem>
+                <DropdownMenuItem className="uppercase" onClick={viewNode}>
+                  View
+                </DropdownMenuItem>
               </>
             )}
             {!viewOnly && (
               <>
-                <DropdownMenuItem onClick={duplicateNode}>Duplicate</DropdownMenuItem>
+                <DropdownMenuItem className="uppercase" onClick={duplicateNode}>
+                  Duplicate
+                </DropdownMenuItem>
               </>
             )}
             {!viewOnly && (
               <>
-                <DropdownMenuItem onClick={deleteNode} variant="destructive">
+                <DropdownMenuItem className="uppercase" onClick={deleteNode} variant="destructive">
                   Delete
                 </DropdownMenuItem>
               </>

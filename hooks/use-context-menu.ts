@@ -33,10 +33,10 @@ export function useContextMenu() {
 
       setMenu({
         id: node.id,
-        top: e.clientY < pane.height - 100 ? e.clientY : undefined,
-        left: e.clientX < pane.width - 100 ? e.clientX : undefined,
-        right: e.clientX >= pane.width - 100 ? 200 : undefined,
-        bottom: e.clientY >= pane.height - 100 ? 200 : undefined,
+        top: e.clientY < pane.bottom - 100 ? e.clientY : undefined,
+        left: e.clientX < pane.right - 100 ? e.clientX : undefined,
+        right: e.clientX >= pane.right - 100 ? 200 : undefined,
+        bottom: e.clientY >= pane.bottom - 100 ? 200 : undefined,
       });
 
       // select the node

@@ -27,7 +27,6 @@ export function CircuitMenu(props: Props) {
   const { open, onOpenChange } = useControllableOpen(props);
   const { openDialog: openSaveChipDialog } = useSaveChipDialogStore();
   const { deleteChipWithConfirm } = useDeleteChipHandler();
-  const { undo, redo, canUndo, canRedo } = props;
 
   const handleNewChip = () => {
     navigateToChip(null);
@@ -54,14 +53,6 @@ export function CircuitMenu(props: Props) {
         <DropdownMenuItem onClick={openSaveChipDialog}>
           Save Chip
           <DropdownMenuShortcut>Ctrl+S</DropdownMenuShortcut>
-        </DropdownMenuItem>
-        <DropdownMenuItem disabled={!canUndo} onClick={undo}>
-          Undo
-          <DropdownMenuShortcut>Ctrl+Z</DropdownMenuShortcut>
-        </DropdownMenuItem>
-        <DropdownMenuItem disabled={!canRedo} onClick={redo}>
-          Redo
-          <DropdownMenuShortcut>Ctrl+Y</DropdownMenuShortcut>
         </DropdownMenuItem>
         <DropdownMenuItem variant="destructive" disabled={!chipType} onClick={handleDeleteChip}>
           Delete Chip

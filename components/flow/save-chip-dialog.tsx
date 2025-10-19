@@ -78,6 +78,11 @@ export function SaveChipDialog() {
     (formData: FormData) => {
       try {
         const newCircuit = flowToCircuit(nodes, edges);
+
+        console.log("------NEW CIRCUIT----------------------------------------------------------------");
+        console.log(newCircuit);
+        console.log("----------------------------------------------------------------------");
+
         if (initialChip) {
           updateSavedChip(initialChip.chipType, {
             ...newCircuit,

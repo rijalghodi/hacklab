@@ -12,13 +12,13 @@ export function useCircuitKeyboardShortcuts(undo?: () => void, redo?: () => void
   const { deleteChipWithConfirm } = useDeleteChipHandler();
 
   useEffect(() => {
+    if (disableShortcuts) return; // Don't add event listeners if shortcuts are disabled
+
     const handleKeyDown = (event: KeyboardEvent) => {
       // Check for Ctrl (Windows/Linux) or Cmd (Mac)
       const isModifierPressed = event.ctrlKey || event.metaKey;
 
       if (!isModifierPressed) return;
-
-      if (disableShortcuts) return;
 
       switch (event.key) {
         case "N":

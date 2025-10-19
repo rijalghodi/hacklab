@@ -1,19 +1,16 @@
 "use client";
 
 import {
-  applyEdgeChanges,
-  applyNodeChanges,
   Background,
   Controls,
   type Edge,
-  EdgeChange,
   type Node,
-  NodeChange,
   Panel,
   ReactFlow,
+  useEdgesState,
+  useNodesState,
 } from "@xyflow/react";
 import React, { useCallback, useEffect } from "react";
-import useUndoable from "use-undoable";
 
 import { circuitToFlow } from "@/lib/flow-utils";
 import { CircuitChip, NodeType, type Wire } from "@/lib/types/chips";
@@ -30,8 +27,8 @@ import {
   RenamePortDialog,
   SaveChipDialog,
   ViewChipDialog,
-  WireEdge,
 } from ".";
+import { WireEdge } from "./wire-edge";
 import { ConfirmDialog } from "../ui";
 
 export const nodeTypes = { [NodeType.CHIP]: ChipNode, [NodeType.IN]: InNode, [NodeType.OUT]: OutNode };
@@ -70,66 +67,73 @@ export function Circuit({
   maxZoom?: number;
   defaultZoom?: number;
 }) {
-  const [elements, setElements, { undo, redo, reset, canUndo, canRedo }] = useUndoable({
-    nodes: [] as Node<CircuitChip>[],
-    edges: [] as Edge<Wire>[],
-  });
+  // const [elements, setElements, { undo, redo, reset, canUndo, canRedo }] = useUndoable({
+  //   nodes: [] as Node<CircuitChip>[],
+  //   edges: [] as Edge<Wire>[],
+  // });
 
-  const triggerUpdate = useCallback(
-    (t: "nodes" | "edges", v: Node<CircuitChip>[] | Edge<Wire>[]) => {
-      // To prevent a mismatch of state updates,
-      // we'll use the value passed into this
-      // function instead of the state directly.
-      setElements((e: { nodes: Node<CircuitChip>[]; edges: Edge<Wire>[] }) => {
-        return {
-          nodes: t === "nodes" ? (v as Node<CircuitChip>[]) : e.nodes,
-          edges: t === "edges" ? (v as Edge<Wire>[]) : e.edges,
-        };
-      });
-    },
-    [setElements],
-  );
+  // const triggerUpdate = useCallback(
+  //   (t: "nodes" | "edges", v: Node<CircuitChip>[] | Edge<Wire>[]) => {
+  //     // To prevent a mismatch of state updates,
+  //     // we'll use the value passed into this
+  //     // function instead of the state directly.
+  //     setElements((e: { nodes: Node<CircuitChip>[]; edges: Edge<Wire>[] }) => {
+  //       return {
+  //         nodes: t === "nodes" ? (v as Node<CircuitChip>[]) : e.nodes,
+  //         edges: t === "edges" ? (v as Edge<Wire>[]) : e.edges,
+  //       };
+  //     });
+  //   },
+  //   [setElements],
+  // );
 
-  const onNodesChange = useCallback(
-    (changes: NodeChange<Node<CircuitChip>>[]) => {
-      triggerUpdate("nodes", applyNodeChanges(changes, elements.nodes));
-    },
-    [triggerUpdate, elements.nodes],
-  );
+  // const onNodesChange = useCallback(
+  //   (changes: NodeChange<Node<CircuitChip>>[]) => {
+  //     triggerUpdate("nodes", applyNodeChanges(changes, elements.nodes));
+  //   },
+  //   [triggerUpdate, elements.nodes],
+  // );
 
-  const onEdgesChange = useCallback(
-    (changes: EdgeChange<Edge<Wire>>[]) => {
-      triggerUpdate("edges", applyEdgeChanges(changes, elements.edges));
-    },
-    [triggerUpdate, elements.edges],
-  );
+  // const onEdgesChange = useCallback(
+  //   (changes: EdgeChange<Edge<Wire>>[]) => {
+  //     triggerUpdate("edges", applyEdgeChanges(changes, elements.edges));
+  //   },
+  //   [triggerUpdate, elements.edges],
+  // );
 
-  const { nodes, edges } = elements;
+  // const { nodes, edges } = elements;
 
-  const setNodes = useCallback(
-    (updater: (nodes: Node<CircuitChip>[]) => Node<CircuitChip>[]) => {
-      setElements((prev: { nodes: Node<CircuitChip>[]; edges: Edge<Wire>[] }) => ({
-        ...prev,
-        nodes: typeof updater === "function" ? updater(prev.nodes) : updater,
-      }));
-    },
-    [setElements],
-  );
+  // const setNodes = useCallback(
+  //   (updater: (nodes: Node<CircuitChip>[]) => Node<CircuitChip>[]) => {
+  //     setElements((prev: { nodes: Node<CircuitChip>[]; edges: Edge<Wire>[] }) => ({
+  //       ...prev,
+  //       nodes: typeof updater === "function" ? updater(prev.nodes) : updater,
+  //     }));
+  //   },
+  //   [setElements],
+  // );
 
-  const setEdges = useCallback(
-    (updater: (edges: Edge<Wire>[]) => Edge<Wire>[]) => {
-      setElements((prev: { nodes: Node<CircuitChip>[]; edges: Edge<Wire>[] }) => ({
-        ...prev,
-        edges: typeof updater === "function" ? updater(prev.edges) : updater,
-      }));
-    },
-    [setElements],
-  );
+  // const setEdges = useCallback(
+  //   (updater: (edges: Edge<Wire>[]) => Edge<Wire>[]) => {
+  //     setElements((prev: { nodes: Node<CircuitChip>[]; edges: Edge<Wire>[] }) => ({
+  //       ...prev,
+  //       edges: typeof updater === "function" ? updater(prev.edges) : updater,
+  //     }));
+  //   },
+  //   [setElements],
+  // );
+
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node<CircuitChip>>([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge<Wire>>([]);
 
   const { ref, menu, onNodeContextMenu, onPaneClick } = useContextMenu();
   const { onConnect } = useCircuitConnectHandler();
   const { onDragOver, onDrop } = useCircuitDndHandler();
-  useCircuitKeyboardShortcuts(undo, redo, disableShortcuts);
+  useCircuitKeyboardShortcuts(
+    () => {},
+    () => {},
+    disableShortcuts,
+  );
 
   const handleNodeContextMenu = useCallback(
     (e: React.MouseEvent, node: Node<CircuitChip>) => {
@@ -140,9 +144,10 @@ export function Circuit({
 
   useEffect(() => {
     if (initialCircuit) {
-      reset();
+      // reset();
       const { nodes, edges } = circuitToFlow(initialCircuit);
-      setElements({ nodes, edges });
+      setNodes(nodes);
+      setEdges(edges);
     }
   }, [initialCircuit]);
 
@@ -196,7 +201,7 @@ export function Circuit({
           <>
             <Panel position="top-left">
               <div className="flex items-center gap-6">
-                <CircuitMenu undo={undo} redo={redo} canUndo={canUndo} canRedo={canRedo} />
+                <CircuitMenu undo={() => {}} redo={() => {}} canUndo={false} canRedo={false} />
                 {showTitle && (
                   <h1 className="font-mono font-bold py-1 text-xl">
                     {" "}

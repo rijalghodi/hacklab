@@ -36,7 +36,7 @@ export default function ChipPage() {
   }, [chipType, currentCircuit]);
 
   return (
-    <div className="h-screen w-full relative">
+    <div className="h-full w-full relative">
       <FlowSidebarTrigger className="absolute top-1/2 -translate-y-1/2 left-4 z-10" />
       <Circuit initialCircuit={currentCircuit} />
     </div>
