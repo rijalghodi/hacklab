@@ -138,4 +138,8 @@
   button {
     @apply cursor-pointer;
   }
+
+  strong {
+    @apply font-semibold text-foreground;
+  }
 }

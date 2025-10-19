@@ -2,21 +2,23 @@ import { ReactFlowProvider } from "@xyflow/react";
 import { BookOpen, Code, Cpu, Eye, Github, Monitor, Play, Settings } from "lucide-react";
 import Link from "next/link";
 
-import { PROJECT_GITHUB_URL } from "@/lib/constants/brand";
+import { BRAND_NAME, PROJECT_GITHUB_URL } from "@/lib/constants/brand";
 
 import { CircuitDemo } from "@/components/flow";
 import { Button } from "@/components/ui/button";
+import { Logo } from "@/components/ui/logo";
 
 export default function Home() {
   return (
     <>
       {/* Header Section */}
       <header className="w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
             <div className="flex items-center space-x-2">
-              <span className="font-mono text-xl font-bold text-foreground">HackLab</span>
+              <Logo className="h-8 w-8" />
+              <span className="font-mono text-xl font-bold text-foreground">{BRAND_NAME}</span>
             </div>
 
             {/* Navigation */}
@@ -36,18 +38,18 @@ export default function Home() {
 
       {/* Hero Section */}
       <section className="px-4 py-20">
-        <div className="mx-auto max-w-6xl">
+        <div className="container mx-auto max-w-7xl">
           <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
             {/* Hero Content */}
             <div className="space-y-12">
               <div className="space-y-8">
                 <h1 className="text-4xl sm:text-5xl leading-snug font-bold tracking-normal text-foreground">
-                  Build Computers from <span className="text-primary">Scratch</span>
+                  Learn How Computers Works from <span className="text-primary">Scratch</span>
                 </h1>
                 <p className="text-lg sm:text-xl leading-relaxed text-muted-foreground">
-                  HackLab is an interactive computer simulation inspired by <em>Nand to Tetris</em>. Learn how computers
-                  work by building them from the ground up, starting with simple NAND gates all the way to a complete
-                  computers.
+                  <strong>{BRAND_NAME}</strong> is an interactive computer simulation inspired by{" "}
+                  <em>Nand to Tetris</em>. Learn how computers work by building them from the ground up, starting with{" "}
+                  <strong>simple NAND gates</strong> all the way to a <strong>complex computer circuits</strong>.
                 </p>
               </div>
               <div className="flex flex-col gap-4 sm:flex-row">
@@ -62,7 +64,7 @@ export default function Home() {
 
             {/* Hero Image */}
             <div className="relative">
-              <div className="flex aspect-[4/3] sm:aspect-[4/3] items-center justify-center rounded-2xl sm:p-6">
+              <div className="flex aspect-[4/3] sm:aspect-[4/3] items-start justify-center rounded-2xl">
                 <ReactFlowProvider>
                   <CircuitDemo />
                 </ReactFlowProvider>
@@ -78,14 +80,14 @@ export default function Home() {
       </section>
       {/* Video Section */}
       <section id="video" className="px-4 py-12">
-        <div className="container mx-auto max-w-6xl">
+        <div className="container mx-auto max-w-7xl">
           <div className="overflow-hidden rounded-2xl border bg-card shadow-sm">
             <div className="flex aspect-[3/4] sm:aspect-video items-center justify-center bg-muted/50">
               <div className="space-y-4 p-8 text-center">
                 <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
                   <Play className="h-10 w-10 text-primary" />
                 </div>
-                <h3 className="text-2xl font-bold leading-snug text-foreground">See HackLab in Action</h3>
+                <h3 className="text-2xl font-bold leading-snug text-foreground">See {BRAND_NAME} in Action</h3>
                 <p className="mx-auto max-w-md text-muted-foreground text-lg leading-relaxed"></p>
                 <Button size="lg" className="mt-4">
                   Watch Demo Video
@@ -95,11 +97,12 @@ export default function Home() {
           </div>
         </div>
       </section>
+
       {/* Features Section */}
       <section id="features" className="px-4 py-20">
-        <div className="container mx-auto max-w-6xl">
+        <div className="container mx-auto max-w-7xl">
           <div className="mb-16 space-y-4 text-center">
-            <h2 className="text-4xl font-bold text-foreground leading-snug">Why HackLab?</h2>
+            <h2 className="text-4xl font-bold text-foreground leading-snug">Why {BRAND_NAME}?</h2>
             <p className="mx-auto max-w-3xl text-lg sm:text-xl text-muted-foreground leading-relaxed">
               Experience computer architecture like never before through hands-on exploration and interactive
               visualization.

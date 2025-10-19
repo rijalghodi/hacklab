@@ -56,8 +56,8 @@ export const metadata: Metadata = {
     title: `${BRAND_NAME} - ${BRAND_TAGLINE}`,
     description: BRAND_DESCRIPTION,
     images: [BRAND_OG_IMAGE],
-    site: "@hacklabio",
-    creator: "@hacklabio",
+    site: "@zalcode_id",
+    creator: "@zalcode_id",
   },
   alternates: {
     canonical: BRAND_URL,
@@ -73,7 +73,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${sans.variable} ${sans.className} ${mono.variable} dark`}>
         {children}
-        <Toaster theme="dark" richColors position="bottom-center" />
+        <Toaster theme="dark" position="bottom-center" />
       </body>
     </html>
   );

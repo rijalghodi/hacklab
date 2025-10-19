@@ -1,9 +1,9 @@
-export const BRAND_NAME = "HackLab";
-export const BRAND_TAGLINE = "Build Computers from Scratch";
+export const BRAND_NAME = "Logic Up";
+export const BRAND_TAGLINE = "Learn How Computers Works from Scratch";
 export const BRAND_DESCRIPTION =
-  "HackLab is an interactive computer simulation inspired by Nand to Tetris. Learn how computers work by building them from the ground up, starting with simple NAND gates all the way to a complete machine capable of running high-level programs.";
+  "Logic Up is an interactive computer simulation inspired by Nand to Tetris. Learn how computers work by building them from the ground up, starting with simple NAND gates all the way to a complete machine capable of running high-level programs.";
 export const BRAND_KEYWORDS = [
-  "HackLab",
+  "Logic Up",
   "Nand to Tetris",
   "Build Computers from Scratch",
   "digital logic",

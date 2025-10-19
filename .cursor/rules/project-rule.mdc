@@ -3,9 +3,9 @@ description: Project Rule
 alwaysApply: false
 ---
 
-## About Project (HackLab)
+## About Project (Logic Up)
 
-HackLab is a web-based computer simulation inspired by the book _Nand to Tetris_. It serves as an interactive laboratory for learning how computers are built, starting from simple NAND gates all the way to a full machine capable of running high-level programs.
+Logic Up is a web-based computer simulation inspired by the book _Nand to Tetris_. It serves as an interactive laboratory for learning how computers are built, starting from simple NAND gates all the way to a full machine capable of running high-level programs.
 
 ## Key Features
 

@@ -13,13 +13,13 @@ export const nandChipDemo: CircuitChip = {
     {
       name: "NAND",
       id: "nand",
-      position: { x: 80, y: 100 },
+      position: { x: 0, y: 0 },
     },
   ],
   ports: [
-    { id: "a", name: "a", type: PortType.IN, position: { x: 0, y: 70 } },
-    { id: "b", name: "b", type: PortType.IN, position: { x: 0, y: 140 } },
-    { id: "out", name: "out", type: PortType.OUT, position: { x: 170, y: 105 } },
+    { id: "a", name: "a", type: PortType.IN, position: { x: -110, y: -40 } },
+    { id: "b", name: "b", type: PortType.IN, position: { x: -110, y: 50 } },
+    { id: "out", name: "out", type: PortType.OUT, position: { x: 90, y: 3 } },
   ],
   wires: [
     {
@@ -49,7 +49,7 @@ export const nandChipDemo: CircuitChip = {
 
 export function CircuitDemo() {
   return (
-    <div className="h-full w-full relative rounded-2xl">
+    <div className="h-full w-full relative">
       <Circuit
         initialCircuit={nandChipDemo}
         viewOnly
@@ -59,6 +59,8 @@ export function CircuitDemo() {
         nodesDraggable={false}
         zoomEnabled={false}
         contextMenuEnabled={false}
+        minZoom={0.5}
+        isFitView={true}
         style={{ "--xy-background-color": "transparent" } as React.CSSProperties}
       />
     </div>
