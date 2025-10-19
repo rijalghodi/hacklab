@@ -35,8 +35,6 @@ export function Hero() {
 
       {/* Hero Image */}
       <div className="container relative mx-auto max-w-7xl border-x border-t px-6 md:px-14 py-12 flex flex-col items-center justify-center">
-        <div className="w-2 h-2 bg-foreground absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2"></div>
-        <div className="w-2 h-2 bg-foreground absolute top-0 right-0 translate-x-1/2 -translate-y-1/2"></div>
         {/* Hero Image */}
         <div className="rounded-2xl overflow-hidden shadow-xl">
           <Image

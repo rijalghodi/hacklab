@@ -84,8 +84,6 @@ export function Features() {
   return (
     <section id="features" className="border-y">
       <div className="relative container mx-auto max-w-7xl border-x px-6 md:px-10 pt-24 pb-20 flex flex-col items-center justify-center">
-        <div className="w-2 h-2 bg-foreground absolute top-0 left-0 -translate-x-1/2 -translate-y-1/2"></div>
-        <div className="w-2 h-2 bg-foreground absolute top-0 right-0 translate-x-1/2 -translate-y-1/2"></div>
         <div className="space-y-4 text-center">
           <h2 className="text-4xl font-bold text-foreground leading-snug">How {BRAND_NAME} Works?</h2>
           <p className="mx-auto max-w-2xl text-base sm:text-lg text-muted-foreground leading-relaxed">
