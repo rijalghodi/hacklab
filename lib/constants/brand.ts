@@ -1,9 +1,9 @@
-export const BRAND_NAME = "Logic Up";
+export const BRAND_NAME = "Logic.up";
 export const BRAND_TAGLINE = "Learn How Computers Works from Scratch";
 export const BRAND_DESCRIPTION =
   "Logic Up is an interactive computer simulation inspired by Nand to Tetris. Learn how computers work by building them from the ground up, starting with simple NAND gates all the way to a complete machine capable of running high-level programs.";
 export const BRAND_KEYWORDS = [
-  "Logic Up",
+  "Logic.up",
   "Nand to Tetris",
   "Build Computers from Scratch",
   "digital logic",

@@ -17,8 +17,8 @@ export const nandChipDemo: CircuitChip = {
     },
   ],
   ports: [
-    { id: "a", name: "a", type: PortType.IN, position: { x: -110, y: -40 } },
-    { id: "b", name: "b", type: PortType.IN, position: { x: -110, y: 50 } },
+    { id: "a", name: "a", type: PortType.IN, position: { x: -110, y: -20 } },
+    { id: "b", name: "b", type: PortType.IN, position: { x: -110, y: 30 } },
     { id: "out", name: "out", type: PortType.OUT, position: { x: 90, y: 3 } },
   ],
   wires: [
@@ -47,11 +47,11 @@ export const nandChipDemo: CircuitChip = {
   definitions: [],
 };
 
-export function CircuitDemo() {
+export function CircuitDemo({ circuit = nandChipDemo }: { circuit?: CircuitChip }) {
   return (
     <div className="h-full w-full relative">
       <Circuit
-        initialCircuit={nandChipDemo}
+        initialCircuit={circuit}
         viewOnly
         showTitle={false}
         withBackground={false}

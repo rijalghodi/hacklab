@@ -1,8 +1,9 @@
-import React from "react";
-import LogoDark from "@/public/logo-dark.png";
-import LogoLight from "@/public/logo-light.png";
-import { BRAND_NAME } from "@/lib/constants/brand";
 import Image from "next/image";
+import React from "react";
+
+import { BRAND_NAME } from "@/lib/constants/brand";
+
+import LogoDark from "@/public/logo-dark.png";
 
 type Props = {
   size?: "default" | "lg";
