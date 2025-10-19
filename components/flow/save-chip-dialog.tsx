@@ -41,12 +41,12 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>;
 
 export function SaveChipDialog() {
-  const { chipId, navigateToChipIdNoConfirm: setChipIdWithoutConfirmation } = useCircuitPageParams();
-  const { addSavedChip, getAllChips, getChipById, updateSavedChip } = useChips();
+  const { chipType, navigateToChipNoConfirm } = useCircuitPageParams();
+  const { addSavedChip, getAllChips, getChip, updateSavedChip } = useChips();
   const allChips = getAllChips();
   const { isOpen, closeDialog } = useSaveChipDialogStore();
 
-  const initialChip = chipId ? getChipById(chipId) : null;
+  const initialChip = chipType ? getChip(chipType) : null;
 
   const nodes = useNodes<Node<CircuitChip>>();
   const edges = useEdges<Edge<Wire>>();
@@ -76,24 +76,23 @@ export function SaveChipDialog() {
   const onSubmit = useCallback(
     (formData: FormData) => {
       try {
-        const newCircuit = flowToCircuit(nodes, edges);
         if (initialChip) {
-          updateSavedChip(initialChip.id, {
-            ...newCircuit,
-            id: initialChip.id,
+          updateSavedChip(initialChip.chipType, {
             name: formData.name,
             color: formData.color,
           });
         } else {
           const newChipId = generateId();
+          const newCircuit = flowToCircuit(nodes, edges);
           addSavedChip({
             ...newCircuit,
             id: newChipId,
+            chipType: newChipId,
             name: formData.name,
             color: formData.color,
           });
 
-          setChipIdWithoutConfirmation(newChipId);
+          navigateToChipNoConfirm(newChipId);
         }
         handleClose();
         toast.success("Chip saved");
@@ -102,7 +101,7 @@ export function SaveChipDialog() {
         toast.error("Failed to save chip");
       }
     },
-    [nodes, edges, handleClose, initialChip, updateSavedChip, addSavedChip, setChipIdWithoutConfirmation],
+    [nodes, edges, handleClose, initialChip, updateSavedChip, addSavedChip, navigateToChipNoConfirm],
   );
 
   return (

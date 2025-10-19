@@ -1,10 +1,11 @@
 import type { CircuitChip } from "../types/chips";
-import { NAND_NAME, NodeType, PortType } from "../types/chips";
+import { NAND_CHIP_TYPE, NAND_NAME, NodeType, PortType } from "../types/chips";
 
 // Input node
 export const inChip: CircuitChip = {
   id: "in",
   name: "IN",
+  chipType: "in",
   color: "#854d0e",
   type: NodeType.IN,
   chips: [],
@@ -17,6 +18,7 @@ export const inChip: CircuitChip = {
 export const outChip: CircuitChip = {
   id: "out",
   name: "OUT",
+  chipType: "out",
   color: "#854d0e",
   type: NodeType.OUT,
   chips: [],
@@ -29,6 +31,7 @@ export const outChip: CircuitChip = {
 export const nandChip: CircuitChip = {
   id: "nand",
   name: NAND_NAME,
+  chipType: NAND_CHIP_TYPE,
   type: NodeType.CHIP,
   chips: [],
   ports: [
@@ -45,10 +48,12 @@ export const nandChip: CircuitChip = {
 export const notChip: CircuitChip = {
   id: "not",
   name: "NOT",
+  chipType: "not",
   chips: [
     {
       name: "NAND",
       id: "not.chip-nand",
+      chipType: "nand",
     },
   ],
   ports: [
@@ -84,15 +89,18 @@ export const notChip: CircuitChip = {
 // AND
 export const andChip: CircuitChip = {
   id: "and",
+  chipType: "and",
   name: "AND",
   chips: [
     {
       name: "NAND",
       id: "and.chip-nand",
+      chipType: "nand",
     },
     {
       name: "NOT",
       id: "and.chip-not",
+      chipType: "not",
     },
   ],
   ports: [
@@ -136,19 +144,20 @@ export const andChip: CircuitChip = {
 // OR
 export const orChip: CircuitChip = {
   id: "or",
+  chipType: "or",
   name: "OR",
   chips: [
     {
-      name: "NOT",
       id: "or.chip-not-a",
+      chipType: "not",
     },
     {
-      name: "NOT",
       id: "or.chip-not-b",
+      chipType: "not",
     },
     {
-      name: "NAND",
       id: "or.chip-nand",
+      chipType: "nand",
     },
   ],
   ports: [
@@ -200,22 +209,23 @@ export const orChip: CircuitChip = {
 export const muxChip: CircuitChip = {
   id: "mux",
   name: "MUX",
+  chipType: "mux",
   chips: [
     {
-      name: "NOT",
       id: "mux.chip-not-sel",
+      chipType: "not",
     },
     {
-      name: "AND",
       id: "mux.chip-and-not-sel-a",
+      chipType: "and",
     },
     {
-      name: "AND",
       id: "mux.chip-and-sel-b",
+      chipType: "and",
     },
     {
-      name: "OR",
       id: "mux.chip-or",
+      chipType: "or",
     },
   ],
   ports: [

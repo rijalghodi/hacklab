@@ -37,12 +37,12 @@ export function ViewChipDialog() {
             <DialogTitle className="text-xl font-bold text-center">Viewing: {chipDef?.name}</DialogTitle>
           </div>
         </DialogHeader>
-        <div className="rounded-2xl overflow-hidden h-full w-full flex-1">
+        <div className="rounded-2xl overflow-hidden h-full w-full flex-1 border shadow-lg">
           <ReactFlowProvider>
             <Circuit
               initialCircuit={chipDef}
               viewOnly={true}
-              withBackground={false}
+              withBackground={true}
               nodesDraggable={false}
               // elementsSelectable={false}
               // contextMenuEnabled={false}

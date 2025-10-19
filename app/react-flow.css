@@ -70,10 +70,10 @@
   --xy-minimap-node-stroke-color-default: transparent;
   --xy-minimap-node-stroke-width-default: 2;
 
-  --xy-background-color-default: var(--color-neutral-800);
-  --xy-background-pattern-dots-color-default: var(--color-neutral-600);
-  --xy-background-pattern-lines-color-default: var(--color-neutral-600);
-  --xy-background-pattern-cross-color-default: var(--color-neutral-600);
+  --xy-background-color-default: var(--color-background);
+  --xy-background-pattern-dots-color-default: var(--color-accent);
+  --xy-background-pattern-lines-color-default: var(--color-accent);
+  --xy-background-pattern-cross-color-default: var(--color-accent);
   --xy-node-color-default: var(--foreground);
   --xy-node-border-color-default: var(--color-yellow-900);
   --xy-node-border-default: 1px solid var(--xy-node-border-color-default);

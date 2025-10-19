@@ -10,20 +10,20 @@ import { CircuitChip, Wire } from "@/lib/types/chips";
 
 import { useConfirmDialogStore } from "./confirm-dialog-store";
 
-export const isChipIdEmpty = (chipId: string | null | undefined) => chipId === "new" || chipId === "";
+export const isChipTypeEmpty = (chipType: string | null | undefined) => chipType === "new" || chipType === "";
 
 export function useCircuitPageParams() {
   const router = useRouter();
-  const { chipId: chipIdParam } = useParams<{ chipId: string }>();
-  const chipId = chipIdParam === "new" ? null : chipIdParam;
+  const { chipType: chipTypeParam } = useParams<{ chipType: string }>();
+  const chipType = chipTypeParam === "new" ? null : chipTypeParam;
   const { openDialog } = useConfirmDialogStore();
   const nodes = useNodes<Node<CircuitChip>>();
   const edges = useEdges<Edge<Wire>>();
   const { setEdges, setNodes } = useReactFlow();
 
   const hasUnsavedChanges = useMemo(() => {
-    if (chipId) {
-      const saved = getSavedChipFromLocalStorage(chipId);
+    if (chipType) {
+      const saved = getSavedChipFromLocalStorage(chipType);
       const current = flowToCircuit(nodes, edges);
       const savedEssential = {
         chips: saved?.chips,
@@ -33,20 +33,20 @@ export function useCircuitPageParams() {
       return !isEqual(savedEssential, current);
     }
     return nodes.length > 0 || edges.length > 0;
-  }, [chipId, nodes, edges]);
+  }, [chipType, nodes, edges]);
 
-  function navigateToChipIdNoConfirm(newChipId: string | null | undefined) {
-    if (!newChipId) {
+  function navigateToChipNoConfirm(newChipType: string | null | undefined) {
+    if (!newChipType) {
       setEdges([]);
       setNodes([]);
     }
-    router.push(`/chips/${newChipId}`);
+    router.push(`/chips/${newChipType}`);
   }
 
-  function navigateToChipId(newChipId: string | null | undefined) {
+  function navigateToChip(newChipType: string | null | undefined) {
     if (!hasUnsavedChanges) {
-      newChipId = !newChipId ? "new" : newChipId;
-      router.push(`/chips/${newChipId}`);
+      newChipType = !newChipType ? "new" : newChipType;
+      router.push(`/chips/${newChipType}`);
       return;
     }
 
@@ -57,14 +57,14 @@ export function useCircuitPageParams() {
       cancelText: "Stay Here",
       variant: "destructive",
       onConfirm: () => {
-        if (!newChipId) {
+        if (!newChipType) {
           setEdges([]);
           setNodes([]);
         }
-        router.push(`/chips/${newChipId}`);
+        router.push(`/chips/${newChipType}`);
       },
     });
   }
 
-  return { chipId, navigateToChipId, navigateToChipIdNoConfirm };
+  return { chipType, navigateToChip, navigateToChipNoConfirm };
 }

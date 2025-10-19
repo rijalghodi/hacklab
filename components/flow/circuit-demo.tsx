@@ -2,17 +2,19 @@
 
 import React from "react";
 
-import { CircuitChip, PortType } from "@/lib/types/chips";
+import { CircuitChip, NAND_CHIP_TYPE, PortType } from "@/lib/types/chips";
 
 import { Circuit } from "./circuit";
 
 export const nandChipDemo: CircuitChip = {
   id: "nand-demo",
   name: "NAND DEMO",
+  chipType: "nand-demo",
   chips: [
     {
       name: "NAND",
       id: "nand",
+      chipType: NAND_CHIP_TYPE,
       position: { x: 0, y: 0 },
     },
   ],

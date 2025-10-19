@@ -10,23 +10,23 @@ import { useChips } from "./use-chips-store";
 import { useCircuitPageParams } from "./use-circuit-page-params";
 
 export function useDeleteChipHandler() {
-  const { navigateToChipId, chipId: chipIdParam } = useCircuitPageParams();
-  const { deleteSavedChip, getChipById } = useChips();
+  const { navigateToChip, chipType: chipTypeParam } = useCircuitPageParams();
+  const { deleteSavedChip, getChip } = useChips();
   const { openDialog: openConfirmDialog } = useConfirmDialogStore();
   const nodes = useNodes<Node<CircuitChip>>();
 
   const deleteChipWithConfirm = useCallback(
-    async (chipId: string) => {
-      if (!chipId) {
+    async (chipType: string) => {
+      if (!chipType) {
         toast.error("Failed to delete chip: No chip ID provided");
         return;
       }
-      const chip = getChipById(chipId);
+      const chip = getChip(chipType);
       if (!chip) {
-        toast.error(`Failed to delete chip '${chipId}': Chip not found`);
+        toast.error(`Failed to delete chip '${chipType}': Chip not found`);
         return;
       }
-      const affectedNodes = nodes.filter((node) => node.data.chips?.some((chip) => chip.id === chipId));
+      const affectedNodes = nodes.filter((node) => node.data.chips?.some((chip) => chip.chipType === chipType));
 
       let description = `Are you sure you want to delete chip "${chip.name}"?`;
 
@@ -52,19 +52,19 @@ export function useDeleteChipHandler() {
         variant: "destructive",
         onConfirm: () => {
           try {
-            deleteSavedChip(chipId);
-            if (chipIdParam && chipIdParam === chipId) {
-              navigateToChipId(null);
+            deleteSavedChip(chipType);
+            if (chipTypeParam && chipTypeParam === chipType) {
+              navigateToChip(null);
             }
           } catch (error) {
             toast.error(
-              `Failed to delete chip '${chipId}': ${error instanceof Error ? error.message : "Unknown error"}`,
+              `Failed to delete chip '${chipType}': ${error instanceof Error ? error.message : "Unknown error"}`,
             );
           }
         },
       });
     },
-    [navigateToChipId, openConfirmDialog, deleteSavedChip, chipIdParam],
+    [navigateToChip, openConfirmDialog, deleteSavedChip, chipTypeParam],
   );
 
   return { deleteChipWithConfirm };

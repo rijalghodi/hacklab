@@ -1,11 +1,7 @@
 import { MenuIcon } from "lucide-react";
 import React from "react";
 
-import {
-  useCircuitPageParams,
-  useControllableOpen,
-  useSaveChipDialogStore,
-} from "@/hooks";
+import { useCircuitPageParams, useControllableOpen, useSaveChipDialogStore } from "@/hooks";
 import { useDeleteChipHandler } from "@/hooks";
 
 import {
@@ -23,18 +19,18 @@ type Props = {
 };
 
 export function CircuitMenu(props: Props) {
-  const { navigateToChipId, chipId } = useCircuitPageParams();
+  const { navigateToChip, chipType } = useCircuitPageParams();
   const { open, onOpenChange } = useControllableOpen(props);
   const { openDialog: openSaveChipDialog } = useSaveChipDialogStore();
   const { deleteChipWithConfirm } = useDeleteChipHandler();
 
   const handleNewChip = () => {
-    navigateToChipId(null);
+    navigateToChip(null);
   };
 
   const handleDeleteChip = () => {
-    if (!chipId) return;
-    deleteChipWithConfirm(chipId);
+    if (!chipType) return;
+    deleteChipWithConfirm(chipType);
   };
 
   return (
@@ -46,15 +42,15 @@ export function CircuitMenu(props: Props) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent side="bottom" align="start" className="font-mono font-semibold w-52 uppercase">
-        <DropdownMenuItem onClick={openSaveChipDialog}>
-          Save Chip
-          <DropdownMenuShortcut>Ctrl+S</DropdownMenuShortcut>
-        </DropdownMenuItem>
         <DropdownMenuItem onClick={handleNewChip}>
           New Chip
           <DropdownMenuShortcut>Ctrl+N</DropdownMenuShortcut>
         </DropdownMenuItem>
-        <DropdownMenuItem variant="destructive" disabled={!chipId} onClick={handleDeleteChip}>
+        <DropdownMenuItem onClick={openSaveChipDialog}>
+          Save Chip
+          <DropdownMenuShortcut>Ctrl+S</DropdownMenuShortcut>
+        </DropdownMenuItem>
+        <DropdownMenuItem variant="destructive" disabled={!chipType} onClick={handleDeleteChip}>
           Delete Chip
           <DropdownMenuShortcut>Ctrl+⌫</DropdownMenuShortcut>
         </DropdownMenuItem>

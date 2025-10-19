@@ -80,7 +80,7 @@ export function Circuit({
   }, [initialCircuit]);
 
   return (
-    <div className="h-full w-full font-mono">
+    <div className="h-full w-full font-mono dark">
       <ReactFlow
         ref={ref}
         nodes={nodes}
@@ -95,7 +95,7 @@ export function Circuit({
           type: "wire",
           interactionWidth: 10,
         }}
-        onDrop={(event) => onDrop(event, setNodes)}
+        onDrop={onDrop}
         onDragOver={onDragOver}
         connectionLineComponent={ConnectionLine}
         onNodeContextMenu={contextMenuEnabled ? (e, node) => onNodeContextMenu(e, node, setNodes) : undefined}
@@ -117,16 +117,18 @@ export function Circuit({
         {menu && contextMenuEnabled && <NodeContextMenu onClose={onPaneClick} {...menu} viewOnly={viewOnly} />}
         {showControls && <Controls />}
 
-        {showTitle && (
-          <Panel position="top-center">
-            <h1 className="font-mono font-bold py-1 text-xl">Chip: {initialCircuit?.name ?? "New Chip"}</h1>
-          </Panel>
-        )}
-
         {!viewOnly && (
           <>
             <Panel position="top-left">
-              <CircuitMenu />
+              <div className="flex items-center gap-6">
+                <CircuitMenu />
+                {showTitle && (
+                  <h1 className="font-mono font-bold py-1 text-xl">
+                    {" "}
+                    {initialCircuit?.name ? `Chip: ${initialCircuit.name}` : "Untitled Chip"}
+                  </h1>
+                )}
+              </div>
             </Panel>
             <RenamePortDialog />
             <SaveChipDialog />

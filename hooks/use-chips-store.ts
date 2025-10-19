@@ -12,10 +12,10 @@ interface ChipsStore {
   savedChips: CircuitChip[];
   setSavedChips: (chips: CircuitChip[]) => void;
   addSavedChip: (chip: CircuitChip) => void;
-  updateSavedChip: (chipId: string, chip: CircuitChip) => void;
+  updateSavedChip: (chipType: string, chip: Partial<CircuitChip>) => void;
   getAllChips: () => CircuitChip[];
-  getChip: (name: string) => CircuitChip | null;
-  getChipById: (id: string) => CircuitChip | null;
+  getChip: (chipType: string) => CircuitChip | null;
+  // getChipById: (id: string) => CircuitChip | null;
   deleteSavedChip: (id: string) => void;
 }
 
@@ -41,23 +41,29 @@ export const useChips = create<ChipsStore>()(
           throw new Error(`Failed to add chip '${chip.name}'`, { cause: error });
         }
       },
-      updateSavedChip: (chipId: string, chip: CircuitChip) => {
+      updateSavedChip: (chipType: string, chip: Partial<CircuitChip>) => {
         try {
+          // find
+          const chipFull = get().savedChips.find((c) => c.chipType === chipType);
+          if (!chipFull) {
+            throw new Error(`Chip '${chipType}' not found`);
+          }
           const cleanChip = {
+            ...chipFull,
             ...chip,
             definitions: undefined, // Remove definitions to avoid circular refs
           };
-          set({ savedChips: get().savedChips.map((c) => (c.id === chipId ? cleanChip : c)) });
+          set({ savedChips: get().savedChips.map((c) => (c.chipType === chipType ? cleanChip : c)) });
         } catch (error) {
-          throw new Error(`Failed to update chip '${chipId}'`, { cause: error });
+          throw new Error(`Failed to update chip '${chipType}'`, { cause: error });
         }
       },
       getAllChips() {
         return [...get().savedChips, ...builtInChips];
       },
-      getChip: (name: string) => {
+      getChip: (chipType: string) => {
         const allChips = [...get().savedChips, ...builtInChips];
-        const chip = allChips.find((chip) => chip.name === name);
+        const chip = allChips.find((chip) => chip.chipType === chipType);
         if (!chip) return null;
 
         // Return a copy with definitions to avoid mutating the original

@@ -1,6 +1,6 @@
 import { BehaviorSubject, combineLatest, map } from "rxjs";
 
-import { CircuitChip, PortType } from "./types/chips";
+import { CircuitChip, NAND_CHIP_TYPE, PortType } from "./types/chips";
 
 /** Base library of primitive gates */
 const baseLibrary: Record<
@@ -36,7 +36,7 @@ export function buildRxjsCircuit(def: CircuitChip): {
   inputs: Record<string, BehaviorSubject<boolean>>;
   outputs: Record<string, BehaviorSubject<boolean>>;
 } {
-  if (def.name === "NAND") {
+  if (def.chipType === NAND_CHIP_TYPE) {
     const nand = baseLibrary["NAND"]();
     return nand;
   }
@@ -55,7 +55,7 @@ export function buildRxjsCircuit(def: CircuitChip): {
   const chips: Record<string, ReturnType<typeof buildRxjsCircuit>> = {};
   for (const chip of def.chips || []) {
     // base gate
-    const base = baseLibrary[chip.name];
+    const base = baseLibrary[chip.chipType];
     if (base) {
       chips[chip.id] = base();
       continue;

@@ -5,7 +5,7 @@ type ViewChipDialogState = {
   nodeStack: string[] | null;
   pushNode: (nodeId: string) => void;
   popNode: () => void;
-  viewChip: (chipName: string) => void;
+  viewChip: (chipType: string) => void;
   closeViewChip: () => void;
 };
 
@@ -20,9 +20,9 @@ export const useViewChipDialogStore = create<ViewChipDialogState>((set) => ({
     set((state) => ({
       nodeStack: state.nodeStack?.slice(0, -1),
     })),
-  viewChip: (chipName: string) => {
+  viewChip: (chipType: string) => {
     set((state) => ({
-      nodeStack: [...(state.nodeStack || []), chipName],
+      nodeStack: [...(state.nodeStack || []), chipType],
       open: true,
     }));
   },

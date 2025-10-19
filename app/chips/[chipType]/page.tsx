@@ -11,16 +11,16 @@ import { FlowSidebarTrigger } from "@/components/flow/flow-sidebar";
 export default function ChipPage() {
   const router = useRouter();
 
-  let { chipId: chipIdParam } = useParams<{ chipId: string }>();
-  const chipId = chipIdParam === "new" ? "" : chipIdParam;
+  let { chipType: chipTypeParam } = useParams<{ chipType: string }>();
+  const chipType = chipTypeParam === "new" ? "" : chipTypeParam;
 
-  const { getChipById } = useChips();
+  const { getChip } = useChips();
   const currentCircuit = useMemo(() => {
     try {
-      if (!chipId) {
+      if (!chipType) {
         return null;
       }
-      const chip = getChipById(chipId);
+      const chip = getChip(chipType);
       if (!chip) {
         return null;
       }
@@ -28,17 +28,18 @@ export default function ChipPage() {
     } catch (_error) {
       return null;
     }
-  }, [chipId]);
+  }, [chipType]);
 
   useEffect(() => {
-    if (chipId && !currentCircuit) {
+    if (chipType && !currentCircuit) {
       router.replace("/chips/new");
     }
-  }, [chipId, currentCircuit]);
+  }, [chipType, currentCircuit]);
 
   return (
-    <div className="h-screen w-full relative bg-red-500">
+    <div className="h-screen w-full relative">
       <FlowSidebarTrigger className="absolute top-1/2 -translate-y-1/2 left-4 z-10" />
+
       <Circuit initialCircuit={currentCircuit} />
     </div>
   );

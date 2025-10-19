@@ -1,5 +1,6 @@
 import { Edge, type Node, useReactFlow } from "@xyflow/react";
 import React, { useCallback } from "react";
+import { toast } from "sonner";
 
 import { CircuitChip, NAND_NAME, NodeType, Wire } from "@/lib/types/chips";
 import { generateId } from "@/lib/utils";
@@ -33,6 +34,11 @@ export function NodeContextMenu({ id, top, left, right, bottom, onClose, viewOnl
   const node = getNode(id);
 
   const duplicateNode = useCallback(() => {
+    if (!node?.data.chipType) {
+      toast.error("Cannot duplicate node with no chip type");
+      return;
+    }
+
     const position = {
       x: (node?.position.x ?? 0) + 50,
       y: (node?.position.y ?? 0) + 50,
@@ -53,6 +59,7 @@ export function NodeContextMenu({ id, top, left, right, bottom, onClose, viewOnl
         ...node?.data,
         id: newId,
         name: newName ?? "",
+        chipType: node?.data.chipType,
         chips: node?.data.chips ?? [],
         wires: node?.data.wires ?? [],
         ports: node?.data.ports ?? [],
@@ -77,8 +84,8 @@ export function NodeContextMenu({ id, top, left, right, bottom, onClose, viewOnl
   }, [id, setNodes, setEdges]);
 
   const viewNode = useCallback(() => {
-    viewChip(node?.data.name ?? "");
-  }, [node?.data.name, viewChip]);
+    viewChip(node?.data.chipType ?? "");
+  }, [node?.data.chipType, viewChip]);
 
   if (!node) return null;
 

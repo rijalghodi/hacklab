@@ -6,7 +6,7 @@ import React, { useCallback, useState } from "react";
 import { builtInChips } from "@/lib/constants/chips";
 import { CircuitChip } from "@/lib/types/chips";
 import { cn, getBgBorderTextColor } from "@/lib/utils";
-import { useChips, useDnd } from "@/hooks";
+import { useChips, useDndStore } from "@/hooks";
 import { useCircuitPageParams } from "@/hooks/use-circuit-page-params";
 import { useDeleteChipHandler } from "@/hooks/use-delete-chip-handler";
 
@@ -24,41 +24,45 @@ import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
-  SidebarHeader,
   SidebarTrigger,
   useSidebar,
 } from "../ui/sidebar";
 
+type ContextChip = {
+  name?: string;
+  chipType: string;
+};
 type ContextMenuState = {
   position: { x: number; y: number };
-  chipName: string;
-  chipId: string;
+  chip: ContextChip;
 };
 
 export function FlowSidebar() {
-  const { setDroppedName } = useDnd();
+  const { setDropped } = useDndStore();
   const { savedChips } = useChips();
-  const { chipId } = useCircuitPageParams();
+  const { chipType } = useCircuitPageParams();
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
 
   // Memoized handlers for better performance
   const handleDragStart = useCallback(
-    (event: React.DragEvent<HTMLDivElement>, nodeName: string) => {
-      setDroppedName(nodeName);
+    (event: React.DragEvent<HTMLDivElement>, chipType: string) => {
+      setDropped(chipType);
       event.dataTransfer.effectAllowed = "move";
     },
-    [setDroppedName],
+    [setDropped],
   );
 
-  const handleContextMenu = useCallback((e: React.MouseEvent, chipName: string, chipId: string) => {
+  const handleContextMenu = useCallback((e: React.MouseEvent, chip: ContextChip) => {
     e.preventDefault();
     setIsMenuOpen(true);
     setContextMenu({
       position: { x: e.clientX, y: e.clientY },
-      chipName,
-      chipId,
+      chip: {
+        name: chip.name,
+        chipType: chip.chipType,
+      },
     });
   }, []);
 
@@ -70,9 +74,8 @@ export function FlowSidebar() {
   }, []);
 
   return (
-    <Sidebar className="react-flow dark">
-      <SidebarHeader />
-      <SidebarContent className="p-1">
+    <Sidebar className="react-flow dark" variant="inset">
+      <SidebarContent className="p-1 rounded-xl overflow-hidden">
         {/* Built-in Chips Section */}
         <SidebarGroup>
           <SidebarGroupLabel className="font-mono uppercase">Built-in Chips</SidebarGroupLabel>
@@ -80,12 +83,11 @@ export function FlowSidebar() {
             <ChipGrid>
               {builtInChips.map((chip) => (
                 <ChipOptionComponent
-                  key={chip.name}
+                  key={chip.chipType}
                   color={chip.color}
                   name={chip.name}
-                  chipId={chip.id}
-                  onDragStart={(e) => handleDragStart(e, chip.name)}
-                  // selected={chip.id === chipId}
+                  chipType={chip.chipType}
+                  onDragStart={(e) => handleDragStart(e, chip.id)}
                 />
               ))}
             </ChipGrid>
@@ -93,7 +95,6 @@ export function FlowSidebar() {
         </SidebarGroup>
 
         {/* Saved Chips Section */}
-
         <SidebarGroup>
           <SidebarGroupLabel className="font-mono uppercase">Saved Chips</SidebarGroupLabel>
           <SidebarGroupContent>
@@ -101,14 +102,14 @@ export function FlowSidebar() {
               <ChipGrid>
                 {savedChips?.map((chip: CircuitChip) => (
                   <ChipOptionComponent
-                    key={chip.name}
+                    key={chip.chipType}
                     color={chip.color}
                     name={chip.name}
-                    chipId={chip.id}
-                    onDragStart={(e) => handleDragStart(e, chip.name)}
+                    chipType={chip.chipType}
+                    onDragStart={(e) => handleDragStart(e, chip.chipType)}
                     onContextMenu={handleContextMenu}
-                    selected={contextMenu?.chipName === chip.name}
-                    disabled={chip.id === chipId}
+                    selected={contextMenu?.chip?.chipType === chip.chipType && !!contextMenu?.chip?.chipType}
+                    disabled={chip.chipType === chipType}
                   />
                 ))}
               </ChipGrid>
@@ -123,8 +124,7 @@ export function FlowSidebar() {
           open={isMenuOpen}
           onOpenChange={handleMenuClose}
           menuPosition={contextMenu?.position}
-          chipName={contextMenu?.chipName}
-          chipId={contextMenu?.chipId}
+          chip={contextMenu?.chip}
         />
       </SidebarContent>
     </Sidebar>
@@ -137,35 +137,38 @@ function ChipGrid({ children }: { children: React.ReactNode }) {
 
 type ChipOptionComponentProps = {
   color?: string;
-  name: string;
-  chipId?: string | null;
+  name?: string;
+  chipType: string;
   onDragStart?: (e: React.DragEvent<HTMLDivElement>) => void;
-  onContextMenu?: (e: React.MouseEvent, chipName: string, chipId: string) => void;
+  onContextMenu?: (e: React.MouseEvent, chip: ContextChip) => void;
   selected?: boolean;
   disabled?: boolean;
-};
+} & Omit<React.ComponentProps<"div">, "onContextMenu">;
 
 function ChipOptionComponent({
   color,
   name,
-  chipId,
+  chipType,
   onDragStart,
   onContextMenu,
   selected,
   disabled,
+  ...props
 }: ChipOptionComponentProps) {
   const handleContextMenu = useCallback(
     (e: React.MouseEvent) => {
-      onContextMenu?.(e, name, chipId ?? "");
+      onContextMenu?.(e, { name, chipType });
     },
-    [onContextMenu, name, chipId],
+    [onContextMenu, name, chipType],
   );
 
   return (
     <div
       data-selected={selected}
       className={cn(
-        "px-2 py-1 font-mono box-border min-w-18 h-10 flex items-center justify-center text-base font-semibold cursor-grab rounded-sm data-[selected=true]:ring-ring/80 data-[selected=true]:ring-3",
+        "px-2 py-1 font-mono box-border min-w-18 h-10 flex items-center justify-center text-base font-semibold cursor-grab rounded-sm",
+        "data-[selected=true]:ring-ring/80 data-[selected=true]:ring-3",
+        "hover:ring-ring/80 hover:ring-3",
         disabled && "opacity-50 cursor-not-allowed",
       )}
       style={getBgBorderTextColor(color)}
@@ -173,6 +176,7 @@ function ChipOptionComponent({
       onContextMenu={handleContextMenu}
       draggable={!disabled}
       title={disabled ? "Cannot add the chip due to cyclic dependency" : ""}
+      {...props}
     >
       {name}
     </div>
@@ -183,22 +187,24 @@ type ChipOptionMenuProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   menuPosition?: { x: number; y: number } | null;
-  chipName?: string | null;
-  chipId?: string | null;
+  chip?: {
+    name?: string;
+    chipType: string;
+  };
 };
 
-function ChipOptionMenu({ open, menuPosition, onOpenChange, chipName, chipId }: ChipOptionMenuProps) {
-  const { navigateToChipId } = useCircuitPageParams();
+function ChipOptionMenu({ open, menuPosition, onOpenChange, chip }: ChipOptionMenuProps) {
+  const { navigateToChip } = useCircuitPageParams();
   const { deleteChipWithConfirm } = useDeleteChipHandler();
 
-  if (!chipName || !chipId) return null;
+  if (!chip?.chipType) return null;
 
   const handleOpen = () => {
-    navigateToChipId(chipId);
+    navigateToChip(chip.chipType);
   };
 
   const handleDelete = () => {
-    deleteChipWithConfirm(chipId);
+    deleteChipWithConfirm(chip.chipType);
   };
 
   return (
@@ -211,7 +217,7 @@ function ChipOptionMenu({ open, menuPosition, onOpenChange, chipName, chipId }: 
         }}
       />
       <DropdownMenuContent className="font-mono font-semibold uppercase" align="start">
-        <DropdownMenuLabel>{chipName}</DropdownMenuLabel>
+        <DropdownMenuLabel>{chip.name || chip.chipType}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleOpen}>Open</DropdownMenuItem>
         <DropdownMenuItem variant="destructive" onClick={handleDelete}>

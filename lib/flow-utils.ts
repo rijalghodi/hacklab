@@ -31,6 +31,7 @@ export function flowToCircuit(
     .map((node) => ({
       id: node.id,
       name: node.data.name,
+      chipType: node.data.chipType,
       position: getValidPosition(node.position),
     }));
 
@@ -40,6 +41,7 @@ export function flowToCircuit(
       id: node.data.id,
       name: node.data.name,
       type: node.type === NodeType.IN ? PortType.IN : PortType.OUT,
+      chipType: node.data.chipType,
       position: getValidPosition(node.position),
     }));
 
@@ -97,6 +99,7 @@ export function circuitToFlow(circuit: Pick<CircuitChip, "chips" | "ports" | "wi
           data: {
             id: chip.id,
             name: chip.name,
+            chipType: savedChip.chipType,
             chips: savedChip.chips,
             wires: savedChip.wires,
             ports: savedChip.ports,
@@ -123,6 +126,7 @@ export function circuitToFlow(circuit: Pick<CircuitChip, "chips" | "ports" | "wi
             id: port.id,
             name: port.name,
             type: nodeType,
+            chipType: nodeType,
             value: port.value,
             ports: [
               {
@@ -178,7 +182,7 @@ export function getSavedChipsFromLocalStorage(): CircuitChip[] {
   return [];
 }
 
-export function getSavedChipFromLocalStorage(chipId: string): CircuitChip | null {
+export function getSavedChipFromLocalStorage(chipType: string): CircuitChip | null {
   const savedChips = getSavedChipsFromLocalStorage();
-  return savedChips.find((chip) => chip.id === chipId) || null;
+  return savedChips.find((chip) => chip.chipType === chipType) || null;
 }

@@ -2,11 +2,11 @@
 
 import { create } from "zustand";
 interface DndStore {
-  droppedName: string;
-  setDroppedName: (name: string) => void;
+  dropped: string | null;
+  setDropped: (dropped: string | null) => void;
 }
 
-export const useDnd = create<DndStore>((set) => ({
-  droppedName: "",
-  setDroppedName: (name: string) => set({ droppedName: name }),
+export const useDndStore = create<DndStore>((set) => ({
+  dropped: null,
+  setDropped: (dropped: string | null) => set({ dropped }),
 }));

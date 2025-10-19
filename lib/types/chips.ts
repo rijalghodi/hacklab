@@ -1,4 +1,5 @@
 export const NAND_NAME = "NAND";
+export const NAND_CHIP_TYPE = "nand";
 
 export enum PortType {
   IN = "in",
@@ -13,7 +14,7 @@ export enum NodeType {
 
 export type Port = {
   id: string;
-  name: string;
+  name?: string;
   type: PortType;
   value?: boolean;
   position?: {
@@ -24,8 +25,8 @@ export type Port = {
 
 export type Chip = {
   id: string;
-  name: string;
-  // type?: NodeType;
+  chipType: string; // xyz, 1232, sjjj
+  name?: string;
   value?: boolean;
   position?: {
     x?: number;
@@ -45,7 +46,8 @@ export type Wire = {
 
 export type CircuitChip = {
   id: string;
-  name: string;
+  chipType: string; // must unique
+  name: string; // must unique
   type?: NodeType;
   color?: string;
   chips?: Chip[];

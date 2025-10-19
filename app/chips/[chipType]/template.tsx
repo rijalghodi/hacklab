@@ -15,10 +15,7 @@ export default function ChipTemplate({ children }: Props) {
       <ReactFlowProvider>
         <SidebarProvider>
           <FlowSidebar />
-          <SidebarInset>
-            {/* <SidebarTrigger /> */}
-            {children}
-          </SidebarInset>
+          <SidebarInset>{children}</SidebarInset>
         </SidebarProvider>
       </ReactFlowProvider>
     </div>

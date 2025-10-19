@@ -5,7 +5,7 @@ import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { toast } from "sonner";
 
 import { buildRxjsCircuit } from "@/lib/circuit-rxjs-builder";
-import { tryCatchSync } from "@/lib/try-catch";
+import { tryCatch } from "@/lib/try-catch";
 import { CircuitChip, PortType, Wire } from "@/lib/types/chips";
 import { cn, getBgBorderTextColor } from "@/lib/utils";
 import { useChips } from "@/hooks";
@@ -44,17 +44,21 @@ export function ChipNode(props: NodeProps<Node<CircuitChip>>) {
     return Object.values(portEdgeMap);
   }, [edges, data.id]);
 
-  const circuitChip = useMemo(() => getChip(data.name), [data.name]);
+  const circuitChip = useMemo(() => getChip(data.chipType), [data.chipType]);
 
   // Build circuit once
   const circuitInstance = useMemo(() => {
     if (!circuitChip) {
-      toast.error(`No chip definition for '${data.name}'`);
+      toast.error(`No chip definition for '${data.chipType}'`);
       return null;
     }
-    const [circuitInstance, error] = tryCatchSync(() => buildRxjsCircuit(circuitChip));
+    const [circuitInstance, error] = tryCatch(() => buildRxjsCircuit(circuitChip));
     if (error) {
       toast.error(`Failed to build circuit instance for chip '${data.name}': ${error.message}`);
+      return null;
+    }
+    if (!circuitInstance) {
+      toast.error(`Failed to build circuit instance for chip '${data.name}'`);
       return null;
     }
     return circuitInstance;
@@ -150,7 +154,7 @@ export function ChipNode(props: NodeProps<Node<CircuitChip>>) {
         <PortHandle
           key={port.id}
           id={port.id}
-          name={port.name}
+          name={port.name ?? port.type}
           active={port.value}
           type="target"
           position={Position.Left}
@@ -167,7 +171,7 @@ export function ChipNode(props: NodeProps<Node<CircuitChip>>) {
         <PortHandle
           key={port.id}
           id={port.id}
-          name={port.name}
+          name={port.name ?? port.type}
           active={port.value}
           type="source"
           position={Position.Right}

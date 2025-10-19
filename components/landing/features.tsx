@@ -92,7 +92,7 @@ export function Features() {
           </p>
         </div>
       </div>
-      <div className="container mx-auto max-w-7xl border-x border-t grid grid-cols-2">
+      <div className="container mx-auto max-w-7xl border-x border-t grid grid-cols-1 lg:grid-cols-2">
         <div className="flex flex-col relative">
           {FEATURES.map((feature, idx) => (
             <FeatureCard
