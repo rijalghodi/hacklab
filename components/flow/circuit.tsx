@@ -1,20 +1,24 @@
 "use client";
 
 import {
+  applyEdgeChanges,
+  applyNodeChanges,
   Background,
   Controls,
   type Edge,
+  EdgeChange,
   type Node,
+  NodeChange,
   Panel,
   ReactFlow,
-  useEdgesState,
-  useNodesState,
 } from "@xyflow/react";
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
+import useUndoable from "use-undoable";
 
 import { circuitToFlow } from "@/lib/flow-utils";
 import { CircuitChip, NodeType, type Wire } from "@/lib/types/chips";
 import { useCircuitConnectHandler, useCircuitDndHandler, useContextMenu } from "@/hooks";
+import { useCircuitKeyboardShortcuts } from "@/hooks/use-circuit-keyboard-shortcuts";
 
 import {
   ChipNode,
@@ -64,18 +68,78 @@ export function Circuit({
   maxZoom?: number;
   defaultZoom?: number;
 }) {
-  const [nodes, setNodes, onNodesChange] = useNodesState<Node<CircuitChip>>([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState<Edge<Wire>>([]);
+  const [elements, setElements, { undo, redo, canUndo, canRedo }] = useUndoable({
+    nodes: [] as Node<CircuitChip>[],
+    edges: [] as Edge<Wire>[],
+  });
+
+  const triggerUpdate = useCallback(
+    (t: "nodes" | "edges", v: Node<CircuitChip>[] | Edge<Wire>[]) => {
+      // To prevent a mismatch of state updates,
+      // we'll use the value passed into this
+      // function instead of the state directly.
+      setElements((e: { nodes: Node<CircuitChip>[]; edges: Edge<Wire>[] }) => {
+        return {
+          nodes: t === "nodes" ? (v as Node<CircuitChip>[]) : e.nodes,
+          edges: t === "edges" ? (v as Edge<Wire>[]) : e.edges,
+        };
+      });
+    },
+    [setElements],
+  );
+
+  const onNodesChange = useCallback(
+    (changes: NodeChange<Node<CircuitChip>>[]) => {
+      triggerUpdate("nodes", applyNodeChanges(changes, elements.nodes));
+    },
+    [triggerUpdate, elements.nodes],
+  );
+
+  const onEdgesChange = useCallback(
+    (changes: EdgeChange<Edge<Wire>>[]) => {
+      triggerUpdate("edges", applyEdgeChanges(changes, elements.edges));
+    },
+    [triggerUpdate, elements.edges],
+  );
+
+  const { nodes, edges } = elements;
+
+  const setNodes = useCallback(
+    (updater: (nodes: Node<CircuitChip>[]) => Node<CircuitChip>[]) => {
+      setElements((prev: { nodes: Node<CircuitChip>[]; edges: Edge<Wire>[] }) => ({
+        ...prev,
+        nodes: typeof updater === "function" ? updater(prev.nodes) : updater,
+      }));
+    },
+    [setElements],
+  );
+
+  const setEdges = useCallback(
+    (updater: (edges: Edge<Wire>[]) => Edge<Wire>[]) => {
+      setElements((prev: { nodes: Node<CircuitChip>[]; edges: Edge<Wire>[] }) => ({
+        ...prev,
+        edges: typeof updater === "function" ? updater(prev.edges) : updater,
+      }));
+    },
+    [setElements],
+  );
 
   const { ref, menu, onNodeContextMenu, onPaneClick } = useContextMenu();
   const { onConnect } = useCircuitConnectHandler();
   const { onDragOver, onDrop } = useCircuitDndHandler();
+  useCircuitKeyboardShortcuts(undo, redo);
+
+  const handleNodeContextMenu = useCallback(
+    (e: React.MouseEvent, node: Node<CircuitChip>) => {
+      onNodeContextMenu(e, node, setNodes);
+    },
+    [onNodeContextMenu, setNodes],
+  );
 
   useEffect(() => {
     if (initialCircuit) {
       const { nodes, edges } = circuitToFlow(initialCircuit);
-      setNodes(nodes);
-      setEdges(edges);
+      setElements({ nodes, edges });
     }
   }, [initialCircuit]);
 
@@ -98,8 +162,19 @@ export function Circuit({
         onDrop={onDrop}
         onDragOver={onDragOver}
         connectionLineComponent={ConnectionLine}
-        onNodeContextMenu={contextMenuEnabled ? (e, node) => onNodeContextMenu(e, node, setNodes) : undefined}
+        onNodeContextMenu={contextMenuEnabled ? handleNodeContextMenu : undefined}
+        // onNodeDragStop={(_, node) =>
+        //   setElements((els) => ({
+        //     ...els,
+        //     nodes: els.nodes.map((e) => (e.id === node.id ? { ...e, position: node.position } : e)),
+        //   }))
+        // }
+        /* colorMode and proOptions are not valid ReactFlow props,
+           so they have been removed. */
         colorMode="dark"
+        proOptions={{
+          hideAttribution: true,
+        }}
         maxZoom={maxZoom}
         minZoom={minZoom}
         defaultViewport={{ x: 0, y: 0, zoom: defaultZoom }}
@@ -109,9 +184,6 @@ export function Circuit({
         zoomOnScroll={zoomEnabled}
         zoomOnDoubleClick={zoomEnabled}
         style={style}
-        proOptions={{
-          hideAttribution: true,
-        }}
       >
         {withBackground && <Background gap={10} />}
         {menu && contextMenuEnabled && <NodeContextMenu onClose={onPaneClick} {...menu} viewOnly={viewOnly} />}
@@ -121,7 +193,7 @@ export function Circuit({
           <>
             <Panel position="top-left">
               <div className="flex items-center gap-6">
-                <CircuitMenu />
+                <CircuitMenu undo={undo} redo={redo} canUndo={canUndo} canRedo={canRedo} />
                 {showTitle && (
                   <h1 className="font-mono font-bold py-1 text-xl">
                     {" "}

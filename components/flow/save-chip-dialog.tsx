@@ -47,7 +47,7 @@ export function SaveChipDialog() {
   const allChips = getAllChips();
   const { isOpen, closeDialog } = useSaveChipDialogStore();
 
-  const initialChip = chipType ? getChip(chipType) : null;
+  const initialChip = React.useMemo(() => (chipType && isOpen ? getChip(chipType) : null), [chipType, getChip, isOpen]);
 
   const nodes = useNodes<Node<CircuitChip>>();
   const edges = useEdges<Edge<Wire>>();
@@ -67,7 +67,7 @@ export function SaveChipDialog() {
         form.setValue("color", initialChip.color);
       }
     }
-  }, [initialChip, form]);
+  }, [initialChip]);
 
   const handleClose = () => {
     closeDialog();
@@ -205,7 +205,7 @@ export function SaveChipDialog() {
                 Customize
               </Button> */}
               <Button type="submit" variant="accent" className="flex-1 uppercase">
-                Save Chip
+                Save
               </Button>
             </DialogFooter>
           </form>

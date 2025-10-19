@@ -12,9 +12,8 @@ export const nandChipDemo: CircuitChip = {
   chipType: "nand-demo",
   chips: [
     {
-      name: "NAND",
-      id: "nand",
       chipType: NAND_CHIP_TYPE,
+      id: "nand",
       position: { x: 0, y: 0 },
     },
   ],
