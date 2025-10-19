@@ -70,7 +70,7 @@ export function Circuit({
   maxZoom?: number;
   defaultZoom?: number;
 }) {
-  const [elements, setElements, { undo, redo, canUndo, canRedo }] = useUndoable({
+  const [elements, setElements, { undo, redo, reset, canUndo, canRedo }] = useUndoable({
     nodes: [] as Node<CircuitChip>[],
     edges: [] as Edge<Wire>[],
   });
@@ -140,6 +140,7 @@ export function Circuit({
 
   useEffect(() => {
     if (initialCircuit) {
+      reset();
       const { nodes, edges } = circuitToFlow(initialCircuit);
       setElements({ nodes, edges });
     }
