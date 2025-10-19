@@ -1,7 +1,5 @@
 "use client";
 
-
-
 import { ReactFlowProvider } from "@xyflow/react";
 
 import { andChip, orChip } from "@/lib/constants/chips";
@@ -55,7 +53,7 @@ export function Examples() {
             <TabsContent
               key={example.id}
               value={example.id.toString()}
-              className="w-full aspect-video border rounded-2xl relative"
+              className="w-full aspect-video border rounded-2xl relative overflow-hidden"
             >
               <ReactFlowProvider>
                 <Circuit
@@ -64,10 +62,11 @@ export function Examples() {
                   showTitle={false}
                   showControls={false}
                   contextMenuEnabled={false}
+                  disableShortcuts={true}
                   minZoom={0.5}
                   maxZoom={2}
                   isFitView={true}
-                  style={{ "--xy-background-color": "transparent" } as React.CSSProperties}
+                  // style={{ "--xy-background-color": "transparent" } as React.CSSProperties}
                 />
               </ReactFlowProvider>
             </TabsContent>

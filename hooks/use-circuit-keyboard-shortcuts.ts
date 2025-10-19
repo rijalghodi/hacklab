@@ -6,7 +6,7 @@ import { useSaveChipDialogStore } from "./save-chip-dialog-store";
 import { useCircuitPageParams } from "./use-circuit-page-params";
 import { useDeleteChipHandler } from "./use-delete-chip-handler";
 
-export function useCircuitKeyboardShortcuts(undo?: () => void, redo?: () => void) {
+export function useCircuitKeyboardShortcuts(undo?: () => void, redo?: () => void, disableShortcuts?: boolean) {
   const { navigateToChip, chipType } = useCircuitPageParams();
   const { openDialog: openSaveChipDialog } = useSaveChipDialogStore();
   const { deleteChipWithConfirm } = useDeleteChipHandler();
@@ -17,6 +17,8 @@ export function useCircuitKeyboardShortcuts(undo?: () => void, redo?: () => void
       const isModifierPressed = event.ctrlKey || event.metaKey;
 
       if (!isModifierPressed) return;
+
+      if (disableShortcuts) return;
 
       switch (event.key) {
         case "N":
@@ -58,5 +60,5 @@ export function useCircuitKeyboardShortcuts(undo?: () => void, redo?: () => void
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [navigateToChip, openSaveChipDialog, deleteChipWithConfirm, chipType, undo, redo]);
+  }, [navigateToChip, openSaveChipDialog, deleteChipWithConfirm, chipType, undo, redo, disableShortcuts]);
 }

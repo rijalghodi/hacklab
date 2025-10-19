@@ -47,6 +47,7 @@ export function Circuit({
   nodesDraggable = true,
   zoomEnabled = true,
   contextMenuEnabled = true,
+  disableShortcuts = false,
   style = {},
   isFitView = false,
   minZoom = 1,
@@ -62,6 +63,7 @@ export function Circuit({
   nodesDraggable?: boolean;
   zoomEnabled?: boolean;
   contextMenuEnabled?: boolean;
+  disableShortcuts?: boolean;
   style?: React.CSSProperties;
   isFitView?: boolean;
   minZoom?: number;
@@ -127,7 +129,7 @@ export function Circuit({
   const { ref, menu, onNodeContextMenu, onPaneClick } = useContextMenu();
   const { onConnect } = useCircuitConnectHandler();
   const { onDragOver, onDrop } = useCircuitDndHandler();
-  useCircuitKeyboardShortcuts(undo, redo);
+  useCircuitKeyboardShortcuts(undo, redo, disableShortcuts);
 
   const handleNodeContextMenu = useCallback(
     (e: React.MouseEvent, node: Node<CircuitChip>) => {
