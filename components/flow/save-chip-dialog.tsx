@@ -126,14 +126,9 @@ export function SaveChipDialog() {
                     <Input
                       placeholder="Enter chip name"
                       {...field}
+                      maxLength={MAX_CHIP_NAME_LENGTH}
                       onChange={(e) => {
                         const name = e.target.value;
-                        if (name.length > MAX_CHIP_NAME_LENGTH + 1) {
-                          form.setError("name", {
-                            message: `Chip name must be less than ${MAX_CHIP_NAME_LENGTH} characters`,
-                          });
-                          return;
-                        }
                         field.onChange(name);
                         const isDuplicateChip = allChips.some((chip) => chip.name === name);
                         if (isDuplicateChip) {
@@ -186,10 +181,6 @@ export function SaveChipDialog() {
                           }
 
                           if (HEX_COLOR_REGEX.test(processedInput) && input.length > processedInput.length) {
-                            return;
-                          }
-
-                          if (processedInput.length > 7) {
                             return;
                           }
 

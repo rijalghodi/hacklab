@@ -26,8 +26,12 @@ import {
   Input,
 } from "@/components/ui";
 
+const MAX_PORT_NAME_LENGTH = 16;
 const formSchema = z.object({
-  name: z.string().min(1, "Port name is required").max(50, "Port name must be less than 50 characters"),
+  name: z
+    .string()
+    .min(1, "Port name is required")
+    .max(MAX_PORT_NAME_LENGTH, `Port name must be less than ${MAX_PORT_NAME_LENGTH} characters`),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -96,7 +100,7 @@ export function RenamePortDialog() {
                 <FormItem>
                   <FormLabel>Port Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter port name" {...field} />
+                    <Input placeholder="Enter port name" {...field} maxLength={MAX_PORT_NAME_LENGTH} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

@@ -16,7 +16,7 @@ interface ChipsStore {
   getAllChips: () => CircuitChip[];
   getChip: (chipType: string) => CircuitChip | null;
   // getChipById: (id: string) => CircuitChip | null;
-  deleteSavedChip: (id: string) => void;
+  deleteSavedChip: (chipType: string) => void;
 }
 
 export const useChips = create<ChipsStore>()(
@@ -83,15 +83,15 @@ export const useChips = create<ChipsStore>()(
           definitions: allChips,
         };
       },
-      deleteSavedChip: (id: string) => {
+      deleteSavedChip: (chipType: string) => {
         try {
           // delete chip from other chips definitions
-          const chips = get().savedChips.filter((c) => c.id !== id);
+          const chips = get().savedChips.filter((c) => c.chipType !== chipType);
           const newChips: CircuitChip[] = [];
 
           for (const circuit of chips) {
-            const newCircuitChips = circuit.chips?.filter((c) => c.id !== id);
-            const newCircuitWires = circuit.wires?.filter((w) => w.sourceId !== id && w.targetId !== id);
+            const newCircuitChips = circuit.chips?.filter((c) => c.chipType !== chipType);
+            const newCircuitWires = circuit.wires?.filter((w) => w.sourceId !== chipType && w.targetId !== chipType);
             newChips.push({
               ...circuit,
               chips: newCircuitChips,
@@ -101,7 +101,7 @@ export const useChips = create<ChipsStore>()(
 
           set({ savedChips: newChips });
         } catch (error) {
-          throw new Error(`Failed to delete chip '${id}'`, { cause: error });
+          throw new Error(`Failed to delete chip '${chipType}'`, { cause: error });
         }
       },
     }),
