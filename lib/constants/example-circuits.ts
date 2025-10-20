@@ -1,10 +1,10 @@
 import { NAND_CHIP_TYPE, PortType } from "../types/chips";
 import { CircuitChip } from "../types/chips";
 
-export const nandChipDemo: CircuitChip = {
-  id: "nand-demo",
+export const nandChip: CircuitChip = {
+  id: "abcdefgh",
   name: "NAND DEMO",
-  chipType: "nand-demo",
+  chipType: "abcdefgh",
   chips: [
     {
       chipType: NAND_CHIP_TYPE,
@@ -162,7 +162,7 @@ export const andChip: CircuitChip = {
       position: { x: 556.5, y: 228.5 },
     },
   ],
-  definitions: [],
+  definitions: [notChip],
 };
 
 export const orChip: CircuitChip = {
@@ -256,7 +256,7 @@ export const orChip: CircuitChip = {
       position: { x: 642, y: 237.5 },
     },
   ],
-  definitions: [],
+  definitions: [notChip, andChip],
 };
 
 export const xorChip: CircuitChip = {
@@ -376,7 +376,7 @@ export const xorChip: CircuitChip = {
       position: { x: 623.5, y: 209.5 },
     },
   ],
-  definitions: [],
+  definitions: [andChip, orChip, notChip],
 };
 
 export const halfAdderChip: CircuitChip = {
@@ -466,7 +466,7 @@ export const halfAdderChip: CircuitChip = {
       position: { x: 417.5, y: 227 },
     },
   ],
-  definitions: [],
+  definitions: [xorChip, andChip, orChip, notChip],
 };
 
 export const fullAdderChip: CircuitChip = {
@@ -581,5 +581,5 @@ export const fullAdderChip: CircuitChip = {
       position: { x: 577, y: 247 },
     },
   ],
-  definitions: [],
+  definitions: [halfAdderChip, andChip, orChip, notChip, xorChip],
 };

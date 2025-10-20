@@ -127,9 +127,9 @@ export class CircuitSimple {
 
     return (inputs: Record<string, boolean>) => {
       // Initialize all internal values
+      // const chipValues: Record<string, Record<string, boolean>> = {};
       const chipValues: Record<string, Record<string, boolean>> = {};
-      const chipValues2: Record<string, Record<string, boolean>> = {};
-      logger.debug({ group: "CircuitSimple", message: `Initial chip values 123`, data: { chipValues, chipValues2 } });
+      logger.debug({ group: "CircuitSimple", message: `Initial chip values`, data: { chipValues: chipValues } });
 
       const ports = this.circuitDef.ports || [];
       const portValuesInitial: Record<string, boolean> = Object.fromEntries(ports.map((port) => [port.id, false]));
@@ -141,13 +141,13 @@ export class CircuitSimple {
       // Initialize chip values
       for (const chip of this.circuitDef.chips || []) {
         // chipValues[chip.id] = {};
-        chipValues2[chip.id] = {};
+        chipValues[chip.id] = {};
       }
 
       logger.debug({
         group: "CircuitSimple",
         message: `After initializing chip values`,
-        data: { chipValues, chipValues2, this: this.circuitDef.chips },
+        data: { chipValues: chipValues, this: this.circuitDef.chips },
       });
 
       // Process wires to propagate values
@@ -158,16 +158,24 @@ export class CircuitSimple {
         if (portValues[wire.sourceId] !== undefined) {
           // Source is a top-level port
           sourceValue = portValues[wire.sourceId];
-          logger.debug({ group: "CircuitSimple", message: `Source is a top-level port`, data: { wire, portValues } });
-        } else if (chipValues2[wire.sourceId] !== undefined && wire.sourcePortId) {
+          logger.debug({
+            group: "CircuitSimple",
+            message: `Source ${wire.sourceId} is a top-level port`,
+            data: { wire, portValues, sourceValue },
+          });
+        } else if (chipValues[wire.sourceId] !== undefined && wire.sourcePortId) {
           // Source is from a chip output
-          sourceValue = chipValues2[wire.sourceId][wire.sourcePortId] || false;
-          logger.debug({ group: "CircuitSimple", message: `Source is from a chip output`, data: { wire, chipValues } });
+          sourceValue = chipValues[wire.sourceId][wire.sourcePortId];
+          logger.debug({
+            group: "CircuitSimple",
+            message: `Source ${wire.sourceId}.${wire.sourcePortId} is from a chip output`,
+            data: { wire, chipValues: chipValues, sourceValue },
+          });
         } else {
           logger.error({
             group: "CircuitSimple",
             message: `Invalid source sourceId: ${wire.sourceId} sourcePortId: ${wire.sourcePortId}`,
-            data: { wire, portValues, chipValues },
+            data: { wire, portValues, chipValues: chipValues },
           });
           throw new Error(`Invalid source: ${wire.sourceId}`);
         }
@@ -176,20 +184,24 @@ export class CircuitSimple {
         if (portValues[wire.targetId] !== undefined) {
           // Target is a top-level port
           portValues[wire.targetId] = sourceValue;
-          logger.debug({ group: "CircuitSimple", message: `Target is a top-level port`, data: { wire, portValues } });
-        } else if (chipValues2[wire.targetId] !== undefined && wire.targetPortId) {
-          // Target is a chip input
-          chipValues2[wire.targetId][wire.targetPortId] = sourceValue;
           logger.debug({
             group: "CircuitSimple",
-            message: `Target is a chip input`,
-            data: { wire, chipValues, chipValues2 },
+            message: `Target ${wire.targetId} is a top-level port`,
+            data: { wire, portValues, sourceValue },
+          });
+        } else if (chipValues[wire.targetId] !== undefined && wire.targetPortId) {
+          // Target is a chip input
+          chipValues[wire.targetId][wire.targetPortId] = sourceValue;
+          logger.debug({
+            group: "CircuitSimple",
+            message: `Target ${wire.targetId}.${wire.targetPortId} is a chip input`,
+            data: { wire, chipValues: chipValues, sourceValue },
           });
         } else {
           logger.error({
             group: "CircuitSimple",
             message: `Invalid target targetId: ${wire.targetId} targetPortId: ${wire.targetPortId}`,
-            data: { wire, portValues, chipValues, chipValues2 },
+            data: { wire, portValues, chipValues: chipValues },
           });
           throw new Error(`Invalid target: ${wire.targetId}`);
         }
@@ -198,7 +210,7 @@ export class CircuitSimple {
       logger.debug({
         group: "CircuitSimple",
         message: `Before evaluating chips`,
-        data: { portValues, chipValues, chipValues2 },
+        data: { portValues, chipValues: chipValues },
       });
 
       // Evaluate all chips
@@ -209,44 +221,67 @@ export class CircuitSimple {
         for (const wire of this.circuitDef.wires || []) {
           if (wire.targetId === chip.id && wire.targetPortId) {
             // Get the value that was propagated to this chip input
-            chipInputs[wire.targetPortId] = chipValues2[chip.id][wire.targetPortId] || false;
+            chipInputs[wire.targetPortId] = chipValues[chip.id][wire.targetPortId] || false;
           }
         }
 
-        // Evaluate chip
-        chipValues2[chip.id] = chipEvaluators[chip.id](chipInputs);
+        // Evaluate chip and preserve input values
+        const chipOutputs = chipEvaluators[chip.id](chipInputs);
+        chipValues[chip.id] = { ...chipValues[chip.id], ...chipOutputs };
         logger.debug({
           group: "CircuitSimple",
           message: `Evaluated chip ${chip.id}`,
-          data: { inputs: chipInputs, outputs: chipValues2[chip.id] },
+          data: { inputs: chipInputs, outputs: chipOutputs, chipValues },
         });
       }
 
-      logger.info({ group: "CircuitSimple", message: `After evaluating chips`, data: { chipValues, chipValues2 } });
+      logger.info({ group: "CircuitSimple", message: `After evaluating chips`, data: { chipValues: chipValues } });
 
       // Collect final output values
       const outputs: Record<string, boolean> = {};
 
       for (const portId of this.outputPortIds) {
+        logger.info({
+          group: "CircuitSimple",
+          message: `Collecting final output values for port ${portId}`,
+          data: { portId, wires: this.circuitDef.wires },
+        });
+        // find wire that connects to portId
+        const outWires = this.circuitDef.wires?.filter((wire) => wire.targetId === portId);
+        if (!outWires || outWires.length === 0) {
+          logger.error({
+            group: "CircuitSimple",
+            message: `Cannot find wire for output port ${portId}`,
+            data: { portId, wires: this.circuitDef.wires },
+          });
+          throw new Error(`Cannot find wire for output port ${portId}`);
+        }
+
+        logger.info({
+          group: "CircuitSimple",
+          message: `Found ${outWires.length} wires for output port ${portId}`,
+          data: { outWires },
+        });
+
         // Output might come from a chip output
-        for (const wire of this.circuitDef.wires || []) {
+        for (const wire of outWires) {
           logger.debug({
             group: "CircuitSimple",
             message: `Checking wire for output port ${portId}`,
-            data: { wire, chipValues2, portValues, portId },
+            data: { wire, chipValues: chipValues, portValues, portId },
           });
           if (
             wire.sourceId &&
             wire.sourcePortId &&
             wire.targetPortId === portId &&
-            chipValues2[wire.targetId] != undefined
+            chipValues[wire.sourceId] != undefined
           ) {
             logger.debug({
               group: "CircuitSimple",
               message: `Output port ${portId} is from chip ${wire.sourceId}`,
-              data: chipValues2[wire.sourceId][wire.sourcePortId],
+              data: chipValues[wire.sourceId][wire.sourcePortId],
             });
-            outputs[portId] = chipValues2[wire.sourceId][wire.sourcePortId] || false;
+            outputs[portId] = chipValues[wire.sourceId][wire.sourcePortId] || false;
             break;
           } else if (portValues[wire.sourceId] !== undefined) {
             logger.debug({
@@ -260,12 +295,14 @@ export class CircuitSimple {
             logger.error({
               group: "CircuitSimple",
               message: `Cannot find source for output port ${portId}`,
-              data: { wire, chipValues, chipValues2 },
+              data: { wire, chipValues: chipValues },
             });
             throw new Error(`Cannot find source for output port ${portId}`);
           }
         }
       }
+
+      logger.info({ group: "CircuitSimple", message: `Final outputs`, data: { outputs } });
 
       return outputs;
     };

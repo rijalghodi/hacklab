@@ -157,10 +157,10 @@ export function ChipNodeSimple(props: NodeProps<Node<CircuitChip>> & { showLabel
       }}
     >
       {/* Chip name */}
-      <div className="text-sm font-semibold break-all">
-        {data.name}
-        {showLabel && <div className="text-[8px]">{data.id}</div>}
-      </div>
+      <div className="text-sm font-semibold break-all">{data.name}</div>
+      {showLabel && (
+        <div className="text-[8px] absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full">{data.id}</div>
+      )}
 
       {/* Input ports (left side) */}
       {inputPorts.map((port, index) => (

@@ -8,6 +8,7 @@ import { CircuitChip } from "@/lib/types/chips";
 import { Circuit } from "../flow";
 import { nandChipDemo } from "../flow/circuit-demo";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import { fullAdderChip, xorChip } from "@/lib/constants/example-circuits";
 
 type Example = {
   id: number;
@@ -30,6 +31,16 @@ const EXAMPLES: Example[] = [
     id: 2,
     title: "OR Gate",
     circuit: orChip,
+  },
+  {
+    id: 3,
+    title: "XOR Gate",
+    circuit: xorChip,
+  },
+  {
+    id: 4,
+    title: "Full Adder",
+    circuit: fullAdderChip,
   },
 ];
 

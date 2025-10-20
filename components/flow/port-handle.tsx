@@ -70,7 +70,7 @@ export function PortHandle({
       id={id}
       type={type}
       position={position}
-      className={className}
+      className={cn("group relative", className)}
       style={{
         ...baseStyle,
         // transform,
@@ -78,14 +78,14 @@ export function PortHandle({
     >
       <div
         className={cn(
-          "opacity-0 group-hover:opacity-100 text-[8px] absolute bg-background text-foreground shadow-lg border border-border px-1 py-[1px] rounded-xs font-semibold whitespace-nowrap",
+          "opacity-0 group-hover:opacity-100 text-[8px] absolute bg-background text-foreground shadow-lg border border-border px-1 py-[1px] rounded-xs font-semibold whitespace-nowrap z-10",
           getTooltipStyle(),
-          showLabel && "opacity-100",
         )}
         style={{ wordBreak: "keep-all", whiteSpace: "nowrap" }}
       >
-        {name} {id}
+        {name}
       </div>
+      {showLabel && <div className={cn("absolute text-[7px] whitespace-nowrap", getTooltipStyle())}>{id}</div>}
     </Handle>
   );
 }
