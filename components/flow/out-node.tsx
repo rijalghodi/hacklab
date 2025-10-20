@@ -7,8 +7,8 @@ import { useChips } from "@/hooks";
 
 import { PortHandle } from "./port-handle";
 
-export function OutNode(props: NodeProps<Node<CircuitChip>>) {
-  const { data, selected } = props;
+export function OutNode(props: NodeProps<Node<CircuitChip>> & { showLabel?: boolean }) {
+  const { data, selected, showLabel = true } = props;
   const getChip = useChips((state) => state.getChip);
 
   const CHIP_DEFINITION = getChip("OUT");
@@ -42,6 +42,7 @@ export function OutNode(props: NodeProps<Node<CircuitChip>>) {
         active={VALUE}
         type="target"
         position={Position.Left}
+        showLabel={showLabel}
         style={{
           left: 0,
           top: "50%",

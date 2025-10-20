@@ -8,8 +8,8 @@ import { useChips } from "@/hooks";
 
 import { PortHandle } from "./port-handle";
 
-export function InNode(props: NodeProps<Node<CircuitChip>>) {
-  const { data, selected } = props;
+export function InNode(props: NodeProps<Node<CircuitChip>> & { showLabel?: boolean }) {
+  const { data, selected, showLabel = true } = props;
   const getChip = useChips((state) => state.getChip);
 
   const CHIP_DEFINITION = getChip("IN");
@@ -66,6 +66,7 @@ export function InNode(props: NodeProps<Node<CircuitChip>>) {
         active={VALUE}
         type="source"
         position={Position.Right}
+        showLabel={showLabel}
         style={{
           right: 0,
           top: "50%",

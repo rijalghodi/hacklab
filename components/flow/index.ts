@@ -1,4 +1,6 @@
 export * from "./chip-node";
+export * from "./chip-node-custom";
+export * from "./chip-node-simple";
 export * from "./circuit";
 export * from "./circuit-demo";
 export * from "./circuit-menu";
