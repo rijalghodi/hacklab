@@ -29,16 +29,14 @@ export const useChips = create<ChipsStore>()(
           const currentSavedChips = get().savedChips;
           const allChips = [...currentSavedChips, ...builtInChips];
           const isDuplicate = allChips.some((c) => c.name === chip.name || c.id === chip.id);
-          if (isDuplicate) return toast.error("Chip name already taken");
+          if (isDuplicate) {
+            throw new Error("Chip name already taken");
+          }
+          chip.definitions = undefined;
 
-          // Create a clean copy without circular references
-          const cleanChip = {
-            ...chip,
-          };
-
-          set({ savedChips: [...currentSavedChips, cleanChip] });
+          set({ savedChips: [...currentSavedChips, chip] });
         } catch (error) {
-          throw new Error(`Failed to add chip '${chip.name}'`, { cause: error });
+          throw new Error(error instanceof Error ? error.message : "Unknown error");
         }
       },
       updateSavedChip: (chipType: string, chip: Partial<CircuitChip>) => {
@@ -55,7 +53,7 @@ export const useChips = create<ChipsStore>()(
           };
           set({ savedChips: get().savedChips.map((c) => (c.chipType === chipType ? cleanChip : c)) });
         } catch (error) {
-          throw new Error(`Failed to update chip '${chipType}'`, { cause: error });
+          throw new Error(error instanceof Error ? error.message : "Unknown error");
         }
       },
       getAllChips() {
@@ -101,7 +99,7 @@ export const useChips = create<ChipsStore>()(
 
           set({ savedChips: newChips });
         } catch (error) {
-          throw new Error(`Failed to delete chip '${chipType}'`, { cause: error });
+          throw new Error(error instanceof Error ? error.message : "Unknown error");
         }
       },
     }),

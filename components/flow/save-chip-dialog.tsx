@@ -105,7 +105,7 @@ export function SaveChipDialog() {
         toast.success("Chip saved");
       } catch (error) {
         logger.error({ group: "SaveChipDialog", message: `Failed to save chip: ${error}` });
-        toast.error("Failed to save chip");
+        toast.error(`Failed to save chip: ${error instanceof Error ? error.message : "Unknown error"}`);
       }
     },
     [nodes, edges, handleClose, initialChip, updateSavedChip, addSavedChip, navigateToChipNoConfirm],

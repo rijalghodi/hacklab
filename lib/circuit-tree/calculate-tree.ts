@@ -1,8 +1,10 @@
 import { CircuitTreeNode, CircuitTreeNodeType } from "@/lib/types";
+import { logger } from "../logger";
 
 export type PassedValue = Record<string, boolean>;
 
 export function calculateTree(tree: CircuitTreeNode[], passedValues: PassedValue): [PassedValue, CircuitTreeNode[]] {
+  logger.info({ group: "calculate-tree", message: "[calculateTree]", data: { tree, passedValues } });
   const outputValues: PassedValue = {};
 
   for (let i = 0; i < tree.length; i++) {
@@ -14,7 +16,7 @@ export function calculateTree(tree: CircuitTreeNode[], passedValues: PassedValue
 }
 
 function calculateNode(node: CircuitTreeNode, passedValues: PassedValue): CircuitTreeNode {
-  console.log("123", node);
+  logger.info({ group: "calculate-tree", message: "[calculateNode]", data: { node, passedValues } });
   if (node.type === CircuitTreeNodeType.PORT) {
     return calculatePort(node, passedValues);
   }
@@ -31,6 +33,7 @@ function calculateNode(node: CircuitTreeNode, passedValues: PassedValue): Circui
 }
 
 function calculatePort(node: CircuitTreeNode, passedValues: PassedValue): CircuitTreeNode {
+  logger.info({ group: "calculate-tree", message: "[calculatePort]", data: { node, passedValues } });
   if (passedValues[node.id] !== undefined) {
     node.value = passedValues[node.id];
     return node;
@@ -40,6 +43,7 @@ function calculatePort(node: CircuitTreeNode, passedValues: PassedValue): Circui
 }
 
 function calculateWire(node: CircuitTreeNode, passedValues: PassedValue): CircuitTreeNode {
+  logger.info({ group: "calculate-tree", message: "[calculateWire]", data: { node, passedValues } });
   return calculateNodeWithSources(node, passedValues, "Wire");
 }
 
@@ -48,7 +52,13 @@ function calculateNodeWithSources(
   passedValues: PassedValue,
   type: "Wire" | "Port",
 ): CircuitTreeNode {
+  logger.info({ group: "calculate-tree", message: "[calculateNodeWithSources]", data: { node, passedValues, type } });
   if (!node.sources || node.sources.length === 0) {
+    logger.error({
+      group: "calculate-tree",
+      message: `${type} ${node.id} has no value or sources`,
+      data: { node, passedValues, type },
+    });
     throw new Error(`${type} ${node.id} has no value or sources`);
   }
 
@@ -71,6 +81,7 @@ function calculateNodeWithSources(
 }
 
 function calculateNandChip(node: CircuitTreeNode, passedValues: PassedValue): CircuitTreeNode {
+  logger.info({ group: "calculate-tree", message: "[calculateNandChip]", data: { node, passedValues } });
   if (!node.sources || node.sources.length < 2) {
     throw new Error(`NAND chip ${node.id} has no value or sources`);
   }

@@ -235,4 +235,4 @@ const andTree: CircuitTreeNode[] = [
   },
 ];
 
-export { andTree, nandTree, notTree, nandTree2 };
+export { andTree, nandTree, nandTree2,notTree };

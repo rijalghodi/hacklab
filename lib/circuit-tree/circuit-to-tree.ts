@@ -4,6 +4,8 @@ import { nandTree } from "../constants/trees";
 import { logger } from "../logger";
 
 export const convertCircuitToTree = (circuit: CircuitChip): CircuitTreeNode[] => {
+  logger.info({ group: "circuit-to-tree", message: "[convertCircuitToTree]", data: { circuit } });
+
   // if circuit is a NAND chip, return the NAND tree
   if (circuit.chipType === NAND_CHIP_TYPE) {
     return nandTree;
@@ -17,6 +19,8 @@ export const convertCircuitToTree = (circuit: CircuitChip): CircuitTreeNode[] =>
 };
 
 const buildTreeItemFromPort = (circuit: CircuitChip, portId: string): CircuitTreeNode => {
+  logger.info({ group: "circuit-to-tree", message: "[buildTreeItemFromPort]", data: { circuit, portId } });
+
   const port = circuit.ports?.find((p) => p.id === portId);
   if (!port) {
     throw new Error(`Port ${portId} not found`);
@@ -37,6 +41,8 @@ const buildTreeItemFromPort = (circuit: CircuitChip, portId: string): CircuitTre
 };
 
 const buildTreeItemFromWire = (circuit: CircuitChip, wireId: string): CircuitTreeNode => {
+  logger.info({ group: "circuit-to-tree", message: "[buildTreeItemFromWire]", data: { circuit, wireId } });
+
   const wire = circuit.wires?.find((w) => w.id === wireId);
   if (!wire) {
     throw new Error(`Wire ${wireId} not found`);
@@ -57,6 +63,12 @@ const buildTreeItemFromSource = (
   sourceId: string,
   sourcePortId: string | null,
 ): CircuitTreeNode => {
+  logger.info({
+    group: "circuit-to-tree",
+    message: "[buildTreeItemFromSource]",
+    data: { circuit, sourceId, sourcePortId },
+  });
+
   // Check if sourceId is a port
   const port = circuit.ports?.find((p) => p.id === sourceId);
   if (port) {
@@ -66,13 +78,14 @@ const buildTreeItemFromSource = (
   // Check if sourceId is a chip
   const chip = circuit.chips?.find((c) => c.id === sourceId);
   if (chip) {
-    return buildTreeFromChip(circuit, chip.id, sourcePortId);
+    return buildTreeItemFromChip(circuit, chip.id, sourcePortId);
   }
 
   throw new Error(`Source ${sourceId} not found`);
 };
 
-const buildTreeFromChip = (circuit: CircuitChip, chipId: string, portId: string | null): CircuitTreeNode => {
+const buildTreeItemFromChip = (circuit: CircuitChip, chipId: string, portId: string | null): CircuitTreeNode => {
+  logger.info({ group: "circuit-to-tree", message: "[buildTreeItemFromChip]", data: { circuit, chipId, portId } });
   const chip = circuit.chips?.find((c) => c.id === chipId);
   if (!chip) {
     throw new Error(`Chip ${chipId} not found`);
@@ -89,6 +102,7 @@ const buildTreeFromChip = (circuit: CircuitChip, chipId: string, portId: string 
     group: "circuit-to-tree",
     message: "",
     data: {
+      circuit: circuit,
       definitions: circuit.definitions,
       chip: chip,
     },
@@ -103,6 +117,7 @@ const buildTreeFromChip = (circuit: CircuitChip, chipId: string, portId: string 
 };
 
 const expandNandChip = (circuit: CircuitChip, chip: Chip, portId: string | null): CircuitTreeNode => {
+  logger.info({ group: "circuit-to-tree", message: "[expandNandChip]", data: { circuit, chip, portId } });
   if (!portId) {
     throw new Error(`Port ID required for base chip expansion`);
   }
@@ -138,6 +153,16 @@ const expandCompositeChipWithParentConnections = (
   chipId: string,
   portId: string | null,
 ): CircuitTreeNode => {
+  logger.info({
+    group: "circuit-to-tree",
+    message: "[expandCompositeChipWithParentConnections]",
+    data: { circuit, chipDefinition, chipId, portId },
+  });
+
+  // chipDefinition.definitions = circuit.definitions || [];
+  // const definitions = circuit.definitions || [];
+  chipDefinition.definitions = circuit.definitions;
+
   if (!portId) {
     throw new Error(`Port ID required for composite chip expansion`);
   }
@@ -178,10 +203,16 @@ const expandCompositeChipWithParentConnections = (
 };
 
 const createCustomCompositeTree = (
+  // circuit: CircuitChip,
   chipDefinition: CircuitChip,
   portId: string,
   parentInput: CircuitTreeNode,
 ): CircuitTreeNode => {
+  logger.info({
+    group: "circuit-to-tree",
+    message: "[createCustomCompositeTree]",
+    data: { chipDefinition, portId, parentInput },
+  });
   // Find the port in the chip definition
   const port = chipDefinition.ports?.find((p) => p.id === portId);
   if (!port) {
@@ -203,6 +234,11 @@ const replaceInputPortInTree = (
   inputPortId: string,
   replacement: CircuitTreeNode,
 ): CircuitTreeNode => {
+  logger.info({
+    group: "circuit-to-tree",
+    message: "[replaceInputPortInTree]",
+    data: { tree, inputPortId, replacement },
+  });
   if (tree.id === inputPortId) {
     return replacement;
   }

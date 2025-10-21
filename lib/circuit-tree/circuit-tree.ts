@@ -12,6 +12,7 @@ export class CircuitTree {
   private outputPorts: Port[] = [];
   private inputPortCount: number;
   private outputPortCount: number;
+  private definitions: CircuitChip[];
 
   constructor(circuit: CircuitChip) {
     this.tree = convertCircuitToTree(circuit);
@@ -31,6 +32,7 @@ export class CircuitTree {
 
     this.inputPorts = inputPorts;
     this.outputPorts = outputPorts;
+    this.definitions = circuit.definitions || [];
     this.inputPortCount = inputPorts.length;
     this.outputPortCount = outputPorts.length;
   }
