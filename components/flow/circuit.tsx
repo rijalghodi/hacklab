@@ -18,7 +18,7 @@ import { useCircuitConnectHandler, useCircuitDndHandler, useContextMenu } from "
 import { useCircuitKeyboardShortcuts } from "@/hooks/use-circuit-keyboard-shortcuts";
 
 import {
-  ChipNodeSimple,
+  ChipNode,
   CircuitMenu,
   ConnectionLine,
   InNode,
@@ -31,7 +31,7 @@ import {
 import { WireEdge } from "./wire-edge";
 import { ConfirmDialog } from "../ui";
 
-export const nodeTypes = { [NodeType.CHIP]: ChipNodeSimple, [NodeType.IN]: InNode, [NodeType.OUT]: OutNode };
+export const nodeTypes = { [NodeType.CHIP]: ChipNode, [NodeType.IN]: InNode, [NodeType.OUT]: OutNode };
 export const edgeTypes = { wire: WireEdge };
 
 export function Circuit({

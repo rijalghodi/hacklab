@@ -76,24 +76,6 @@ export class CircuitSimple {
     };
   }
 
-  private buildChipAndWireStructure() {
-    const chips = this.circuitDef.chips || [];
-    const ports = this.circuitDef.ports || [];
-    const wires = this.circuitDef.wires || [];
-
-    type NestedRecord = { [k: string]: NestedRecord };
-
-    let intermediates: NestedRecord = {};
-    let outputs: NestedRecord = {};
-
-    // TODO: Implement this:
-    // - Loop over wires, for each wire:
-    //   - if the wire.sourceId is found in ports[i].id, add it to the outputs object, where the key is the port.id, valuee is {}
-    //      then look up the
-    //   - else if the you found a chip where wire.sourceId == chips[j].id and wire.sourcePortId == chips[j].ports[k].id,
-    //     then
-  }
-
   /**
    * Build evaluation function for composite circuits
    */

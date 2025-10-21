@@ -54,3 +54,16 @@ export type CircuitChip = {
   ports?: Port[];
   definitions?: CircuitChip[];
 };
+
+export enum CircuitTreeNodeType {
+  PORT = "port",
+  WIRE = "wire",
+  NAND_CHIP = "nand-chip",
+}
+
+export type CircuitTreeNode = {
+  id: string;
+  type: CircuitTreeNodeType;
+  sources?: CircuitTreeNode[];
+  value?: boolean;
+};

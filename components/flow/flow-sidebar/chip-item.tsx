@@ -50,7 +50,10 @@ export function ChipItem({
       title={disabled ? "Cannot add the chip due to cyclic dependency" : ""}
       {...props}
     >
-      {name}
+      <div>
+        {name}
+        <div className="text-[10px]">{chipType}</div>
+      </div>
     </div>
   );
 }

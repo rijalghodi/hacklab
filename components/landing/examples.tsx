@@ -3,12 +3,12 @@
 import { ReactFlowProvider } from "@xyflow/react";
 
 import { andChip, orChip } from "@/lib/constants/chips";
+import { fullAdderChip, xorChip } from "@/lib/constants/example-circuits";
 import { CircuitChip } from "@/lib/types/chips";
 
 import { Circuit } from "../flow";
 import { nandChipDemo } from "../flow/circuit-demo";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { fullAdderChip, xorChip } from "@/lib/constants/example-circuits";
 
 type Example = {
   id: number;
