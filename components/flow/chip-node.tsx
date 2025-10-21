@@ -158,7 +158,7 @@ export function ChipNode(props: NodeProps<Node<CircuitChip>> & { showLabel?: boo
       {/* Chip name */}
       <div className="text-sm font-semibold break-all">{data.name}</div>
       {showLabel && (
-        <div className="text-[8px] absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full">{data.id}</div>
+        <div className="text-[8px] absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-[170%]">{data.id}</div>
       )}
 
       {/* Input ports (left side) */}

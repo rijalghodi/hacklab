@@ -2,6 +2,7 @@ import { CircuitChip, CircuitTreeNode, Port, PortType } from "@/lib/types";
 
 import { calculateTree, PassedValue } from "./calculate-tree";
 import { convertCircuitToTree } from "./circuit-to-tree";
+import { logger } from "../logger";
 
 type TruthTable = Map<string, PassedValue>;
 
@@ -47,6 +48,11 @@ export class CircuitTree {
     const cachedResult = this.truthTable.get(truthTableKey);
 
     if (cachedResult !== undefined) {
+      logger.info({
+        group: "circuit-tree",
+        message: "[calculateTree] - cached result found",
+        data: { truth: this.truthTable, key: truthTableKey, cachedResult },
+      });
       return cachedResult;
     }
 

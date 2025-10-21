@@ -85,7 +85,7 @@ export function PortHandle({
       >
         {name}
       </div>
-      {showLabel && <div className={cn("absolute text-[7px] whitespace-nowrap", getTooltipStyle())}>{id}</div>}
+      {showLabel && <div className={cn("absolute text-[8px] whitespace-nowrap", getTooltipStyle())}>{id}</div>}
     </Handle>
   );
 }
