@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "next dev --turbopack --port 3003",
     "build": "next build",
-    "start": "next start",
+    "start": "next start --port 3003",
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --ext .js,.ts,.jsx,.tsx",
     "lint:fix": "eslint . --ext .js,.ts,.jsx,.tsx --fix",

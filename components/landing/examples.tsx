@@ -3,6 +3,7 @@
 import { ReactFlowProvider } from "@xyflow/react";
 
 import { andChip, orChip } from "@/lib/constants/chips";
+import { fullAdderChip, xorChip } from "@/lib/constants/example-circuits";
 import { CircuitChip } from "@/lib/types/chips";
 
 import { Circuit } from "../flow";
@@ -30,6 +31,16 @@ const EXAMPLES: Example[] = [
     id: 2,
     title: "OR Gate",
     circuit: orChip,
+  },
+  {
+    id: 3,
+    title: "XOR Gate",
+    circuit: xorChip,
+  },
+  {
+    id: 4,
+    title: "Full Adder",
+    circuit: fullAdderChip,
   },
 ];
 

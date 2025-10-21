@@ -1,6 +1,8 @@
 import { Handle, Position } from "@xyflow/react";
 import React from "react";
 
+import { cn } from "@/lib/utils";
+
 const PORT_HEIGHT = 7;
 const PORT_WIDTH = 7;
 
@@ -21,6 +23,8 @@ export interface PortHandleProps {
   style?: React.CSSProperties;
   /** Custom transform for positioning */
   //   transform?: string;
+  /** Whether to show the label */
+  showLabel?: boolean;
 }
 
 export function PortHandle({
@@ -31,6 +35,7 @@ export function PortHandle({
   position,
   className = "group",
   style,
+  showLabel = false,
   //   transform,
 }: PortHandleProps) {
   const baseStyle: React.CSSProperties = {
@@ -65,18 +70,22 @@ export function PortHandle({
       id={id}
       type={type}
       position={position}
-      className={className}
+      className={cn("group relative", className)}
       style={{
         ...baseStyle,
         // transform,
       }}
     >
       <div
-        className={`opacity-0 group-hover:opacity-100 text-[8px] absolute bg-background text-foreground shadow-lg border border-border px-1 py-[1px] rounded-xs font-semibold whitespace-nowrap ${getTooltipStyle()}`}
+        className={cn(
+          "opacity-0 group-hover:opacity-100 text-[8px] absolute bg-background text-foreground shadow-lg border border-border px-1 py-[1px] rounded-xs font-semibold whitespace-nowrap z-10",
+          getTooltipStyle(),
+        )}
         style={{ wordBreak: "keep-all", whiteSpace: "nowrap" }}
       >
         {name}
       </div>
+      {showLabel && <div className={cn("absolute text-[7px] whitespace-nowrap", getTooltipStyle())}>{id}</div>}
     </Handle>
   );
 }

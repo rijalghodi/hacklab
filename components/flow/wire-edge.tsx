@@ -37,7 +37,7 @@ export function WireEdge({
   const node = useNodesData<Node<CircuitChip>>(source);
 
   // const node = getNode(source);
-  logger.debug({ group: "WireEdge", message: `Wire node data: ${JSON.stringify(node?.data)}` });
+  logger.debug({ group: "WireEdge", message: `Wire node data`, data: node?.data });
   const VALUE = node?.data?.ports?.find((port) => port.id === sourceHandleId)?.value;
 
   logger.debug({ group: "WireEdge", message: `Wire value: ${VALUE}` });

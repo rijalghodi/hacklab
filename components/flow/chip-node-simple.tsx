@@ -4,7 +4,7 @@ import { Edge, type Node, type NodeProps, Position, useEdges, useReactFlow } fro
 import React, { useCallback, useEffect, useMemo } from "react";
 import { toast } from "sonner";
 
-import { CircuitTree } from "@/lib/circuit-tree/circuit-tree";
+import { CircuitSimple } from "@/lib/circuit-simple";
 import { CircuitChip, PortType, Wire } from "@/lib/types/chips";
 import { cn, getBgBorderTextColor } from "@/lib/utils";
 import { useChips } from "@/hooks";
@@ -19,11 +19,11 @@ const PORT_OFFSET_MULTIPLIER = 0.5;
 const CENTER_INDEX_OFFSET = 0.5;
 
 /**
- * Chip node component using CircuitTree for circuit evaluation
+ * Simple chip node component using pure functional circuit evaluation
  * This component renders a circuit chip and handles signal propagation
- * using CircuitTree for circuit evaluation
+ * using synchronous evaluation instead of subscriptions
  */
-export function ChipNode(props: NodeProps<Node<CircuitChip>> & { showLabel?: boolean }) {
+export function ChipNodeSimple(props: NodeProps<Node<CircuitChip>> & { showLabel?: boolean }) {
   const { data, selected, showLabel = true } = props;
   const { getChip } = useChips();
 
@@ -50,15 +50,16 @@ export function ChipNode(props: NodeProps<Node<CircuitChip>> & { showLabel?: boo
   const circuitChip = useMemo(() => getChip(data.chipType), [data.chipType]);
 
   // Build the circuit instance using useMemo (only when chip definition changes)
-  const circuitInstance: CircuitTree | null = useMemo(() => {
+  const circuitInstance: CircuitSimple | null = useMemo(() => {
     if (!circuitChip) {
       toast.error(`No chip definition for '${data.chipType}'`);
       return null;
     }
 
+    // return null;
+
     try {
-      console.log("456", circuitChip);
-      return new CircuitTree(circuitChip);
+      return new CircuitSimple(circuitChip);
     } catch (error: unknown) {
       toast.error(`Failed to build circuit: ${error instanceof Error ? error.message : "Unknown error"}`);
       return null;
@@ -99,7 +100,7 @@ export function ChipNode(props: NodeProps<Node<CircuitChip>> & { showLabel?: boo
       }
 
       // Evaluate the circuit with current inputs
-      const outputValues = circuitInstance.calculateTree(inputValues);
+      const outputValues = circuitInstance.evaluate(inputValues);
 
       // Check if any output values have changed
       let hasChanges = false;

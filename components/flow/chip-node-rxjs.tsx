@@ -1,37 +1,35 @@
 "use client";
 
 import { Edge, type Node, type NodeProps, Position, useEdges, useReactFlow } from "@xyflow/react";
-import React, { useCallback, useEffect, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { toast } from "sonner";
 
-import { CircuitTree } from "@/lib/circuit-tree/circuit-tree";
+import { buildRxjsCircuit } from "@/lib/circuit-rxjs-builder";
+import { tryCatch } from "@/lib/try-catch";
 import { CircuitChip, PortType, Wire } from "@/lib/types/chips";
 import { cn, getBgBorderTextColor } from "@/lib/utils";
 import { useChips } from "@/hooks";
 
 import { PortHandle } from "./port-handle";
 
-// UI constants for chip rendering
 const PORT_SPACING = 10;
 const MIN_CHIP_HEIGHT = 20;
 const MIN_CHIP_WIDTH = 50;
-const PORT_OFFSET_MULTIPLIER = 0.5;
-const CENTER_INDEX_OFFSET = 0.5;
+const PORT_OFFSET_MULTIPLIER = 0.5; // Used in chipHeight calculation
+const CENTER_INDEX_OFFSET = 0.5; // Used in portOffset calculation
 
-/**
- * Chip node component using CircuitTree for circuit evaluation
- * This component renders a circuit chip and handles signal propagation
- * using CircuitTree for circuit evaluation
- */
 export function ChipNode(props: NodeProps<Node<CircuitChip>> & { showLabel?: boolean }) {
   const { data, selected, showLabel = true } = props;
   const { getChip } = useChips();
 
   const { updateNodeData } = useReactFlow<Node<CircuitChip>, Edge<Wire>>();
-  const edges = useEdges<Edge<Wire>>();
 
-  // Get incoming edges (wires connected to this chip's input ports)
+  const edges = useEdges<Edge<Wire>>();
+  const subscriptionsRef = useRef<any[]>([]);
+
   const sourceEdges = useMemo(() => {
+    // Group edges by targetPortId, then choose one per the rules:
+    // - If multiple edges for a port, pick the one with value true, otherwise the last.
     const incomingEdges = edges.filter((edge) => edge.target === data.id);
     const portEdgeMap: Record<string, Wire | undefined> = {};
 
@@ -46,26 +44,26 @@ export function ChipNode(props: NodeProps<Node<CircuitChip>> & { showLabel?: boo
     return Object.values(portEdgeMap);
   }, [edges, data.id]);
 
-  // Get the chip definition
   const circuitChip = useMemo(() => getChip(data.chipType), [data.chipType]);
 
-  // Build the circuit instance using useMemo (only when chip definition changes)
-  const circuitInstance: CircuitTree | null = useMemo(() => {
+  // Build circuit once
+  const circuitInstance = useMemo(() => {
     if (!circuitChip) {
       toast.error(`No chip definition for '${data.chipType}'`);
       return null;
     }
-
-    try {
-      console.log("456", circuitChip);
-      return new CircuitTree(circuitChip);
-    } catch (error: unknown) {
-      toast.error(`Failed to build circuit: ${error instanceof Error ? error.message : "Unknown error"}`);
+    const [circuitInstance, error] = tryCatch(() => buildRxjsCircuit(circuitChip));
+    if (error) {
+      toast.error(`Failed to build circuit instance for chip '${data.name}': ${error.message}`);
       return null;
     }
-  }, [circuitChip, data.name]);
+    if (!circuitInstance) {
+      toast.error(`Failed to build circuit instance for chip '${data.name}'`);
+      return null;
+    }
+    return circuitInstance;
+  }, [circuitChip]);
 
-  // Separate input and output ports
   const { inputPorts, outputPorts } = useMemo(() => {
     const ports = data?.ports || [];
     return {
@@ -74,73 +72,67 @@ export function ChipNode(props: NodeProps<Node<CircuitChip>> & { showLabel?: boo
     };
   }, [data?.ports]);
 
-  // Effect: When source edges change, evaluate circuit and update outputs
+  // Handle edge value changes and update input ports
   useEffect(() => {
-    try {
-      if (!circuitInstance || !data?.ports) return;
+    if (!circuitInstance || !data?.ports) return;
 
-      // Collect input values from incoming edges
-      const inputValues: Record<string, boolean> = {};
+    // Update input ports with edge values
+    for (const source of sourceEdges) {
+      if (!source?.targetPortId) continue;
 
-      // Initialize all input ports with their current values
-      inputPorts.forEach((port) => {
-        inputValues[port.id] = port.value || false;
-      });
+      const port = data.ports.find((port) => port.id === source.targetPortId);
+      if (port?.type !== PortType.IN) continue;
 
-      // Update input values from incoming edges
-      for (const source of sourceEdges) {
-        if (!source?.targetPortId) continue;
+      const edgeValue = source.value ?? false;
+      const subj = circuitInstance.inputs[port.id];
 
-        const port = data.ports.find((port) => port.id === source.targetPortId);
-        if (port?.type !== PortType.IN) continue;
-
-        const edgeValue = source.value ?? false;
-        inputValues[port.id] = edgeValue;
+      if (subj) {
+        subj.next(edgeValue);
       }
-
-      // Evaluate the circuit with current inputs
-      const outputValues = circuitInstance.calculateTree(inputValues);
-
-      // Check if any output values have changed
-      let hasChanges = false;
-      const updatedPorts = data.ports.map((port) => {
-        if (port.type === PortType.OUT && outputValues[port.id] !== undefined) {
-          const newValue = outputValues[port.id];
-          if (port.value !== newValue) {
-            hasChanges = true;
-            return { ...port, value: newValue };
-          }
-        }
-        return port;
-      });
-
-      // Update node data if there are changes
-      if (hasChanges) {
-        updateNodeData(data.id, {
-          ports: updatedPorts,
-        });
-      }
-    } catch (error: unknown) {
-      toast.error(`Failed to evaluate circuit: ${error instanceof Error ? error.message : "Unknown error"}`);
     }
-  }, [circuitInstance, sourceEdges, data.ports, data.id, inputPorts, outputPorts, updateNodeData]);
 
-  // Calculate chip height based on number of ports
+    // Clean up existing subscriptions
+    subscriptionsRef.current.forEach((sub) => sub?.unsubscribe());
+    subscriptionsRef.current = [];
+
+    // Subscribe to output port changes
+    const subscriptions = outputPorts
+      .map((port) => {
+        const outputSubject = circuitInstance.outputs[port.id];
+        if (!outputSubject) return null;
+
+        return outputSubject.subscribe((value) => {
+          // Only update if value actually changed
+          if (port.value !== value) {
+            updateNodeData(data.id, {
+              ports: data.ports?.map((p) => (p.id === port.id ? { ...p, value } : p)),
+            });
+          }
+        });
+      })
+      .filter(Boolean);
+
+    // Store subscriptions in ref for cleanup
+    subscriptionsRef.current = subscriptions;
+
+    return () => {
+      subscriptionsRef.current.forEach((sub) => sub?.unsubscribe());
+      subscriptionsRef.current = [];
+    };
+  }, [circuitInstance, data.id, sourceEdges, data.ports]);
+
   const chipHeight = useMemo(() => {
     const maxPorts = Math.max(inputPorts.length, outputPorts.length);
     return Math.max(MIN_CHIP_HEIGHT, (maxPorts + PORT_OFFSET_MULTIPLIER) * PORT_SPACING);
   }, [inputPorts.length, outputPorts.length]);
 
-  // Calculate port position offset
   const portOffset = useCallback((index: number, totalPorts: number) => {
     const centerIndex = totalPorts / 2 - CENTER_INDEX_OFFSET;
     return (index - centerIndex) * PORT_SPACING;
   }, []);
 
-  // Don't render if circuit failed to build
   if (!circuitInstance) return null;
 
-  // Render the chip UI
   return (
     <div
       className={cn("relative rounded-sm py-0.5 px-2 font-mono box-border", selected && "ring-ring/20 ring-4")}
@@ -155,13 +147,12 @@ export function ChipNode(props: NodeProps<Node<CircuitChip>> & { showLabel?: boo
         ...getBgBorderTextColor(circuitChip?.color),
       }}
     >
-      {/* Chip name */}
-      <div className="text-sm font-semibold break-all">{data.name}</div>
-      {showLabel && (
-        <div className="text-[8px] absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-full">{data.id}</div>
-      )}
+      <div className="text-sm font-semibold break-all">
+        {/* {data.name} */}
+        <div className="text-[7px]">{data.id}</div>
+      </div>
 
-      {/* Input ports (left side) */}
+      {/* Input ports */}
       {inputPorts.map((port, index) => (
         <PortHandle
           key={port.id}
@@ -179,7 +170,7 @@ export function ChipNode(props: NodeProps<Node<CircuitChip>> & { showLabel?: boo
         />
       ))}
 
-      {/* Output ports (right side) */}
+      {/* Output ports */}
       {outputPorts.map((port, index) => (
         <PortHandle
           key={port.id}
