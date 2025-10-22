@@ -101,7 +101,7 @@ export class CircuitSimple {
       }
 
       // Create sub-circuit evaluator
-      const subCircuit = new CircuitSimple({ ...subDef, definitions: this.circuitDef.definitions });
+      const subCircuit = new CircuitSimple({ ...subDef, id: chip.id, definitions: this.circuitDef.definitions });
       chipEvaluators[chip.id] = (chipInputs: Record<string, boolean>) => {
         return subCircuit.evaluate(chipInputs);
       };
