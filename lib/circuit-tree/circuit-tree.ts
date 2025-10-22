@@ -1,4 +1,4 @@
-import { CircuitChip, CircuitTreeNode, Port, PortType } from "@/lib/types";
+import { CircuitChip, CircuitChipDefinition, CircuitTreeNode, Port, PortType } from "@/lib/types";
 
 import { calculateTree, PassedValue } from "./calculate-tree";
 import { convertCircuitToTree } from "./circuit-to-tree";
@@ -13,7 +13,7 @@ export class CircuitTree {
   private outputPorts: Port[] = [];
   private inputPortCount: number;
   private outputPortCount: number;
-  private definitions: CircuitChip[];
+  private definitions: CircuitChipDefinition[];
 
   constructor(circuit: CircuitChip) {
     this.tree = convertCircuitToTree(circuit);

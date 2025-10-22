@@ -66,7 +66,7 @@ export function buildRxjsCircuit(def: CircuitChip): {
     const subDef = def.definitions?.find((d) => d.chipType === chip.chipType);
     if (!subDef) throw new Error(`Missing definition for chip '${chip.chipType}'`);
     // pass definitions to sub-chips to provide access to all chips
-    chips[chip.id] = buildRxjsCircuit({ ...subDef, definitions: def.definitions });
+    chips[chip.id] = buildRxjsCircuit({ ...subDef, id: chip.id, definitions: def.definitions });
   }
 
   // Connect wires

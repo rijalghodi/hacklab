@@ -13,7 +13,8 @@ import { logger } from "@/lib/logger";
 import { CircuitChip, Wire } from "@/lib/types/chips";
 import { generateId } from "@/lib/utils";
 import { useSaveChipDialogStore } from "@/hooks/save-chip-dialog-store";
-import { useChips } from "@/hooks/use-chips-store";
+import { useSavedChip, useSavedChips } from "@/hooks/use-chips-data";
+import { addSavedChip, updateSavedChip } from "@/hooks/use-chips-store";
 import { useCircuitPageParams } from "@/hooks/use-circuit-page-params";
 
 import { Button } from "@/components/ui/button";
@@ -43,11 +44,11 @@ type FormData = z.infer<typeof formSchema>;
 
 export function SaveChipDialog() {
   const { chipType, navigateToChipNoConfirm } = useCircuitPageParams();
-  const { addSavedChip, getAllChips, getChip, updateSavedChip } = useChips();
-  const allChips = getAllChips();
-  const { isOpen, closeDialog } = useSaveChipDialogStore();
 
-  const initialChip = React.useMemo(() => (chipType && isOpen ? getChip(chipType) : null), [chipType, getChip, isOpen]);
+  const allChips = useSavedChips();
+  const initialChip = chipType ? useSavedChip(chipType) : null;
+
+  const { isOpen, closeDialog } = useSaveChipDialogStore();
 
   const nodes = useNodes<Node<CircuitChip>>();
   const edges = useEdges<Edge<Wire>>();
@@ -75,7 +76,7 @@ export function SaveChipDialog() {
   };
 
   const onSubmit = useCallback(
-    (formData: FormData) => {
+    async (formData: FormData) => {
       try {
         const newCircuit = flowToCircuit(nodes, edges);
 
@@ -84,22 +85,21 @@ export function SaveChipDialog() {
         console.log("----------------------------------------------------------------------");
 
         if (initialChip) {
-          updateSavedChip(initialChip.chipType, {
+          await updateSavedChip(initialChip.chipType, {
             ...newCircuit,
             name: formData.name,
             color: formData.color,
           });
         } else {
-          const newChipId = generateId();
-          addSavedChip({
+          const newChipType = generateId();
+          await addSavedChip({
             ...newCircuit,
-            id: newChipId,
-            chipType: newChipId,
+            chipType: newChipType,
             name: formData.name,
             color: formData.color,
           });
 
-          navigateToChipNoConfirm(newChipId);
+          navigateToChipNoConfirm(newChipType);
         }
         handleClose();
         toast.success("Chip saved");
@@ -136,7 +136,7 @@ export function SaveChipDialog() {
                       onChange={(e) => {
                         const name = e.target.value;
                         field.onChange(name);
-                        const isDuplicateChip = allChips.some((chip) => chip.name === name);
+                        const isDuplicateChip = allChips?.some((chip) => chip.name === name) || false;
                         if (isDuplicateChip) {
                           form.setError("name", { message: "Chip name already taken" });
                           return;

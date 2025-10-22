@@ -43,6 +43,8 @@ export type Wire = {
   color?: string;
 };
 
+export type CircuitChipDefinition = Omit<CircuitChip, "definitions" | "id">;
+
 export type CircuitChip = {
   id: string;
   chipType: string; // must unique
@@ -52,7 +54,7 @@ export type CircuitChip = {
   chips?: Chip[];
   wires?: Wire[];
   ports?: Port[];
-  definitions?: CircuitChip[];
+  definitions: CircuitChipDefinition[];
 };
 
 export enum CircuitTreeNodeType {

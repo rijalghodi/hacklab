@@ -4,7 +4,8 @@ import type { Node } from "@xyflow/react";
 import type { Edge } from "@xyflow/react";
 
 import { builtInChips } from "./constants/chips";
-import { LOCAL_STORAGE_SAVED_CHIPS } from "./constants/names";
+import { chipsDb, CircuitChipDB } from "./db/chips-db";
+// import { LOCAL_STORAGE_SAVED_CHIPS } from "./constants/names";
 import { logger } from "./logger";
 import type { Chip, Wire } from "./types/chips";
 import { CircuitChip, NodeType, Port, PortType } from "./types/chips";
@@ -66,16 +67,19 @@ export function flowToCircuit(
   };
 }
 
-export function circuitToFlow(circuit: Pick<CircuitChip, "chips" | "ports" | "wires">): {
+export async function circuitToFlow(circuit: Pick<CircuitChip, "chips" | "ports" | "wires">): Promise<{
   nodes: Node<CircuitChip>[];
   edges: Edge<Wire>[];
-} {
+}> {
   logger.debug({
     group: "circuitToFlow",
     message: `Converting circuit to flow: ${circuit.chips?.length || 0} chips, ${circuit.wires?.length || 0} wires`,
   });
 
-  const savedChips = getSavedChipsFromLocalStorage();
+  const savedChips = await getSavedChipsFromDB();
+  if (!savedChips) {
+    throw new Error("Failed to get saved chips from DB");
+  }
 
   const allChips = [...savedChips, ...builtInChips];
   logger.debug({
@@ -107,7 +111,6 @@ export function circuitToFlow(circuit: Pick<CircuitChip, "chips" | "ports" | "wi
             chips: savedChip.chips,
             wires: savedChip.wires,
             ports: savedChip.ports,
-            definitions: savedChip.definitions,
           },
         } as Node<CircuitChip>;
       })
@@ -131,6 +134,7 @@ export function circuitToFlow(circuit: Pick<CircuitChip, "chips" | "ports" | "wi
             type: nodeType,
             chipType: nodeType,
             value: port.value,
+            definitions: [],
             ports: [
               {
                 id: port.id,
@@ -171,22 +175,21 @@ export function circuitToFlow(circuit: Pick<CircuitChip, "chips" | "ports" | "wi
   };
 }
 
-export function getSavedChipsFromLocalStorage(): CircuitChip[] {
+export async function getSavedChipsFromDB(): Promise<CircuitChipDB[]> {
   if (typeof window !== "undefined") {
     try {
-      const chipsStr = window.localStorage.getItem(LOCAL_STORAGE_SAVED_CHIPS);
-      if (chipsStr) {
-        const ls = JSON.parse(chipsStr);
-        return ls.state.savedChips;
-      }
-    } catch (_e) {
+      // const chipsStr = window.localStorage.getItem(LOCAL_STORAGE_SAVED_CHIPS);
+      const savedChips = await chipsDb.savedChips.toArray();
+      return savedChips;
+    } catch (error) {
+      logger.error({ group: "getSavedChipsFromLocalStorage", message: `Error getting saved chips: ${error}` });
       return [];
     }
   }
   return [];
 }
 
-export function getSavedChipFromLocalStorage(chipType: string): CircuitChip | null {
-  const savedChips = getSavedChipsFromLocalStorage();
+export async function getSavedChipFromDB(chipType: string): Promise<CircuitChipDB | null> {
+  const savedChips = await getSavedChipsFromDB();
   return savedChips.find((chip) => chip.chipType === chipType) || null;
 }

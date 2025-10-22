@@ -1,19 +1,18 @@
 import { type Edge, type Node, type NodeProps, Position, useReactFlow } from "@xyflow/react";
 import React from "react";
 
+import { inChip } from "@/lib/constants/chips";
 import { logger } from "@/lib/logger";
 import { CircuitChip, type Wire } from "@/lib/types/chips";
 import { cn, getActiveColor, getBgColor } from "@/lib/utils";
-import { useChips } from "@/hooks";
 
 import { PortHandle } from "./port-handle";
 
 export function InNode(props: NodeProps<Node<CircuitChip>> & { showLabel?: boolean }) {
   const { data, selected, showLabel = true } = props;
-  const getChip = useChips((state) => state.getChip);
+  // const [chipDefinition] = useChip("IN");
 
-  const CHIP_DEFINITION = getChip("IN");
-  const COLOR = data.color || CHIP_DEFINITION?.color;
+  const COLOR = data.color || inChip?.color;
   const VALUE = data?.ports?.[0]?.value;
 
   const { updateNodeData } = useReactFlow<Node<CircuitChip>, Edge<Wire>>();

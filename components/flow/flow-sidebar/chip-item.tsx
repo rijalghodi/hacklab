@@ -52,7 +52,7 @@ export function ChipItem({
     >
       <div>
         {name}
-        <div className="text-[10px]">{chipType}</div>
+        {/* <div className="text-[8px]">{chipType}</div> */}
       </div>
     </div>
   );

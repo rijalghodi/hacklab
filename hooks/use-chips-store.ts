@@ -1,110 +1,104 @@
 "use client";
 
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { toast } from "sonner";
 
 import { builtInChips } from "@/lib/constants/chips";
-import { LOCAL_STORAGE_SAVED_CHIPS } from "@/lib/constants/names";
+import { chipsDb, CircuitChipDB } from "@/lib/db/chips-db";
 import { CircuitChip } from "@/lib/types/chips";
 
-interface ChipsStore {
-  savedChips: CircuitChip[];
-  setSavedChips: (chips: CircuitChip[]) => void;
-  addSavedChip: (chip: CircuitChip) => void;
-  updateSavedChip: (chipType: string, chip: Partial<CircuitChip>) => void;
-  getAllChips: () => CircuitChip[];
-  getChip: (chipType: string) => CircuitChip | null;
-  // getChipById: (id: string) => CircuitChip | null;
-  deleteSavedChip: (chipType: string) => void;
-}
+export const getSavedChip = async (chipType: string): Promise<CircuitChipDB | null> => {
+  const savedChip = await chipsDb.savedChips.where("chipType").equals(chipType).first();
+  return savedChip || null;
+};
 
-export const useChips = create<ChipsStore>()(
-  persist(
-    (set, get) => ({
-      savedChips: [],
-      setSavedChips: (chips: CircuitChip[]) => set({ savedChips: chips }),
-      addSavedChip: (chip: CircuitChip) => {
-        try {
-          const currentSavedChips = get().savedChips;
-          const allChips = [...currentSavedChips, ...builtInChips];
-          const isDuplicate = allChips.some((c) => c.name === chip.name || c.id === chip.id);
-          if (isDuplicate) {
-            throw new Error("Chip name already taken");
-          }
-          chip.definitions = undefined;
+// Add a new chip
+export const addSavedChip = async (chip: CircuitChipDB) => {
+  try {
+    // Check for duplicates
+    const existingChips = await chipsDb.savedChips.toArray();
+    const allChips = [...existingChips, ...builtInChips];
+    const isDuplicateName = allChips.some((c) => c.name === chip.name);
 
-          set({ savedChips: [...currentSavedChips, chip] });
-        } catch (error) {
-          throw new Error(error instanceof Error ? error.message : "Unknown error");
-        }
-      },
-      updateSavedChip: (chipType: string, chip: Partial<CircuitChip>) => {
-        try {
-          // find
-          const chipFull = get().savedChips.find((c) => c.chipType === chipType);
-          if (!chipFull) {
-            throw new Error(`Chip '${chipType}' not found`);
-          }
-          const cleanChip = {
-            ...chipFull,
-            ...chip,
-            definitions: undefined, // Remove definitions to avoid circular refs
-          };
-          set({ savedChips: get().savedChips.map((c) => (c.chipType === chipType ? cleanChip : c)) });
-        } catch (error) {
-          throw new Error(error instanceof Error ? error.message : "Unknown error");
-        }
-      },
-      getAllChips() {
-        return [...get().savedChips, ...builtInChips];
-      },
-      getChip: (chipType: string) => {
-        const allChips = [...get().savedChips, ...builtInChips];
-        const chip = allChips.find((chip) => chip.chipType === chipType);
-        if (!chip) return null;
+    if (isDuplicateName) {
+      throw new Error("Chip name already taken");
+    }
 
-        // Return a copy with definitions to avoid mutating the original
-        return {
-          ...chip,
-          definitions: allChips,
-        };
-      },
-      getChipById: (id: string) => {
-        const allChips = [...get().savedChips, ...builtInChips];
-        const chip = allChips.find((chip) => chip.id === id);
-        if (!chip) return null;
+    // Convert to database format (remove definitions)
+    await chipsDb.savedChips.add(chip);
+  } catch (error) {
+    console.error("Failed to add saved chip:", error);
+    toast.error("Failed to add chip");
+    throw new Error(error instanceof Error ? error.message : "Unknown error");
+  }
+};
 
-        // Return a copy with definitions to avoid mutating the original
-        return {
-          ...chip,
-          definitions: allChips,
-        };
-      },
-      deleteSavedChip: (chipType: string) => {
-        try {
-          // delete chip from other chips definitions
-          const chips = get().savedChips.filter((c) => c.chipType !== chipType);
-          const newChips: CircuitChip[] = [];
+// Update an existing chip
+export const updateSavedChip = async (chipType: string, chip: Partial<CircuitChip>) => {
+  try {
+    const existingChips = await chipsDb.savedChips.toArray();
+    const chipFull = existingChips.find((c) => c.chipType === chipType);
 
-          for (const circuit of chips) {
-            const newCircuitChips = circuit.chips?.filter((c) => c.chipType !== chipType);
-            const newCircuitWires = circuit.wires?.filter((w) => w.sourceId !== chipType && w.targetId !== chipType);
-            newChips.push({
-              ...circuit,
-              chips: newCircuitChips,
-              wires: newCircuitWires,
-            });
-          }
+    if (!chipFull) {
+      throw new Error(`Chip '${chipType}' not found`);
+    }
 
-          set({ savedChips: newChips });
-        } catch (error) {
-          throw new Error(error instanceof Error ? error.message : "Unknown error");
-        }
-      },
-    }),
-    {
-      name: LOCAL_STORAGE_SAVED_CHIPS,
-      version: 1,
-    },
-  ),
-);
+    const updatedChip = { ...chipFull, ...chip };
+    const { definitions, ...cleanChip } = updatedChip;
+
+    await chipsDb.savedChips.update(chipType, cleanChip);
+  } catch (error) {
+    console.error("Failed to update saved chip:", error);
+    toast.error("Failed to update chip");
+    throw new Error(error instanceof Error ? error.message : "Unknown error");
+  }
+};
+
+// Delete a chip
+export const deleteSavedChip = async (chipType: string) => {
+  try {
+    // Wrapped the delete & update logic in a single transaction on the database
+    await chipsDb.transaction("rw", [chipsDb.savedChips], async () => {
+      // Delete the chip
+      await chipsDb.savedChips.delete(chipType);
+
+      // Update other chips that reference this chip
+      const remainingChips = await chipsDb.savedChips.toArray();
+      const updatedChips: CircuitChipDB[] = [];
+
+      for (const circuit of remainingChips) {
+        const newCircuitChips = circuit.chips?.filter((c) => c.chipType !== chipType);
+        const newCircuitWires = circuit.wires?.filter((w) => w.sourceId !== chipType && w.targetId !== chipType);
+
+        updatedChips.push({
+          ...circuit,
+          chips: newCircuitChips,
+          wires: newCircuitWires,
+        });
+      }
+
+      // Update database with cleaned chips
+      await chipsDb.savedChips.clear();
+      await chipsDb.savedChips.bulkAdd(updatedChips);
+    });
+  } catch (error) {
+    console.error("Failed to delete saved chip:", error);
+    toast.error("Failed to delete chip");
+    throw new Error(error instanceof Error ? error.message : "Unknown error");
+  }
+};
+
+// Set all chips (for bulk operations)
+export const setSavedChips = async (chips: CircuitChip[]) => {
+  try {
+    await chipsDb.savedChips.clear();
+    const cleanChips = chips.map((chip) => {
+      const { definitions, ...cleanChip } = chip;
+      return cleanChip;
+    });
+    await chipsDb.savedChips.bulkAdd(cleanChips);
+  } catch (error) {
+    console.error("Failed to set saved chips:", error);
+    toast.error("Failed to save chips");
+    throw new Error(error instanceof Error ? error.message : "Unknown error");
+  }
+};

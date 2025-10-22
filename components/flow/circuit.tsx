@@ -13,7 +13,7 @@ import {
 import React, { useCallback, useEffect } from "react";
 
 import { circuitToFlow } from "@/lib/flow-utils";
-import { CircuitChip, NodeType, type Wire } from "@/lib/types/chips";
+import { CircuitChip, CircuitChipDefinition, NodeType, type Wire } from "@/lib/types/chips";
 import { useCircuitConnectHandler, useCircuitDndHandler, useContextMenu } from "@/hooks";
 import { useCircuitKeyboardShortcuts } from "@/hooks/use-circuit-keyboard-shortcuts";
 
@@ -51,7 +51,7 @@ export function Circuit({
   maxZoom = 6,
   defaultZoom = 2,
 }: {
-  initialCircuit?: CircuitChip | null;
+  initialCircuit?: CircuitChipDefinition | null;
   viewOnly?: boolean;
   withBackground?: boolean;
   showTitle?: boolean;
@@ -143,12 +143,14 @@ export function Circuit({
   );
 
   useEffect(() => {
-    if (initialCircuit) {
-      // reset();
-      const { nodes, edges } = circuitToFlow(initialCircuit);
-      setNodes(nodes);
-      setEdges(edges);
-    }
+    const loadInitialCircuit = async () => {
+      if (initialCircuit) {
+        const { nodes, edges } = await circuitToFlow(initialCircuit);
+        setNodes(nodes);
+        setEdges(edges);
+      }
+    };
+    loadInitialCircuit();
   }, [initialCircuit]);
 
   return (

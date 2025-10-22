@@ -3,14 +3,15 @@
 import React, { useCallback, useState } from "react";
 
 import { builtInChips } from "@/lib/constants/chips";
-import { CircuitChip } from "@/lib/types/chips";
-import { useChips, useDndStore } from "@/hooks";
+import { CircuitChipDB } from "@/lib/db/chips-db";
+import { logger } from "@/lib/logger";
+import { useAllChildChipTypes,useDndStore, useSavedChips } from "@/hooks";
 import { useCircuitPageParams } from "@/hooks/use-circuit-page-params";
 
 import { ChipContextMenu } from "./chip-context-menu";
 import { ChipGrid } from "./chip-grid";
 import { ChipItem, ContextChip } from "./chip-item";
-import { useChipOperations } from "./use-chip-operations";
+// import { useChipOperations } from "./use-chip-operations";
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel } from "../../ui/sidebar";
 
 type ContextMenuState = {
@@ -20,9 +21,11 @@ type ContextMenuState = {
 
 export function FlowSidebar() {
   const { setDropped } = useDndStore();
-  const { savedChips } = useChips();
+  const savedChips = useSavedChips();
   const { chipType } = useCircuitPageParams();
-  const { childChipTypes } = useChipOperations(chipType || undefined);
+  const childChipTypes = chipType ? useAllChildChipTypes(chipType) : [];
+
+  console.log("childChipTypes", childChipTypes);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);
@@ -30,6 +33,7 @@ export function FlowSidebar() {
   // Memoized handlers for better performance
   const handleDragStart = useCallback(
     (event: React.DragEvent<HTMLDivElement>, chipType: string) => {
+      logger.debug({ group: "FlowSidebar", message: `handleDragStart: chipType=${chipType}`, data: { event } });
       setDropped(chipType);
       event.dataTransfer.effectAllowed = "move";
     },
@@ -80,9 +84,9 @@ export function FlowSidebar() {
         <SidebarGroup>
           <SidebarGroupLabel className="font-mono uppercase">Saved Chips</SidebarGroupLabel>
           <SidebarGroupContent>
-            {savedChips.length > 0 ? (
+            {savedChips?.length && savedChips.length > 0 ? (
               <ChipGrid>
-                {savedChips?.map((chip: CircuitChip) => (
+                {savedChips?.map((chip: CircuitChipDB) => (
                   <ChipItem
                     key={chip.chipType}
                     color={chip.color}

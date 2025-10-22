@@ -8,7 +8,7 @@ import { buildRxjsCircuit } from "@/lib/circuit-rxjs-builder";
 import { tryCatch } from "@/lib/try-catch";
 import { CircuitChip, PortType, Wire } from "@/lib/types/chips";
 import { cn, getBgBorderTextColor } from "@/lib/utils";
-import { useChips } from "@/hooks";
+import { useAllChips, useSavedChip } from "@/hooks";
 
 import { PortHandle } from "./port-handle";
 
@@ -20,8 +20,8 @@ const CENTER_INDEX_OFFSET = 0.5; // Used in portOffset calculation
 
 export function ChipNode(props: NodeProps<Node<CircuitChip>> & { showLabel?: boolean }) {
   const { data, selected, showLabel = true } = props;
-  const { getChip } = useChips();
-
+  const circuitChip = useSavedChip(data.chipType);
+  const definitions = useAllChips();
   const { updateNodeData } = useReactFlow<Node<CircuitChip>, Edge<Wire>>();
 
   const edges = useEdges<Edge<Wire>>();
@@ -44,21 +44,25 @@ export function ChipNode(props: NodeProps<Node<CircuitChip>> & { showLabel?: boo
     return Object.values(portEdgeMap);
   }, [edges, data.id]);
 
-  const circuitChip = useMemo(() => getChip(data.chipType), [data.chipType]);
+  // circuitChip is now loaded asynchronously above
 
   // Build circuit once
   const circuitInstance = useMemo(() => {
     if (!circuitChip) {
+      return null;
+    }
+
+    if (!circuitChip) {
       toast.error(`No chip definition for '${data.chipType}'`);
       return null;
     }
-    const [circuitInstance, error] = tryCatch(() => buildRxjsCircuit(circuitChip));
+    const [circuitInstance, error] = tryCatch(() => buildRxjsCircuit({ ...circuitChip, id: data.id, definitions }));
     if (error) {
-      toast.error(`Failed to build circuit instance for chip '${data.name}': ${error.message}`);
+      toast.error(`Failed to build circuit instance for chip '${data.chipType}': ${error.message}`);
       return null;
     }
     if (!circuitInstance) {
-      toast.error(`Failed to build circuit instance for chip '${data.name}'`);
+      toast.error(`Failed to build circuit instance for chip '${data.chipType}'`);
       return null;
     }
     return circuitInstance;

@@ -3,7 +3,7 @@
 import { ReactFlowProvider } from "@xyflow/react";
 import React, { useMemo } from "react";
 
-import { useChips } from "@/hooks";
+import { useAllChips } from "@/hooks";
 import { useViewChipDialogStore } from "@/hooks/use-view-chip-dialog-store";
 
 import { Button, Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui";
@@ -12,15 +12,13 @@ import { Circuit } from "./circuit";
 
 export function ViewChipDialog() {
   const { open, nodeStack, closeViewChip } = useViewChipDialogStore();
-  const { getChip } = useChips();
+  const allChips = useAllChips();
 
   const chipDef = useMemo(() => {
     if (!nodeStack) return null;
     const chipName = nodeStack[nodeStack.length - 1];
-    const chipDef = getChip(chipName);
-    if (!chipDef) return null;
-    return chipDef;
-  }, [nodeStack, getChip]);
+    return allChips.find((chip) => chip.chipType === chipName) || null;
+  }, [nodeStack, allChips]);
 
   const handleClose = () => {
     closeViewChip();

@@ -1,7 +1,8 @@
 import type { Node } from "@xyflow/react";
 
 import { builtInChips } from "./constants/chips";
-import { getSavedChipFromLocalStorage } from "./flow-utils";
+import { getSavedChipFromDB } from "./flow-utils";
+import { logger } from "./logger";
 import { CircuitChip, NodeType, PortType } from "./types/chips";
 import { generateId } from "./utils";
 
@@ -10,10 +11,15 @@ export interface CreateNodeParams {
   chipType: string;
 }
 
-export function createNodeFromChip({ chipType, position }: CreateNodeParams): Node<CircuitChip> {
-  const chipDef = builtInChips.find((chip) => chip.chipType === chipType) || getSavedChipFromLocalStorage(chipType);
+export async function createNodeFromChip({ chipType, position }: CreateNodeParams): Promise<Node<CircuitChip>> {
+  const chipDef = builtInChips.find((chip) => chip.chipType === chipType) || (await getSavedChipFromDB(chipType));
 
   if (!chipDef) {
+    logger.error({
+      group: "createNodeFromChip",
+      message: `Chip definition not found for chip type '${chipType}'`,
+      data: { chipType, builtInChips },
+    });
     throw new Error(`Chip definition not found for chip type '${chipType}'`);
   }
 
@@ -55,7 +61,7 @@ export function createNodeFromChip({ chipType, position }: CreateNodeParams): No
       chips: chipDef.chips,
       wires: chipDef.wires,
       ports,
-      definitions: chipDef.definitions,
+      definitions: [],
     },
   };
 }

@@ -8,7 +8,7 @@ import { CircuitPort, Gates, LogicGate } from "@/lib/circuit-signals";
 import { tryCatch } from "@/lib/try-catch";
 import { CircuitChip, NAND_CHIP_TYPE, PortType, Wire } from "@/lib/types/chips";
 import { cn, getBgBorderTextColor } from "@/lib/utils";
-import { useChips } from "@/hooks";
+import { useAllChips, useSavedChip } from "@/hooks";
 
 import { PortHandle } from "./port-handle";
 
@@ -67,7 +67,7 @@ function buildCustomCircuit(def: CircuitChip): {
     const subDef = def.definitions?.find((d) => d.chipType === chip.chipType);
     if (!subDef) throw new Error(`Missing definition for chip '${chip.chipType}'`);
 
-    const subCircuit = buildCustomCircuit({ ...subDef, definitions: def.definitions });
+    const subCircuit = buildCustomCircuit({ ...subDef, id: chip.id, definitions: def.definitions });
     chips[chip.id] = subCircuit;
     gates.push(...subCircuit.gates);
   }
@@ -128,8 +128,8 @@ function buildCustomCircuit(def: CircuitChip): {
  */
 export function ChipNodeCustom(props: NodeProps<Node<CircuitChip>>) {
   const { data, selected } = props;
-  const { getChip } = useChips();
-
+  const circuitChip = useSavedChip(data.chipType);
+  const definitions = useAllChips();
   const { updateNodeData } = useReactFlow<Node<CircuitChip>, Edge<Wire>>();
   const edges = useEdges<Edge<Wire>>();
 
@@ -158,10 +158,14 @@ export function ChipNodeCustom(props: NodeProps<Node<CircuitChip>>) {
   }, [edges, data.id]);
 
   // Get the chip definition
-  const circuitChip = useMemo(() => getChip(data.chipType), [data.chipType]);
+  // circuitChip is now loaded asynchronously above
 
   // Build the circuit instance (only when chip definition changes)
   useEffect(() => {
+    if (!circuitChip) {
+      return;
+    }
+
     if (!circuitChip) {
       toast.error(`No chip definition for '${data.chipType}'`);
       return;
@@ -178,19 +182,19 @@ export function ChipNodeCustom(props: NodeProps<Node<CircuitChip>>) {
       subscriptionsRef.current = [];
 
       // Build new circuit
-      const [circuitInstance, error] = tryCatch(() => buildCustomCircuit(circuitChip));
+      const [circuitInstance, error] = tryCatch(() => buildCustomCircuit({ ...circuitChip, id: data.id, definitions }));
       if (error) {
         toast.error(`Failed to build circuit: ${error.message}`);
         return;
       }
 
       circuitInstanceRef.current = circuitInstance;
-      lastCircuitChipRef.current = circuitChip;
+      lastCircuitChipRef.current = circuitChip as CircuitChip;
 
       // Force re-render to pick up the new circuit instance
       forceUpdate({});
     }
-  }, [circuitChip, data.name]);
+  }, [circuitChip]);
 
   // Get the current circuit instance
   const circuitInstance = circuitInstanceRef.current;

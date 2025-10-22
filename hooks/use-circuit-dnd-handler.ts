@@ -3,6 +3,7 @@ import { useCallback } from "react";
 import { toast } from "sonner";
 
 import { createNodeFromChip } from "@/lib/circuit-node-utils";
+import { logger } from "@/lib/logger";
 import { CircuitChip, Wire } from "@/lib/types/chips";
 
 import { useDndStore } from "./use-dnd-store";
@@ -20,7 +21,8 @@ export function useCircuitDndHandler() {
   }, []);
 
   const onDrop = useCallback(
-    (event: React.DragEvent<HTMLDivElement>) => {
+    async (event: React.DragEvent<HTMLDivElement>) => {
+      logger.debug({ group: "useCircuitDndHandler", message: `onDrop: dropped=${dropped}`, data: { event } });
       try {
         event.preventDefault();
 
@@ -33,7 +35,7 @@ export function useCircuitDndHandler() {
           y: event.clientY,
         });
 
-        const newNode = createNodeFromChip({ chipType: dropped, position });
+        const newNode = await createNodeFromChip({ chipType: dropped, position });
         setNodes((nds) => nds.concat(newNode));
         setDropped(null);
       } catch (error) {

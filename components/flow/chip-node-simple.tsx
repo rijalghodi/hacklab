@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { CircuitSimple } from "@/lib/circuit-simple";
 import { CircuitChip, PortType, Wire } from "@/lib/types/chips";
 import { cn, getBgBorderTextColor } from "@/lib/utils";
-import { useChips } from "@/hooks";
+import { useAllChips, useSavedChip } from "@/hooks";
 
 import { PortHandle } from "./port-handle";
 
@@ -25,8 +25,8 @@ const CENTER_INDEX_OFFSET = 0.5;
  */
 export function ChipNodeSimple(props: NodeProps<Node<CircuitChip>> & { showLabel?: boolean }) {
   const { data, selected, showLabel = true } = props;
-  const { getChip } = useChips();
-
+  const circuitChip = useSavedChip(data.chipType);
+  const definitions = useAllChips();
   const { updateNodeData } = useReactFlow<Node<CircuitChip>, Edge<Wire>>();
   const edges = useEdges<Edge<Wire>>();
 
@@ -46,11 +46,14 @@ export function ChipNodeSimple(props: NodeProps<Node<CircuitChip>> & { showLabel
     return Object.values(portEdgeMap);
   }, [edges, data.id]);
 
-  // Get the chip definition
-  const circuitChip = useMemo(() => getChip(data.chipType), [data.chipType]);
+  // circuitChip is now loaded asynchronously above
 
   // Build the circuit instance using useMemo (only when chip definition changes)
   const circuitInstance: CircuitSimple | null = useMemo(() => {
+    if (!circuitChip) {
+      return null;
+    }
+
     if (!circuitChip) {
       toast.error(`No chip definition for '${data.chipType}'`);
       return null;
@@ -59,12 +62,12 @@ export function ChipNodeSimple(props: NodeProps<Node<CircuitChip>> & { showLabel
     // return null;
 
     try {
-      return new CircuitSimple(circuitChip);
+      return new CircuitSimple({ ...circuitChip, id: data.id, definitions });
     } catch (error: unknown) {
       toast.error(`Failed to build circuit: ${error instanceof Error ? error.message : "Unknown error"}`);
       return null;
     }
-  }, [circuitChip, data.name]);
+  }, [circuitChip]);
 
   // Separate input and output ports
   const { inputPorts, outputPorts } = useMemo(() => {

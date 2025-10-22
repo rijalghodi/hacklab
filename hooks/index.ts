@@ -1,6 +1,7 @@
 export * from "./confirm-dialog-store";
 export * from "./rename-port-dialog-store";
 export * from "./save-chip-dialog-store";
+export * from "./use-chips-data";
 export * from "./use-chips-store";
 export * from "./use-circuit-connect-handler";
 export * from "./use-circuit-dnd-handler";

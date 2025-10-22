@@ -5,7 +5,7 @@ import { isEqual } from "lodash";
 import { useParams, useRouter } from "next/navigation";
 import { useMemo } from "react";
 
-import { flowToCircuit, getSavedChipFromLocalStorage } from "@/lib/flow-utils";
+import { flowToCircuit, getSavedChipFromDB } from "@/lib/flow-utils";
 import { CircuitChip, Wire } from "@/lib/types/chips";
 
 import { useConfirmDialogStore } from "./confirm-dialog-store";
@@ -21,9 +21,9 @@ export function useCircuitPageParams() {
   const edges = useEdges<Edge<Wire>>();
   const { setEdges, setNodes } = useReactFlow();
 
-  const hasUnsavedChanges = useMemo(() => {
+  const hasUnsavedChanges = useMemo(async () => {
     if (chipType) {
-      const saved = getSavedChipFromLocalStorage(chipType);
+      const saved = await getSavedChipFromDB(chipType);
       const current = flowToCircuit(nodes, edges);
       const savedEssential = {
         chips: saved?.chips,
