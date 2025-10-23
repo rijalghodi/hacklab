@@ -1,11 +1,11 @@
-import { CircuitTree } from "@/lib/circuit-tree/circuit-tree";
-import { andChip,nandChip, notChip } from "@/lib/constants/chips";
+import { CircuitSystem } from "@/lib/circuit-tree/circuit-system";
+import { andChip, nandChip, notChip } from "@/lib/constants/chips";
 
 console.log("=== Testing CircuitTree Class ===");
 
 // Test 1: NAND Gate
 console.log("\n1. Testing NAND Gate:");
-const nandCircuitTree = new CircuitTree(nandChip);
+const nandCircuitTree = new CircuitSystem(nandChip);
 
 const nandTests = [
   { input: { a: false, b: false }, expected: true },
@@ -28,7 +28,7 @@ nandTests.forEach((test, index) => {
 
 // Test 2: NOT Gate (using NAND)
 console.log("\n2. Testing NOT Gate:");
-const notCircuitTree = new CircuitTree(notChip);
+const notCircuitTree = new CircuitSystem(notChip);
 
 const notTests = [
   { input: { ysv3o6cg: false }, expected: true },
@@ -49,7 +49,7 @@ notTests.forEach((test, index) => {
 
 // Test 3: AND Gate
 console.log("\n3. Testing AND Gate:");
-const andCircuitTree = new CircuitTree(andChip);
+const andCircuitTree = new CircuitSystem(andChip);
 
 const andTests = [
   { input: { xqz6exxl: false, "23xwycvx": false }, expected: false },

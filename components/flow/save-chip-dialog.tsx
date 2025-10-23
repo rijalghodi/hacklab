@@ -80,9 +80,7 @@ export function SaveChipDialog() {
       try {
         const newCircuit = flowToCircuit(nodes, edges);
 
-        console.log("------NEW CIRCUIT----------------------------------------------------------------");
-        console.log(newCircuit);
-        console.log("----------------------------------------------------------------------");
+        logger.debug({ group: "SaveChipDialog", message: `onSubmit: newCircuit`, data: { newCircuit } });
 
         if (initialChip) {
           await updateSavedChip(initialChip.chipType, {

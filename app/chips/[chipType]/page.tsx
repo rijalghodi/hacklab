@@ -4,6 +4,7 @@ import { useParams, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 import { CircuitChipDB } from "@/lib/db/chips-db";
+import { logger } from "@/lib/logger";
 import { getSavedChip } from "@/hooks";
 
 import { Circuit, FlowSidebarTrigger } from "@/components/flow";
@@ -25,7 +26,9 @@ export default function ChipPage() {
     const findSavedChip = async () => {
       if (!chipType) return;
       const savedChip = await getSavedChip(chipType);
-      console.log("savedChip", savedChip);
+
+      logger.debug({ group: "ChipPage", message: `findSavedChip: savedChip`, data: { savedChip } });
+
       if (savedChip) {
         setCurrentCircuit(savedChip);
       }

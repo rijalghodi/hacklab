@@ -4,7 +4,8 @@ import { Edge, type Node, type NodeProps, Position, useEdges, useReactFlow } fro
 import React, { useCallback, useEffect, useMemo } from "react";
 import { toast } from "sonner";
 
-import { CircuitTree } from "@/lib/circuit-tree/circuit-tree";
+import { CircuitSystem } from "@/lib/circuit-tree/circuit-system";
+import { logger } from "@/lib/logger";
 import { CircuitChip, PortType, Wire } from "@/lib/types/chips";
 import { cn, getBgBorderTextColor } from "@/lib/utils";
 import { useAllChips, useSavedChip } from "@/hooks";
@@ -47,7 +48,7 @@ export function ChipNode(props: NodeProps<Node<CircuitChip>> & { showLabel?: boo
   }, [edges, data.id]);
 
   // Build the circuit instance using useMemo (only when chip definition changes)
-  const circuitInstance: CircuitTree | null = useMemo(() => {
+  const circuitInstance: CircuitSystem | null = useMemo(() => {
     if (!circuitChip) {
       return null;
     }
@@ -58,8 +59,13 @@ export function ChipNode(props: NodeProps<Node<CircuitChip>> & { showLabel?: boo
     }
 
     try {
-      console.log("456", circuitChip);
-      return new CircuitTree({ ...circuitChip, id: data.id, definitions });
+      logger.debug({
+        group: "ChipNode",
+        message: `buildCircuitInstance: circuitChip`,
+        data: { circuitChip, definitions },
+      });
+
+      return new CircuitSystem({ ...circuitChip, id: data.id, definitions });
     } catch (error: unknown) {
       toast.error(`Failed to build circuit: ${error instanceof Error ? error.message : "Unknown error"}`);
       return null;

@@ -1,3 +1,5 @@
+"use client";
+
 import { useNodes } from "@xyflow/react";
 import { Node } from "@xyflow/react";
 import { useCallback } from "react";

@@ -5,7 +5,7 @@ import React, { useCallback, useState } from "react";
 import { builtInChips } from "@/lib/constants/chips";
 import { CircuitChipDB } from "@/lib/db/chips-db";
 import { logger } from "@/lib/logger";
-import { useAllChildChipTypes,useDndStore, useSavedChips } from "@/hooks";
+import { useAllChildChipTypes, useDndStore, useSavedChips } from "@/hooks";
 import { useCircuitPageParams } from "@/hooks/use-circuit-page-params";
 
 import { ChipContextMenu } from "./chip-context-menu";
@@ -25,7 +25,7 @@ export function FlowSidebar() {
   const { chipType } = useCircuitPageParams();
   const childChipTypes = chipType ? useAllChildChipTypes(chipType) : [];
 
-  console.log("childChipTypes", childChipTypes);
+  logger.debug({ group: "FlowSidebar", message: `childChipTypes`, data: { childChipTypes } });
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [contextMenu, setContextMenu] = useState<ContextMenuState | null>(null);

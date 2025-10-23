@@ -27,10 +27,10 @@ export function useSavedChip(chipType: string): CircuitChipDB | undefined | null
 
 export function useAllChildChipTypes(chipType: string): string[] {
   const savedChips = useSavedChips();
-  console.log("savedChips", savedChips);
-  console.log("chipType", chipType);
+  logger.debug({ group: "useAllChildChipTypes", message: `savedChips`, data: { savedChips, chipType } });
   if (!savedChips) return [];
-  console.log("getAllChildChipTypes", getAllChildChipTypes(chipType, new Set<string>(), savedChips));
+  const childChipTypes = getAllChildChipTypes(chipType, new Set<string>(), savedChips);
+  logger.debug({ group: "useAllChildChipTypes", message: `childChipTypes`, data: { childChipTypes } });
   return getAllChildChipTypes(chipType, new Set<string>(), savedChips);
 }
 

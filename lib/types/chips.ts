@@ -65,6 +65,7 @@ export enum CircuitTreeNodeType {
 
 export type CircuitTreeNode = {
   id: string;
+  chipId?: string; // required if type == 'port'
   type: CircuitTreeNodeType;
   sources?: CircuitTreeNode[];
   value?: boolean;

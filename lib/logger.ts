@@ -7,7 +7,7 @@ type LoggerArgs = {
 };
 
 const shouldLog = (group: string) => {
-  return !process.env.LOG_GROUP || process.env.LOG_GROUP?.split(",")?.includes(group);
+  return !process.env.NEXT_PUBLIC_LOG_GROUP || process.env.NEXT_PUBLIC_LOG_GROUP?.split(",")?.includes(group);
 };
 
 const formatMessage = (group: string, message?: string) => {

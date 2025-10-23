@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 
 import { useCircuitPageParams } from "@/hooks/use-circuit-page-params";

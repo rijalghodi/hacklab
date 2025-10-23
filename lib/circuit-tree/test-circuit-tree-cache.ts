@@ -1,11 +1,11 @@
-import { CircuitTree } from "@/lib/circuit-tree/circuit-tree";
+import { CircuitSystem } from "@/lib/circuit-tree/circuit-system";
 import { andChip } from "@/lib/constants/chips";
 
 console.log("=== Testing AND Gate Cache Performance ===");
 
 // Test 1: Basic cache functionality with timing
 console.log("\n1. Basic AND Gate Cache Test:");
-const andCircuitTree = new CircuitTree(andChip);
+const andCircuitTree = new CircuitSystem(andChip);
 const testInput = { xqz6exxl: true, "23xwycvx": false };
 
 // First call (should calculate)
