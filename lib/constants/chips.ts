@@ -27,6 +27,9 @@ export const outChip: CircuitChip = {
   definitions: [],
 };
 
+export const NAND_PORT_A_ID = "nand.port-a";
+export const NAND_PORT_B_ID = "nand.port-b";
+export const NAND_PORT_OUT_ID = "nand.port-out";
 // NAND
 export const nandChip: CircuitChip = {
   id: "nand",
@@ -35,9 +38,9 @@ export const nandChip: CircuitChip = {
   type: NodeType.CHIP,
   chips: [],
   ports: [
-    { id: "nand.port-a", name: "a", type: PortType.IN },
-    { id: "nand.port-b", name: "b", type: PortType.IN },
-    { id: "nand.port-out", name: "out", type: PortType.OUT },
+    { id: NAND_PORT_A_ID, name: "a", type: PortType.IN },
+    { id: NAND_PORT_B_ID, name: "b", type: PortType.IN },
+    { id: NAND_PORT_OUT_ID, name: "out", type: PortType.OUT },
   ],
   wires: [],
   definitions: [],
