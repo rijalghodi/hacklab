@@ -1,9 +1,9 @@
-export const BRAND_NAME = "Logic.up";
+export const BRAND_NAME = "Logic Sim";
 export const BRAND_TAGLINE = "Learn How Computers Works from Scratch";
 export const BRAND_DESCRIPTION =
-  "Logic Up is an interactive computer simulation inspired by Nand to Tetris. Learn how computers work by building them from the ground up, starting with simple NAND gates all the way to a complete machine capable of running high-level programs.";
+  "Logic Sim is an interactive computer simulation inspired by Nand to Tetris. Learn how computers work by building them from the ground up, starting with simple NAND gates all the way to a complete machine capable of running high-level programs.";
 export const BRAND_KEYWORDS = [
-  "Logic.up",
+  "Logic Sim",
   "Nand to Tetris",
   "Build Computers from Scratch",
   "digital logic",
@@ -26,8 +26,8 @@ export const BRAND_KEYWORDS = [
   "computer fundamentals",
 ];
 
-export const BRAND_URL = "https://hacklab.vercel.app";
-export const BRAND_OG_IMAGE = "https://hacklab.vercel.app/og-image.png";
+export const BRAND_URL = "https://hacklab-rijalghodi.vercel.app";
+export const BRAND_OG_IMAGE = "https://hacklab-rijalghodi.vercel.app/og-image.png";
 export const BRAND_AUTHOR_URL = "https://rijalghodi.xyz";
 export const BRAND_AUTHOR_NAME = "Rijal Ghodi";
 export const BRAND_AUTHOR_EMAIL = "rijalghodi.dev@gmail.com";

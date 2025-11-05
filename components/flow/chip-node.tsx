@@ -24,7 +24,7 @@ const CENTER_INDEX_OFFSET = 0.5;
  * using CircuitTree for circuit evaluation
  */
 export function ChipNode(props: NodeProps<Node<CircuitChip>> & { showLabel?: boolean }) {
-  const { data, selected, showLabel = true } = props;
+  const { data, selected, showLabel = false } = props;
   const { getChip } = useChips();
 
   const { updateNodeData } = useReactFlow<Node<CircuitChip>, Edge<Wire>>();
