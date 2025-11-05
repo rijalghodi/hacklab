@@ -5,12 +5,25 @@ import { NAND_PORT_A_ID, NAND_PORT_B_ID, NAND_PORT_OUT_ID, nandChip } from "@/li
 export const convertCircuitToTree = (
   circuiit: CircuitChip,
   parentSources: CircuitTreeNode[] | null = null,
+  visitedCircuits: Set<string> = new Set(),
 ): CircuitTreeNode[] => {
   logger.info({
     group: "circuit-to-tree",
     message: "[convertCircuitChipToTree]",
     data: { circuitChip: circuiit },
   });
+
+  // Cycle detection: prevent infinite recursion
+  if (visitedCircuits.has(circuiit.id)) {
+    logger.warn({
+      group: "circuit-to-tree",
+      message: `Circular dependency detected for circuit ${circuiit.id}`,
+      data: { circuitChip: circuiit },
+    });
+    return [];
+  }
+
+  visitedCircuits.add(circuiit.id);
 
   let sources: CircuitTreeNode[] = [];
 
@@ -20,7 +33,7 @@ export const convertCircuitToTree = (
       {
         id: NAND_PORT_OUT_ID,
         type: CircuitTreeNodeType.PORT,
-        chipId: "nand",
+        chipId: circuiit.id,
         sources: [
           {
             id: "nand",
@@ -29,13 +42,13 @@ export const convertCircuitToTree = (
               {
                 id: NAND_PORT_A_ID,
                 type: CircuitTreeNodeType.PORT,
-                chipId: "nand",
+                chipId: circuiit.id,
                 sources: [],
               },
               {
                 id: NAND_PORT_B_ID,
                 type: CircuitTreeNodeType.PORT,
-                chipId: "nand",
+                chipId: circuiit.id,
                 sources: [],
               },
             ],
@@ -48,53 +61,65 @@ export const convertCircuitToTree = (
     const outputPorts = circuiit.ports?.filter((port) => port.type === PortType.OUT) || [];
 
     sources = outputPorts.map((outputPort) => {
-      return buildTreeNodeFromOutputPort(circuiit, outputPort.id);
+      return buildTreeNodeFromOutputPort(circuiit, outputPort.id, visitedCircuits, new Set());
     });
   }
 
   // connect to parent sources
   if (parentSources && parentSources.length > 0) {
     for (let i = 0; i < sources.length; i++) {
-      const sourceReplaced = replaceChildSourceWithParentSources(sources[i], parentSources);
+      const sourceReplaced = replaceChildSourceWithParentSources(sources[i], parentSources, new Set());
       sources[i] = sourceReplaced;
     }
   }
 
+  visitedCircuits.delete(circuiit.id);
   return sources;
 };
 
 const replaceChildSourceWithParentSources = (
   childSource: CircuitTreeNode,
   parentSources: CircuitTreeNode[],
+  visitedNodes: Set<string> = new Set(),
 ): CircuitTreeNode => {
+  // Cycle detection: prevent infinite recursion
+  const nodeKey = `${childSource.id}-${childSource.chipId || "no-chip"}`;
+  if (visitedNodes.has(nodeKey)) {
+    logger.warn({
+      group: "circuit-to-tree",
+      message: `Circular dependency detected for node ${nodeKey}`,
+      data: { childSource },
+    });
+    return childSource;
+  }
+
+  visitedNodes.add(nodeKey);
+
   const matchedParentSource = parentSources?.find((ps) => ps.id === childSource.id && ps.chipId === childSource.chipId);
 
-  logger.info({
-    group: "circuit-to-tree",
-    message: "replaceChildSourceWithParentSources",
-    data: {
-      parentSources,
-      childSource,
-    },
-  });
   if (matchedParentSource) {
+    visitedNodes.delete(nodeKey);
     return matchedParentSource;
   }
 
   if (childSource.sources) {
     for (let i = 0; i < childSource.sources.length; i++) {
       const s = childSource.sources[i];
-      const sReplaced = replaceChildSourceWithParentSources(s, parentSources);
+      const sReplaced = replaceChildSourceWithParentSources(s, parentSources, visitedNodes);
       childSource.sources[i] = sReplaced;
     }
-
-    return childSource;
   }
 
+  visitedNodes.delete(nodeKey);
   return childSource;
 };
 
-const buildTreeNodeFromOutputPort = (circuit: CircuitChip, outputPortId: string): CircuitTreeNode => {
+const buildTreeNodeFromOutputPort = (
+  circuit: CircuitChip,
+  outputPortId: string,
+  visitedCircuits: Set<string> = new Set(),
+  visitedWires: Set<string> = new Set(),
+): CircuitTreeNode => {
   logger.info({
     group: "circuit-to-tree",
     message: "[buildTreeNodeFromOutputPort]",
@@ -110,7 +135,7 @@ const buildTreeNodeFromOutputPort = (circuit: CircuitChip, outputPortId: string)
   const lastWires = circuit.wires?.filter((wire) => wire.targetId === outputPortId) || [];
 
   const sources: CircuitTreeNode[] = lastWires.map((wire) => {
-    return buildTreeNodeFromWire(circuit, wire.id);
+    return buildTreeNodeFromWire(circuit, wire.id, visitedCircuits, visitedWires);
   });
 
   return {
@@ -121,12 +146,33 @@ const buildTreeNodeFromOutputPort = (circuit: CircuitChip, outputPortId: string)
   };
 };
 
-const buildTreeNodeFromWire = (circuit: CircuitChip, wireId: string): CircuitTreeNode => {
+const buildTreeNodeFromWire = (
+  circuit: CircuitChip,
+  wireId: string,
+  visitedCircuits: Set<string> = new Set(),
+  visitedWires: Set<string> = new Set(),
+): CircuitTreeNode => {
   logger.info({
     group: "circuit-to-tree",
     message: "[buildTreeNodeFromWire]",
     data: { circuit, wireId },
   });
+
+  // Cycle detection for wires
+  if (visitedWires.has(wireId)) {
+    logger.warn({
+      group: "circuit-to-tree",
+      message: `Circular wire dependency detected for wire ${wireId}`,
+      data: { circuit, wireId },
+    });
+    return {
+      id: wireId,
+      type: CircuitTreeNodeType.WIRE,
+      sources: [],
+    };
+  }
+
+  visitedWires.add(wireId);
 
   const wire = circuit.wires?.find((w) => w.id === wireId);
   if (!wire) {
@@ -134,7 +180,9 @@ const buildTreeNodeFromWire = (circuit: CircuitChip, wireId: string): CircuitTre
   }
 
   // Find the source of this wire
-  const sourceItem = buildTreeNodeFromSource(circuit, wire.sourceId, wire.sourcePortId);
+  const sourceItem = buildTreeNodeFromSource(circuit, wire.sourceId, wire.sourcePortId, visitedCircuits, visitedWires);
+
+  visitedWires.delete(wireId);
 
   return {
     id: wireId,
@@ -147,7 +195,8 @@ const buildTreeNodeFromSource = (
   circuit: CircuitChip,
   sourceId: string,
   sourcePortId: string | null, // outputPortId in chip
-  // parentSource: CircuitTreeNode | null,
+  visitedCircuits: Set<string> = new Set(),
+  visitedWires: Set<string> = new Set(),
 ): CircuitTreeNode => {
   logger.info({
     group: "circuit-to-tree",
@@ -178,10 +227,16 @@ const buildTreeNodeFromSource = (
     throw new Error(`SourcePortId for ${sourceId} not found`);
   }
 
-  return buildTreeNodeFromChip(circuit, chip.id, sourcePortId);
+  return buildTreeNodeFromChip(circuit, chip.id, sourcePortId, visitedCircuits, visitedWires);
 };
 
-const buildTreeNodeFromChip = (circuit: CircuitChip, chipId: string, outputPortId: string): CircuitTreeNode => {
+const buildTreeNodeFromChip = (
+  circuit: CircuitChip,
+  chipId: string,
+  outputPortId: string,
+  visitedCircuits: Set<string> = new Set(),
+  visitedWires: Set<string> = new Set(),
+): CircuitTreeNode => {
   logger.info({
     group: "circuit-to-tree",
     message: "[buildTreeNodeFromChip]",
@@ -222,7 +277,9 @@ const buildTreeNodeFromChip = (circuit: CircuitChip, chipId: string, outputPortI
         const parentWires = circuit.wires?.filter((w) => w.targetPortId === p.id);
         if (!parentWires) return null;
 
-        const parentWireSources = parentWires.map((pw) => buildTreeNodeFromWire(circuit, pw.id));
+        const parentWireSources = parentWires.map((pw) =>
+          buildTreeNodeFromWire(circuit, pw.id, visitedCircuits, visitedWires),
+        );
 
         return {
           id: p.id,
@@ -234,7 +291,10 @@ const buildTreeNodeFromChip = (circuit: CircuitChip, chipId: string, outputPortI
       .filter((p) => p != null);
   }
 
-  const sources = convertCircuitToTree(childCircuit, parentSources);
+  // Create a new visited set for this specific chip processing to avoid conflicts
+  const chipVisitedCircuits = new Set(visitedCircuits);
+  const chipVisitedWires = new Set(visitedWires);
+  const sources = convertCircuitToTree(childCircuit, parentSources, chipVisitedCircuits);
 
   return {
     id: outputPortId,
